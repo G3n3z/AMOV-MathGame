@@ -1,11 +1,58 @@
 package pt.isec.a2020116565_2020116988.mathgame
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.findNavController
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
+import pt.isec.a2020116565_2020116988.mathgame.data.Data
+import pt.isec.a2020116565_2020116988.mathgame.data.User
+import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMainBinding
+import java.io.IOException
+
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var data : Data;
+    private lateinit var binding : ActivityMainBinding;
+    lateinit var pageAdapter : FragmentStateAdapter;
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        //data = readDataOfInternalStorage()
+        binding = ActivityMainBinding.inflate(layoutInflater);
+        setContentView(binding.root)
+        pageAdapter = FragmentAdapter(this, binding);
+
+
+        //Get data of database
+    }
+
+    override fun onStart() {
+        super.onStart()
+        data = readDataOfInternalStorage()
+    }
+
+    private fun readDataOfInternalStorage():Data{
+        val data : Data = Data();
+        data.currentUser = null;
+        val index = 0;
+        try {
+            data.currentUser = User("", "");
+            applicationContext.openFileInput( Constants.USER_FILE)?.bufferedReader().use {
+                it?.forEachLine {
+
+                }
+            }
+
+
+        } catch (e: IOException) {
+            return data;
+        }
+        return data;
+    }
+
+    fun generateTable(level: Int) {
+        data.generateTable(level);
     }
 }

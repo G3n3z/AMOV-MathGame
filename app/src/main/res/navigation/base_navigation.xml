@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/base_navigation"
+    app:startDestination="@id/fragment_home">
+
+
+    <fragment
+        android:id="@+id/fragment_profile"
+        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.UserProfile"
+        android:label="fragment1"
+        tools:layout="@layout/fragment_user_profile" />
+
+    <fragment
+        android:id="@+id/fragment_home"
+        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.Home"
+        android:label="fragmentHome"
+        tools:layout="@layout/fragment_home"
+        >
+        <action
+            android:id="@+id/home_to_profile"
+            app:destination="@id/fragment_profile"
+            />
+        <action
+            android:id="@+id/home_to_game"
+            app:destination="@id/fragment_game"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_game"
+        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment"
+        android:label="fragmentGame"
+        tools:layout="@layout/fragment_game"
+        />
+</navigation>
