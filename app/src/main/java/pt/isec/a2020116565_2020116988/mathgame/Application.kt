@@ -4,10 +4,7 @@ import pt.isec.a2020116565_2020116988.mathgame.data.Data
 
 class Application: android.app.Application() {
 
-    var data: Data? = null
-        set(value) {
-            field = value
-        }
+    var data: Data = Data()
 
 
 }

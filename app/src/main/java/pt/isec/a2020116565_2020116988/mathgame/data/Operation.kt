@@ -17,12 +17,12 @@ class Operation(op1:Int, op2: Int, op3: Int, operator1: Char, operator2: Char) {
         this.operator2 = operator2;
     }
 
-    fun calcOperation(orientation: Operation): Int {
+    fun calcOperation(): Int {
         val firstOperation:Boolean = getPriority();
         if(firstOperation){
             return calc(calc(op1, op2, operator1), op3, operator2);
         }else{
-            return calc(op1, calc(op2, op3, operator2) , operator2);
+            return calc(op1, calc(op2, op3, operator2) , operator1);
         }
 
     }

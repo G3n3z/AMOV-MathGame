@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var data : Data;
     private lateinit var binding : ActivityMainBinding;
     lateinit var pageAdapter : FragmentStateAdapter;
-
+    val app: Application by lazy { application as Application }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //data = readDataOfInternalStorage()
