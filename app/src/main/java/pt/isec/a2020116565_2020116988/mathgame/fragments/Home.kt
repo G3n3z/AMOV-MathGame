@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import pt.isec.a2020116565_2020116988.mathgame.MainActivity
 import pt.isec.a2020116565_2020116988.mathgame.R
+import pt.isec.a2020116565_2020116988.mathgame.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentHomeBinding
 
 /**
@@ -31,10 +33,14 @@ class Home : Fragment() {
         //var root =  inflater.inflate(R.layout.fragment_home, container, false)
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         binding.btnSinglePlayer.setOnClickListener {
-            findNavController().navigate(R.id.fragment_game);
+            //findNavController().navigate(R.id.fragment_game);
+            val intent = SinglePlayerActivity.getIntent(context);
+            (activity as MainActivity).app.data.generateTable(1);
+            startActivity(intent);
         }
         binding.btnProfile.setOnClickListener {
             findNavController().navigate(R.id.fragment_profile);
+
         }
         return binding.root;
     }
