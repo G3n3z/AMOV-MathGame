@@ -11,7 +11,7 @@ class Data {
     var level:Int = 1;
     var time: Int = 60;
     var operators : MutableList<Char> = mutableListOf('+', '-')
-    private var OPERATORS : MutableList<Char> = mutableListOf('+', '-', '*', '/')
+    private var OPERATORS : MutableList<Char> = mutableListOf('+', '-', 'x', '/')
     lateinit var maxOperation : Operation;
     lateinit var secondOperation : Operation;
 

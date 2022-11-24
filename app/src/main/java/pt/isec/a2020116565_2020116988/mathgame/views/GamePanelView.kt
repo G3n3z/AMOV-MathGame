@@ -39,7 +39,9 @@ class GamePanelView @JvmOverloads constructor(
 
     }
     constructor(context: Context, operations : MutableList<Operation>, owner: GameActivityInterface) : this(context){
+        Log.i("AQUI", "Construtor")
         this.operations = operations
+        this.owner = owner
         inflate(context,R.layout.fragment_game, this)
         setBackgroundColor(123);
         mount()
@@ -47,13 +49,12 @@ class GamePanelView @JvmOverloads constructor(
 
     fun mount() {
 
-
         findViewById<TextView>(R.id.cell_1).text = operations[0].op1.toString();
         findViewById<TextView>(R.id.cell_2).text = operations[0].operator1.toString()
         findViewById<TextView>(R.id.cell_3).text = operations[0].op2.toString();
         findViewById<TextView>(R.id.cell_4).text = operations[0].operator2.toString()
         findViewById<TextView>(R.id.cell_5).text = operations[0].op3.toString()
-
+        Log.i("AQUI", "Construtor"+findViewById<TextView>(R.id.cell_1).text)
         findViewById<TextView>(R.id.cell_11).text = operations[1].op1.toString();
         findViewById<TextView>(R.id.cell_12).text = operations[1].operator1.toString()
         findViewById<TextView>(R.id.cell_13).text = operations[1].op2.toString();

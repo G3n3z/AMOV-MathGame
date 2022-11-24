@@ -38,6 +38,9 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             data.time = value
         }
     var countRightAnswers : Int = 0
+
+    lateinit var gamePanelView: GamePanelView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySinglePlayerBinding.inflate(layoutInflater)
@@ -50,8 +53,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         time = data.time;
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
-//        var ss = GamePanelView(this, data.operations, this);
-//        binding.gameTable.addView()
+        gamePanelView = GamePanelView(this, data.operations, this);
+        binding.gameTable.addView(gamePanelView)
     }
 
     @SuppressLint("SetTextI18n")
@@ -60,9 +63,9 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         binding.gamePont.text = "${getString(R.string.points)}: $points";
         binding.gameLevel.text = "${getString(R.string.level)}: $level";
         //val panel = GamePanelView(this, data.operations, this)
-        binding.gameTable.owner = this
-        binding.gameTable.operations = data.operations
-        binding.gameTable.mount()
+//        binding.gameTable.owner = this
+//        binding.gameTable.operations = data.operations
+//        binding.gameTable.mount()
         startTimer()
 
     }
