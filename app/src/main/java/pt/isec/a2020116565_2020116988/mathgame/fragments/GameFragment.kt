@@ -145,6 +145,7 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
             Log.i("FLING", "${p0.x-initial[0]} - ${cell_width*index}, ${cell_width*(index+1)} vertical")
             index = calcColumn(index, orientation)
             if (index < 0) return true;
+            Log.i("INDEX", "$index")
             Log.i("Operation", "${operations[index].op1}${operations[index].operator1}" +
                     "${operations[index].op2}${operations[index].operator2}${operations[index].op3}")
         }else if(abs(distanceX) > 100){
@@ -152,6 +153,7 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
             index = ((p0.y -initial[1])/cell_height).toInt()
             index = calcColumn(index, orientation)
             if (index < 0) return true;
+            Log.i("INDEX", "$index")
             Log.i("FLING", "$index horizontal")
             Log.i("Operation", "${operations[index].op1}${operations[index].operator1}" +
                     "${operations[index].op2}${operations[index].operator2}${operations[index].op3}")
@@ -166,6 +168,7 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
         if(orientation == Orientation.HORIZONTAL){
             return index / 2;
         }else{
+
             return (index / 2) + 3
         }
     }
