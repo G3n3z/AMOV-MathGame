@@ -6,6 +6,8 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.window.OnBackInvokedDispatcher
+import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.data.Data
 import pt.isec.a2020116565_2020116988.mathgame.data.Operation
@@ -71,6 +73,12 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     }
 
+    override fun onBackPressed() {
+        //super.onBackPressed()
+        dialogQuit()
+        Log.i("BACK", "On back pressed")
+    }
+
     private fun startTimer(){
         CoroutineScope(Dispatchers.IO).async {
             job = launch { onTimer(binding.gameTime, getString(R.string.time), time, onTimeOver) }
@@ -110,13 +118,11 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 countRightAnswers = 0;
                 showAnimation()
 
-            }else{
-                nextTable();
             }
         }else if (data.operations[index] == secondOperation){
             points += 1
-            nextTable()
         }
+        nextTable()
     }
 
     private fun nextTable() {
@@ -157,6 +163,21 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     fun onDialogTimeOver(){
         Log.i("OnTimeOver", "Callback called");
         startNewLevel()
+    }
+
+    private fun dialogQuit()
+    {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.giveup))
+            .setMessage(getString(R.string.giveupMessage))
+            .setPositiveButton(R.string.guOK) {d,b ->
+                job.cancel()
+                super.onBackPressed()
+            }
+            .setNegativeButton(R.string.guNOK)     {d,b -> d.dismiss()}
+            .setCancelable(false)
+            .create()
+        dialog.show()
     }
 
 }
