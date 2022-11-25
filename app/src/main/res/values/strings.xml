@@ -13,4 +13,8 @@
     <string name="level">Level</string>
     <string name="points">Points</string>
     <string name="time">Time</string>
+    <string name="levelcomplete">Level Completed</string>
+    <string name="levelcompleted">Level Completed</string>
+    <string name="time_left">Time Left</string>
+    <string name="pause">Pause</string>
 </resources>

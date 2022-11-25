@@ -54,7 +54,8 @@ class UserProfile : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 var resultData = result.data;
                 resultData?.data?.let { uri ->
-                    app.data.currentUser?.photo = createFileFromUri(requireContext(), uri)
+                    imagePath = createFileFromUri(requireContext(), uri)
+                    app.data.currentUser?.photo = imagePath.toString()
                     updateView()
                 }
             }
@@ -105,7 +106,7 @@ class UserProfile : Fragment() {
 //            binding.photo.background = ResourcesCompat.getDrawable(resources
 //                ,Android., null)
         }else{
-            setPic(binding.photo, imagePath!!)
+            setPic(binding.photoIn, imagePath!!)
         }
     }
     companion object {

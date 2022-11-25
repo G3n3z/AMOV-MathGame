@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        //Ler de um ficheiro
         data = readDataOfInternalStorage()
     }
 
@@ -52,7 +53,4 @@ class MainActivity : AppCompatActivity() {
         return data;
     }
 
-    fun generateTable(level: Int) {
-        data.generateTable(level);
-    }
 }
