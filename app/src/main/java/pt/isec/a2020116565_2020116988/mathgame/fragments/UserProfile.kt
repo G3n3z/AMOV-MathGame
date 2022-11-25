@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import com.google.android.material.snackbar.Snackbar
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentGameBinding
@@ -30,6 +31,7 @@ class UserProfile : Fragment() {
 
 
     lateinit var binding: FragmentUserProfileBinding;
+    lateinit var username : String
     private var imagePath:String? = null
         set(value){
             field = value;
@@ -65,7 +67,7 @@ class UserProfile : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        username = app.data.currentUser?.userName.toString()
     }
 
     override fun onCreateView(
@@ -75,6 +77,10 @@ class UserProfile : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentUserProfileBinding.inflate(layoutInflater, container,false)
         verifyPermissions();
+
+        binding.editUserEditText.setText(username)
+        Log.i("ONCREATE", username)
+
         binding.profileUploadImage.setOnClickListener {
             if (permissionGranted){
                 Log.i("PERMISSIONS", "Tem")
@@ -82,6 +88,9 @@ class UserProfile : Fragment() {
             }else{
                 Log.i("PERMISSIONS", "Não tem")
             }
+        }
+        binding.userProfileBtnSave.setOnClickListener{
+            saveProfile();
         }
         return binding.root;
     }
@@ -109,6 +118,25 @@ class UserProfile : Fragment() {
             setPic(binding.photoIn, imagePath!!)
         }
     }
+
+    private fun saveProfile()
+    {
+        if(binding.editUserEditText.text.trim().isEmpty())
+        {
+            Snackbar.make(
+                binding.editUserEditText,
+                "You must pick a username",
+                Snackbar.LENGTH_LONG
+            ).show()
+            binding.editUserEditText.requestFocus()
+            return
+        }
+        app.data.currentUser?.userName = binding.editUserEditText.text.trim().toString()
+        app.data.currentUser?.photo = imagePath.toString()
+        Log.i("SAVE", username)
+        Log.i("SAVE", imagePath.toString())
+    }
+
     companion object {
         /**
          * Use this factory method to create a new instance of
