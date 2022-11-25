@@ -17,4 +17,8 @@
     <string name="levelcompleted">Level Completed</string>
     <string name="time_left">Time Left</string>
     <string name="pause">Pause</string>
+    <string name="giveup">Give Up?</string>
+    <string name="giveupMessage">Do you really wish to give up?</string>
+    <string name="guOK">YES</string>
+    <string name="guNOK">NO</string>
 </resources>
