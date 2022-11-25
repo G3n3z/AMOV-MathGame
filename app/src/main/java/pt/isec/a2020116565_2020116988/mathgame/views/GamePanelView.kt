@@ -23,7 +23,9 @@ class GamePanelView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
-    defStyleRes: Int = 0
+    defStyleRes: Int = 0,
+    operations : MutableList<Operation>,
+    owner: GameActivityInterface
 ) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes), GestureDetector.OnGestureListener {
 
     lateinit var operations : MutableList<Operation>
@@ -35,16 +37,10 @@ class GamePanelView @JvmOverloads constructor(
     }
     init {
         inflate(context,R.layout.fragment_game,this)
-        Log.i("AQUI", "AQUI")
-
-    }
-    constructor(context: Context, operations : MutableList<Operation>, owner: GameActivityInterface) : this(context){
-        Log.i("AQUI", "Construtor")
         this.operations = operations
         this.owner = owner
-        inflate(context,R.layout.fragment_game, this)
-        setBackgroundColor(123);
         mount()
+
     }
 
     fun mount() {
@@ -97,26 +93,26 @@ class GamePanelView @JvmOverloads constructor(
         return super.onTouchEvent(event)
     }
     override fun onDown(p0: MotionEvent): Boolean {
-        Log.i("FLING", "onDown")
+        //Log.i("FLING", "onDown")
         return true;
     }
 
     override fun onShowPress(p0: MotionEvent) {
-        Log.i("FLING", "onShowPress")
+        //Log.i("FLING", "onShowPress")
     }
 
     override fun onSingleTapUp(p0: MotionEvent): Boolean {
-        Log.i("FLING", "onSingleTapUp")
+        //Log.i("FLING", "onSingleTapUp")
         return true
     }
 
     override fun onScroll(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
-        Log.i("FLING", "onScroll")
+        //Log.i("FLING", "onScroll")
         return true
     }
 
     override fun onLongPress(p0: MotionEvent) {
-        Log.i("FLING", "longpress")
+        //Log.i("FLING", "longpress")
     }
 
 

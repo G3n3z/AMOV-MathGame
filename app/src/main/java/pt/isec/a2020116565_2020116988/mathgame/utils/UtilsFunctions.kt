@@ -4,7 +4,7 @@ import android.widget.TextView
 import kotlinx.coroutines.*
 
 
-suspend fun onTimer(tv: TextView, label: String, timeStart: Int){
+suspend fun onTimer(tv: TextView, label: String, timeStart: Int, onTimeOver: () -> Unit){
     var time = timeStart
     while (true){
         delay(1000)
@@ -13,6 +13,7 @@ suspend fun onTimer(tv: TextView, label: String, timeStart: Int){
             tv.text = "${label}: ${time}";
         }
         if (time <= 0){
+            onTimeOver()
             break;
         }
     }

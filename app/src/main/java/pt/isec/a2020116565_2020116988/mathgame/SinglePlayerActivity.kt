@@ -6,7 +6,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.data.Data
 import pt.isec.a2020116565_2020116988.mathgame.data.Operation
@@ -16,7 +15,6 @@ import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
 import pt.isec.a2020116565_2020116988.mathgame.utils.onTimer
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
-import kotlin.math.max
 
 class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var data: Data;
@@ -26,12 +24,19 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var job: Job
     lateinit var maxOperation: Operation
     lateinit var secondOperation: Operation
+    private var alreadyRightSecond : Boolean = false;
+    lateinit var dialog : DialogLevel;
     var points : Int = 0
         set(value) {
             field = value
             binding.gamePont.text = "${getString(R.string.points)}: $value";
         }
-    var level: Int = 0;
+    var level: Int = 0
+        set(value) {
+            field = value
+            data.level = value
+            binding.gameLevel.text = "${getString(R.string.level)}: $value";
+        }
     var time: Int = 0
         set (value) {
             field = value
@@ -53,7 +58,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         time = data.time;
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
-        gamePanelView = GamePanelView(this, data.operations, this);
+        gamePanelView = GamePanelView(this,null,0,0 ,data.operations, this);
         binding.gameTable.addView(gamePanelView)
     }
 
@@ -62,26 +67,25 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         super.onStart()
         binding.gamePont.text = "${getString(R.string.points)}: $points";
         binding.gameLevel.text = "${getString(R.string.level)}: $level";
-        //val panel = GamePanelView(this, data.operations, this)
-//        binding.gameTable.owner = this
-//        binding.gameTable.operations = data.operations
-//        binding.gameTable.mount()
         startTimer()
 
     }
 
-    fun startTimer(){
+    private fun startTimer(){
         CoroutineScope(Dispatchers.IO).async {
-            job = launch { onTimer(binding.gameTime, getString(R.string.time), time) }
+            job = launch { onTimer(binding.gameTime, getString(R.string.time), time, onTimeOver) }
         }
     }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-//        if (fragment.gestureDetector.onTouchEvent(event!!)){
-//            return true;
-//        }
-        return super.onTouchEvent(event)
+    var onTimeOver = fun(){
+        Log.i("APP", "On time over called")
     }
+//    override fun onTouchEvent(event: MotionEvent?): Boolean {
+////        if (fragment.gestureDetector.onTouchEvent(event!!)){
+////            return true;
+////        }
+//        return super.onTouchEvent(event)
+//    }
 
 
     companion object{
@@ -100,14 +104,59 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         Log.i("SinglePlayer res: ", data.operations[index].calcOperation().toString())
         if (data.operations[index] == maxOperation){
             countRightAnswers++;
-            generateNewTable();
+            points += 2
+            alreadyRightSecond = false;
+            if (countRightAnswers == 5){
+                countRightAnswers = 0;
+                showAnimation()
+
+            }else{
+                nextTable();
+            }
         }else if (data.operations[index] == secondOperation){
             points += 1
+            nextTable()
+        }
+    }
+
+    private fun nextTable() {
+        generateNewTable();
+        newLevelTime()
+        startTimer()
+    }
+
+    private fun startNewLevel() {
+        nextTable()
+        level += 1
+        time = data.START_TIME;
+        startTimer()
+    }
+
+    private fun newLevelTime() {
+        if (time + 5 <= data.START_TIME){
+            time +=5
+        }else{
+            time = data.START_TIME
         }
     }
 
     private fun generateNewTable() {
-        //binding.fragmentGame.re = GameFragment()
+        job.cancel()
+        data.generateTable(level)
+        gamePanelView.mount();
+        maxOperation = data.maxOperation
+        secondOperation = data.secondOperation
+    }
+
+    private fun showAnimation() {
+
+        dialog =  DialogLevel(this,this::onDialogTimeOver, 5);
+        dialog.show()
+
+    }
+    fun onDialogTimeOver(){
+        Log.i("OnTimeOver", "Callback called");
+        startNewLevel()
     }
 
 }
