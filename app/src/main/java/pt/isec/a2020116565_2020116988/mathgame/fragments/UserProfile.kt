@@ -14,9 +14,11 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
+import pt.isec.a2020116565_2020116988.mathgame.data.User
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentGameBinding
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentUserProfileBinding
 import pt.isec.a2020116565_2020116988.mathgame.utils.createFileFromUri
@@ -31,13 +33,13 @@ class UserProfile : Fragment() {
 
 
     lateinit var binding: FragmentUserProfileBinding;
-    lateinit var username : String
+    var username : String = ""
+        set(value) {
+            field = value;
+        }
     private var imagePath:String? = null
         set(value){
             field = value;
-            if (value != null) {
-                app.data.currentUser?.photo = value
-            };
         }
     val app: Application by lazy { activity?.application as Application }
 
@@ -67,7 +69,8 @@ class UserProfile : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        username = app.data.currentUser?.userName.toString()
+
+
     }
 
     override fun onCreateView(
@@ -77,9 +80,10 @@ class UserProfile : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentUserProfileBinding.inflate(layoutInflater, container,false)
         verifyPermissions();
-
+        username = app.data.currentUser?.userName ?: "";
+        imagePath = app.data.currentUser?.photo;
         binding.editUserEditText.setText(username)
-        Log.i("ONCREATE", username)
+        Log.i("ONCREATE", username?:" ")
 
         binding.profileUploadImage.setOnClickListener {
             if (permissionGranted){
@@ -92,9 +96,14 @@ class UserProfile : Fragment() {
         binding.userProfileBtnSave.setOnClickListener{
             saveProfile();
         }
+
         return binding.root;
     }
 
+    override fun onStart() {
+        super.onStart()
+        updateView();
+    }
     private fun chooseImage() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
@@ -131,9 +140,12 @@ class UserProfile : Fragment() {
             binding.editUserEditText.requestFocus()
             return
         }
-        app.data.currentUser?.userName = binding.editUserEditText.text.trim().toString()
-        app.data.currentUser?.photo = imagePath.toString()
-        Log.i("SAVE", username)
+
+        username = binding.editUserEditText.text.trim().toString()
+        app.data.currentUser = User(username, imagePath)
+        findNavController().navigate(R.id.fragment_home)
+        //imagePath.toString()
+        Log.i("SAVE", username ?: "")
         Log.i("SAVE", imagePath.toString())
     }
 

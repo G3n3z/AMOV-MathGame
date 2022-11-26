@@ -30,6 +30,7 @@ class DialogLevel(context: Context, callback: () -> Unit, startTime : Int) : Dia
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.level_dialog)
         startJob()
+
         tvTime = findViewById(R.id.tvDialogTime);
         findViewById<Button>(R.id.button_dialog_level).setOnClickListener {
             if (paused){

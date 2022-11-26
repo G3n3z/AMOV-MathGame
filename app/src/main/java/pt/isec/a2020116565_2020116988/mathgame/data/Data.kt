@@ -9,8 +9,8 @@ class Data {
     var currentUser: User? = null;
     var operations : MutableList<Operation> = ArrayList(5);
     var level:Int = 1;
-    val START_TIME = 60
-    var time: Int = 60;
+    val START_TIME = 90
+    var time: Int = START_TIME;
     var operators : MutableList<Char> = mutableListOf('+', '-')
     private var OPERATORS : MutableList<Char> = mutableListOf('+', '-', 'x', '/')
     lateinit var maxOperation : Operation;

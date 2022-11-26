@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import android.window.OnBackInvokedDispatcher
 import androidx.appcompat.app.AlertDialog
 import kotlinx.coroutines.*
@@ -15,7 +16,6 @@ import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerB
 
 import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
-import pt.isec.a2020116565_2020116988.mathgame.utils.onTimer
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
 
 class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
@@ -27,12 +27,13 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var maxOperation: Operation
     lateinit var secondOperation: Operation
     private var alreadyRightSecond : Boolean = false;
-    lateinit var dialog : DialogLevel;
-    var points : Int = 0
+    private lateinit var dialog : DialogLevel;
+    private var points : Int = 0
         set(value) {
             field = value
             binding.gamePont.text = "${getString(R.string.points)}: $value";
         }
+
     var level: Int = 0
         set(value) {
             field = value
@@ -80,21 +81,15 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     private fun startTimer(){
+        Log.i("StartTimer", "On timer")
         CoroutineScope(Dispatchers.IO).async {
-            job = launch { onTimer(binding.gameTime, getString(R.string.time), time, onTimeOver) }
+            job = launch { onTimer(binding.gameTime, getString(R.string.time), onTimeOver) }
         }
     }
 
     var onTimeOver = fun(){
         Log.i("APP", "On time over called")
     }
-//    override fun onTouchEvent(event: MotionEvent?): Boolean {
-////        if (fragment.gestureDetector.onTouchEvent(event!!)){
-////            return true;
-////        }
-//        return super.onTouchEvent(event)
-//    }
-
 
     companion object{
 
@@ -114,32 +109,32 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             countRightAnswers++;
             points += 2
             alreadyRightSecond = false;
-            if (countRightAnswers == 5){
+            if (countRightAnswers == 3){
+                job.cancel()
                 countRightAnswers = 0;
                 showAnimation()
-
+            }else {
+                nextTable()
             }
         }else if (data.operations[index] == secondOperation){
             points += 1
+            nextTable()
         }
-        nextTable()
     }
 
     private fun nextTable() {
         generateNewTable();
-        newLevelTime()
-        startTimer()
     }
 
     private fun startNewLevel() {
-        nextTable()
-        level += 1
-        time = data.START_TIME;
         startTimer()
+        nextTable()
+        newLevelTime()
+        level += 1
     }
 
     private fun newLevelTime() {
-        if (time + 5 <= data.START_TIME){
+        if ((time + 5) <= data.START_TIME){
             time +=5
         }else{
             time = data.START_TIME
@@ -147,7 +142,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     private fun generateNewTable() {
-        job.cancel()
         data.generateTable(level)
         gamePanelView.mount();
         maxOperation = data.maxOperation
@@ -155,7 +149,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     private fun showAnimation() {
-
         dialog =  DialogLevel(this,this::onDialogTimeOver, 5);
         dialog.show()
 
@@ -179,5 +172,22 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             .create()
         dialog.show()
     }
+
+
+    suspend fun onTimer(tv: TextView, label: String, onTimeOver: () -> Unit){
+
+        while (true){
+            delay(1000)
+            time -= 1;
+            CoroutineScope(Dispatchers.Main).async{
+                tv.text = "${label}: ${time}";
+            }
+            if (time <= 0){
+                onTimeOver()
+                break;
+            }
+        }
+    }
+
 
 }
