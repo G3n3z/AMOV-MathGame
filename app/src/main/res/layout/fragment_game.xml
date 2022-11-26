@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".fragments.GameFragment"
+
     android:background="@color/background"
     android:id="@+id/fragment_game">
+
 <!--
 &lt;!&ndash;    <TextView&ndash;&gt;
 &lt;!&ndash;        android:layout_width="100dp"&ndash;&gt;
@@ -28,6 +29,7 @@
 &lt;!&ndash;        android:textSize="20sp"&ndash;&gt;
 &lt;!&ndash;        android:text="@string/points"&ndash;&gt;
 &lt;!&ndash;        />&ndash;&gt;
+
 
     <LinearLayout
         app:layout_constraintTop_toTopOf="parent"

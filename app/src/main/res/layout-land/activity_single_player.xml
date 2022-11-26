@@ -38,18 +38,13 @@
         android:textSize="20sp"
         android:text="@string/time"
         />
-<!--    <androidx.fragment.app.FragmentContainerView-->
-<!--        android:id="@+id/fragment_game"-->
-<!--        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="350dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/game_level"-->
-<!--        tools:layout="@layout/fragment_game"-->
-<!--        />-->
+
         <FrameLayout
             android:id="@+id/game_table"
-            android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/game_level" />
 
 

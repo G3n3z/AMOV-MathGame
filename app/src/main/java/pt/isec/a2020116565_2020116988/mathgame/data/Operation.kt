@@ -45,4 +45,10 @@ class Operation(op1:Int, op2: Int, op3: Int, operator1: Char, operator2: Char) {
         }
         return true;
     }
+
+    override fun toString(): String {
+        return "Operation(op1=$op1, op2=$op2, op3=$op3, operator1=$operator1, operator2=$operator2)"
+    }
+
+
 }

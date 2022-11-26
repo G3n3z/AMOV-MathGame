@@ -13,4 +13,13 @@
     <string name="level">Level</string>
     <string name="points">Points</string>
     <string name="time">Time</string>
+    <string name="levelcomplete">Level Completed</string>
+    <string name="levelcompleted">Level Completed</string>
+    <string name="time_left">Time Left</string>
+    <string name="pause">Pause</string>
+    <string name="giveup">Give Up?</string>
+    <string name="giveupMessage">Do you really wish to give up?</string>
+    <string name="guOK">YES</string>
+    <string name="guNOK">NO</string>
+    <string name="must_have_user">You must save a user</string>
 </resources>
