@@ -7,10 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.*
@@ -40,6 +38,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var secondOperation: Operation
     private var alreadyRightSecond : Boolean = false;
     private var dialog : DialogLevel? = null;
+    private var gameOverDialog : DialogGameOver? = null
     private var points : Int = 0
         set(value) {
             field = value
@@ -130,7 +129,9 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 showAnimation()
                 Log.i("onStateChange", "OnDialogPause");
             }
-            State.OnGameOver ->{}
+            State.OnGameOver ->{
+                showGameOverDialog()
+            }
         }
     }
 
@@ -158,7 +159,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         dlg?.cancel()
     }
     override fun onBackPressed() {
-        modelView.onBackPressed();
+        if(modelView.state.value == State.OnGame)
+            modelView.onBackPressed();
         Log.i("BACK", "On back pressed")
     }
 
@@ -172,6 +174,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     var onTimeOver = fun(){
+        dlg?.cancel()
+        modelView.onGameOver()
         Log.i("APP", "On time over called")
     }
 
@@ -219,6 +223,26 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         dlg?.show()
     }
 
+    private fun showGameOverDialog()
+    {
+        if(gameOverDialog?.isShowing == true)
+            return
+        gameOverDialog = DialogGameOver(this, modelView, onGameOverDialogClose)
+        gameOverDialog?.show()
+
+    }
+
+    private var onGameOverDialogClose = fun(opt: Int){
+        when(opt){
+            1 -> {
+                Log.i("CALLBACK", "Nav to TOP 5")
+                finish()
+            }//TODO navigate to top 5
+            2 -> {
+                finish()
+            }
+        }
+    }
 
     suspend fun onTimer(tv: TextView, label: String, onTimeOver: () -> Unit){
 
