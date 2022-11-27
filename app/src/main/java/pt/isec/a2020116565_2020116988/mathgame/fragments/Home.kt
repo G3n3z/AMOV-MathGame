@@ -43,13 +43,16 @@ class Home : Fragment() {
                 findNavController().navigate(R.id.fragment_profile);
             }else{
                 val intent = SinglePlayerActivity.getIntent(context);
-                (activity as MainActivity).app.data.generateTable(1);
+                (activity as MainActivity).app.data.startSinglePlayer()
+                //(activity as MainActivity).app.data.generateTable(1);
                 startActivity(intent);
             }
         }
         binding.btnProfile.setOnClickListener {
             findNavController().navigate(R.id.fragment_profile);
-
+        }
+        binding.btnMultiPlayer.setOnClickListener {
+            findNavController().navigate(R.id.fragment_multiplayer_option)
         }
         return binding.root;
     }

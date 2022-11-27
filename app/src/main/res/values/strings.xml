@@ -23,4 +23,13 @@
     <string name="guNOK">NO</string>
     <string name="must_have_user">You must save a user</string>
     <string name="profile_not_found">No profile to load</string>
+    <string name="choose_multiplayer_mode">Choose mode</string>
+    <string name="server_mode">Server</string>
+    <string name="client_mode">Client</string>
+    <string name="msg_ip_address">Server IP address: %s\nWaiting for a client…</string>
+    <string name="ask_ip">Insert Ip</string>
+    <string name="error_address">Field is empty or not match with ip</string>
+    <string name="btn_emulator">Connect to emulator</string>
+    <string name="button_connect">Connect</string>
+    <string name="button_cancel">Cancel</string>
 </resources>
