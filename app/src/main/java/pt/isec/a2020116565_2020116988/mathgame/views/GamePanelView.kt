@@ -11,6 +11,8 @@ import android.widget.GridLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.data.Operation
@@ -25,7 +27,7 @@ class GamePanelView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0,
     operations : MutableList<Operation>,
-    owner: GameActivityInterface
+    owner: GameActivityInterface,
 ) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes), GestureDetector.OnGestureListener {
 
     lateinit var operations : MutableList<Operation>
@@ -45,6 +47,8 @@ class GamePanelView @JvmOverloads constructor(
 
     fun mount() {
 
+        if (operations.size == 0)
+            return;
         findViewById<TextView>(R.id.cell_1).text = operations[0].op1.toString();
         findViewById<TextView>(R.id.cell_2).text = operations[0].operator1.toString()
         findViewById<TextView>(R.id.cell_3).text = operations[0].op2.toString();

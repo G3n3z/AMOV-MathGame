@@ -26,6 +26,9 @@
             android:id="@+id/home_to_game"
             app:destination="@id/fragment_game"
             />
+        <action
+            android:id="@+id/home_to_multiplayer"
+            app:destination="@+id/fragment_multiplayer_option"/>
     </fragment>
     <fragment
         android:id="@+id/fragment_game"
@@ -33,4 +36,9 @@
         android:label="fragmentGame"
         tools:layout="@layout/fragment_game"
         />
+    <fragment
+        android:id="@+id/fragment_multiplayer_option"
+        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.MultiplayerOption"
+        android:label="framgement_multiplayer_choose"
+        tools:layout="@layout/fragment_multiplayer__option"/>
 </navigation>
