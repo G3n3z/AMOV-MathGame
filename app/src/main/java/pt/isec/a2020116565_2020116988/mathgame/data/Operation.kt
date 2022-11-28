@@ -17,6 +17,10 @@ class Operation(op1:Int, op2: Int, op3: Int, operator1: Char, operator2: Char) {
         this.operator2 = operator2;
     }
 
+    constructor() : this(0,0,0,'+', '+') {
+
+    }
+
     fun calcOperation(): Int {
         val firstOperation:Boolean = getPriority();
         if(firstOperation){

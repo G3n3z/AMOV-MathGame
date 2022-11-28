@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.data.Data
+import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.data.Operation
 import pt.isec.a2020116565_2020116988.mathgame.data.SinglePlayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerBinding
@@ -23,8 +24,14 @@ import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
 
-class ViewModelFactory(private val data: Data): ViewModelProvider.NewInstanceFactory() {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T = SinglePlayerModelView(data) as T
+class ViewModelFactory(private val data: Data, private val type:Int): ViewModelProvider.NewInstanceFactory() {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (type == 0){
+            return SinglePlayerModelView(data) as T
+        }else{
+            return MultiplayerModelView(data) as T
+        }
+    }
 }
 
 
@@ -63,7 +70,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var gamePanelView: GamePanelView
 
     private val modelView : SinglePlayerModelView by viewModels{
-        ViewModelFactory(app.data)
+        ViewModelFactory(app.data, 0)
     };
 
 

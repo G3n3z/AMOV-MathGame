@@ -5,12 +5,12 @@ import android.util.Log
 
 class Data {
 
+    var nConnections: Int = 0
     var countRightAnswers: Int = 0;
     var points: Int = 0;
     var currentUser: User? = null;
     var operations : MutableList<Operation> = ArrayList(5);
     var level:Int = 1;
-    val START_TIME = 90
     var time: Int = START_TIME;
     var operators : MutableList<Char> = mutableListOf('+', '-')
     private var OPERATORS : MutableList<Char> = mutableListOf('+', '-', 'x', '/')
@@ -64,6 +64,7 @@ class Data {
     }
 
     companion object {
+        const val START_TIME: Int = 90
         const val COUNT_RIGHT_ANSWERS: Int = 1
     }
 

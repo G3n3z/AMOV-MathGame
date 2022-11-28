@@ -31,4 +31,6 @@
     <string name="btn_emulator">Connect to emulator</string>
     <string name="button_connect">Connect</string>
     <string name="button_cancel">Cancel</string>
+    <string name="start">Start</string>
+    <string name="num_of_clients">Number of clients</string>
 </resources>
