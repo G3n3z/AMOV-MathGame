@@ -22,6 +22,7 @@
     <string name="guOK">YES</string>
     <string name="guNOK">NO</string>
     <string name="must_have_user">You must save a user</string>
+    <string name="profile_not_found">No profile to load</string>
     <string name="choose_multiplayer_mode">Choose mode</string>
     <string name="server_mode">Server</string>
     <string name="client_mode">Client</string>
