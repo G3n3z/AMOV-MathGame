@@ -9,8 +9,6 @@ import pt.isec.a2020116565_2020116988.mathgame.State
 class SinglePlayerModelView(val data: Data) : ViewModel() {
 
 
-
-
     private val START_DIALOG_TIME = data.START_DIALOG_TIME
     var currentTimeDialog: Int = data.START_DIALOG_TIME
 

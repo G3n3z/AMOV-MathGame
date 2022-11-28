@@ -12,6 +12,7 @@ import pt.isec.a2020116565_2020116988.mathgame.enum.TypeOfMessage
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.io.PrintStream
 import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
@@ -25,9 +26,13 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     var currentTimeDialog: Int = data.START_DIALOG_TIME
 
     //var connectionState : ConnectionState = ConnectionState.CONNECTING
+    private var tables: MutableList<Table> = mutableListOf()
+    private var _users: MutableLiveData<MutableList<User>> = MutableLiveData()
+    var users : LiveData<MutableList<User>> = _users
+        get() = _users
 
     private var players : MutableMap<Int,Player> = mutableMapOf()
-    private var tables : MutableMap<Int, MutableList<Table>> = mutableMapOf<Int, MutableList<Table>>()
+
     private var _connState: MutableLiveData<ConnectionState> = MutableLiveData(ConnectionState.CONNECTING)
     var connectionState : LiveData<ConnectionState> = _connState
         get() = _connState
@@ -171,17 +176,16 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     fun startServer() {
         serverSocket = ServerSocket(SERVER_PORT)
         Log.i("ServerSocket" , serverSocket?.inetAddress?.hostAddress.toString())
-        Thread {
+        thread {
             try {
                 var keepGoing = true;
                 serverSocket?.soTimeout = 10000;
                 while (keepGoing) {
                     var socket : Socket? = null
                     try {
-
                         socket = serverSocket!!.accept();
 
-                            synchronized(lock){
+                        synchronized(lock){
                             if (exit){
                                 keepGoing = false;
                             }
@@ -192,6 +196,11 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                         sockets.add(socket!!)
                     }catch (e : SocketTimeoutException){
                         Log.i("StartServer", "Timeout")
+                        synchronized(lock){
+                            if (exit){
+                                keepGoing = false;
+                            }
+                        }
                         continue
                     }
                     thread{ startCommunicationWithClient(socket)}
@@ -214,6 +223,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         var message  = Gson().fromJson<Message>(json,Message::class.java)
         if (message.type == TypeOfMessage.INFO_USER ){
             Log.i("User arrived", message.player?.user?.userName.toString() ?: "Nao consegui imprimeir")
+
         }else{
             Log.i(message.type.toString(), message.player?.state.toString())
         }
@@ -223,11 +233,21 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 players[players.size] = PlayerMessage.mapToPlayer(message.player!!, bufOut);
             }
         }
+        json = Gson().toJson(message)
+        bufOut.run {
+            try {
+                val printStream = PrintStream(this)
+                printStream.println(json)
+                printStream.flush()
+            }catch (e:IOException){
+                Log.i("startCommunication", e.message.toString())
+            }
+        }
         var keepGoing = true;
-
         //cilco de leitura
         while (keepGoing){
             try {
+                Log.i("startComm", "Waiting message")
                 json = bufI.readLine();
                 message = Gson().fromJson(json, Message::class.java)
             }catch (e : Exception){
@@ -245,17 +265,52 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 //checkJogada
                 Log.i("SWIPE", "CHECK JOGADA")
             }
-            else -> {
-
-            }
+            else -> {}
             }
         }
 
     }
-
+    //Botao start
     fun startGameInServer() {
         synchronized(lock){
             exit = true;
+        }
+        _connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
+        var table: Table = Table()
+        table.generateTable()
+        tables.add(table)
+        data.operations = table.operations
+        data.time = Data.START_TIME
+        data.level = 1
+        data.points = 0
+        _operations.postValue(table.operations)
+        _time.postValue(data.time)
+        _level.postValue(data.level)
+        _points.postValue(data.points)
+        _state.postValue(State.OnGame)
+
+        var message  = Message(TypeOfMessage.STATUS_GAME, PlayerMessage(State.OnGame, table.operations, null,0, 1,
+            Data.START_TIME, 0))
+
+        thread{sendMessageAll(message)}
+        // Criar tabuleiro e mandar para todos
+    }
+
+    private fun sendMessageAll(message: MultiplayerModelView.Message) {
+        synchronized(players){
+            for (player in players.values) {
+                var out = player.outputStream
+                var json = Gson().toJson(message)
+                try {
+                    out.run {
+                        val printStream  = PrintStream(this)
+                        printStream.println(json)
+                        printStream.flush()
+                    }
+                }catch (e : IOException){
+                    Log.e("sendMessageAll", e.message.toString())
+                }
+            }
         }
     }
 
@@ -271,7 +326,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 newsocket.connect(InetSocketAddress(ip,serverPort),5000)
                 _connState.postValue(ConnectionState.WAITING_OTHERS);
                 startCommunication(newsocket);
-
+                Log.i("startClient", "Connectou")
             }catch (e:Exception){
                 Log.i("startClient", e.message.toString())
             }
@@ -282,30 +337,103 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         socket = newsocket;
         val bufOut = socket!!.getOutputStream()
         bufOut.run {
-            Message(TypeOfMessage.INFO_USER, PlayerMessage(_state.value, null, data.currentUser, 0, 0, 0, 0))
+            val msg = Message(TypeOfMessage.INFO_USER, PlayerMessage(_state.value, null, data.currentUser, 0, 0, 0, 0))
+            val json = Gson().toJson(msg)
+            try {
+                val printStream = PrintStream(this)
+                printStream.println(json)
+                printStream.flush()
+            }catch (e:IOException){
+                Log.i("startCommunication", e.message.toString())
+            }
         }
         val bufIn = socket!!.getInputStream().bufferedReader();
         var keepGoing = true;
+        var json = bufIn.readLine();
+        Log.i("CLIENT", json);
+        var message  = Gson().fromJson<Message>(json, Message::class.java)
+        if (message.type == TypeOfMessage.INFO_USER){
+            if (data.currentUser == null)
+                data.currentUser = User("", "")
+            data.currentUser?.id = message.player?.id!!
+            _connState.postValue(ConnectionState.WAITING_OTHERS)
+        }
         while (keepGoing){
             try {
                 Log.i("CLIENT", "Waiting Message")
-                var json = bufIn.readLine();
+                json = bufIn.readLine();
+                Log.i("CLIENT", json);
+                message  = Gson().fromJson<Message>(json, Message::class.java)
+                when(message.type){
+                    TypeOfMessage.STATUS_GAME ->{
+                        statusGameMessage(message)
+                    }
+                    TypeOfMessage.NEW_TABLE ->{
+                        newTableMessage(message);
+                    }
+                    TypeOfMessage.INFO_USER ->{
+                        infoUserMessage(message)
+                    }
+                    TypeOfMessage.SWIPE ->{
+                        swipeResponseMessage(message)
+                    }
+                }
 
             }catch (e : IOException){
+                //TODO: Passar para single player
                 Log.i("startCommunication", e.message.toString())
             }
         }
 
     }
 
-
-
-    data class Message(var type: TypeOfMessage, var player : PlayerMessage? ){
+    private fun swipeResponseMessage(message: MultiplayerModelView.Message?) {
 
     }
 
+    private fun infoUserMessage(message: MultiplayerModelView.Message?) {
+        var users: MutableList<User> = _users.value!!;
+        var u = message?.player?.user
+        var found = false;
+        for (user in users) {
+            if (user.id == u?.id){
+                user.userName = u.userName
+                user.photo = u.photo
+                found = true
+            }
+        }
+        if (!found){
+            users.add(u!!);
+        }
+        _users.postValue(users);
+    }
 
-    data class PlayerMessage(var state: State?, val table: MutableList<Operation?>?, var user:User?,
+    private fun newTableMessage(message: MultiplayerModelView.Message) {
+        val operations : MutableList<Operation>  = message.player?.table!!
+        _operations.postValue(operations)
+    }
+
+    private fun statusGameMessage(message: MultiplayerModelView.Message) {
+        if (message.player?.state != null)
+            _state.postValue(message.player?.state!!)
+        if (message.player?.state == State.OnGame){
+            val operations : MutableList<Operation>  = message.player?.table!!
+            _operations.postValue(operations)
+            if (_state.value != State.OnGame){
+                _state.postValue(message.player?.state!!)
+            }
+            if (_connState.value == ConnectionState.CONNECTING){
+                _connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
+            }
+        }
+    }
+
+
+    data class Message(var type: TypeOfMessage, var player : PlayerMessage? ){
+    }
+
+
+    data class PlayerMessage(var state: State?, val table: MutableList<Operation>?, var user:User?,
                     var points: Int, var level:Int, var time:Int, var id:Int) {
 
         companion object{
@@ -315,6 +443,9 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
             }
         }
     }
+
+
+
 
 //    data class User(var username:String, var image:String){
 //

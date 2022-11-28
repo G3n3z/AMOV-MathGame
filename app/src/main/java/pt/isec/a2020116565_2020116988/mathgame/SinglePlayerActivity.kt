@@ -45,7 +45,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     var dlg : AlertDialog? = null
     lateinit var maxOperation: Operation
     lateinit var secondOperation: Operation
-    private var alreadyRightSecond : Boolean = false;
     private var dialog : DialogLevel? = null;
     private var points : Int = 0
         set(value) {
