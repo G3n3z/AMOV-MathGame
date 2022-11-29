@@ -382,6 +382,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
             }catch (e : IOException){
                 //TODO: Passar para single player
                 Log.i("startCommunication", e.message.toString())
+                keepGoing=false
             }
         }
 
@@ -404,7 +405,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         }
         if (!found){
             users.add(u!!);
-        }
+        }else
+            users.remove(u!!) //TODO verificar que este método só é usado para inicio e fecho do user
         _users.postValue(users);
     }
 
@@ -425,6 +427,40 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
             if (_connState.value == ConnectionState.CONNECTING){
                 _connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
             }
+        }
+    }
+
+    /**
+     * Método para terminar o jogo tanto do lado do servidor como no cliente
+     * Fecha os respetivos e espera pela a thread do cliente e termina
+     */
+    fun stopGame() {
+        try {
+            if (_mode.value == GameMode.SERVER_MODE){
+                val message = Message(
+                    TypeOfMessage.STATUS_GAME,
+                    PlayerMessage(
+                        State.OnGameOver,
+                        null,
+                        null,
+                        0,
+                        0,
+                        0,
+                        0)
+                )
+                sendMessageAll(message)
+                serverSocket?.close()
+                serverSocket = null
+            }
+            else if(_mode.value == GameMode.CLIENT_MODE){
+                val message = null //TODO: verificar o tipo correto de mensagem a enviar
+                socket?.close()
+                socket = null
+                thread?.join() //TODO tratar o fecho correto da thread
+                thread = null
+            }
+        }catch (e:Exception){
+            Log.e("stopGame", e.message.toString())
         }
     }
 

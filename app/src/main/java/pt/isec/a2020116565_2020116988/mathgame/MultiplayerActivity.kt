@@ -14,6 +14,7 @@ import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
@@ -27,6 +28,7 @@ import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMultiplayerBi
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
+import pt.isec.a2020116565_2020116988.mathgame.views.ClientWaitingDialog
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
 import pt.isec.a2020116565_2020116988.mathgame.views.ServerModalInitial
 
@@ -50,6 +52,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     }
     private var job :Job? = null;
     private var dlg: AlertDialog? = null
+    private lateinit var clientInitDialog: ClientWaitingDialog
     private var points : Int = 0
         set(value) {
             field = value
@@ -105,10 +108,12 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun connectionStateHandlers(it: ConnectionState) {
         if (it == ConnectionState.WAITING_OTHERS){
-            //TODO : lancar dialog
-        }else if(it == ConnectionState.CONNECTION_ESTABLISHED){
-            //Todo : fechar dialog de cima
+            clientInitDialog = ClientWaitingDialog(this)
+            clientInitDialog.show()
 
+        }else if(it == ConnectionState.CONNECTION_ESTABLISHED){
+            if(clientInitDialog.isShowing)
+                clientInitDialog.dismiss()
         }
 
     }
@@ -333,6 +338,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             .setMessage(getString(R.string.giveupMessage))
             .setPositiveButton(R.string.guOK) {d,b ->
                 job?.cancel()
+                modelView.stopGame()
                 super.onBackPressed()
             }
             .setNegativeButton(R.string.guNOK){d,b ->

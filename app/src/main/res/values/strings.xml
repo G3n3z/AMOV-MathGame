@@ -33,4 +33,5 @@
     <string name="button_cancel">Cancel</string>
     <string name="start">Start</string>
     <string name="num_of_clients">Number of clients</string>
+    <string name="client_waiting_dlg">Waiting for server to start the game</string>
 </resources>
