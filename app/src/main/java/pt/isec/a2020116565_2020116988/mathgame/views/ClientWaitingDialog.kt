@@ -1,22 +1,32 @@
 package pt.isec.a2020116565_2020116988.mathgame.views
 
+import android.app.AlertDialog
 import android.app.Dialog
-import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
-import android.view.KeyEvent
-import android.view.Window
+import androidx.fragment.app.DialogFragment
 import pt.isec.a2020116565_2020116988.mathgame.R
 
-class ClientWaitingDialog(context: Context): Dialog(context) {
+class ClientWaitingDialog(cancelWait: () -> Unit): DialogFragment() {
+    private var cancelWait : () -> Unit
     init {
-        setCancelable(false)
+        isCancelable = false
+        this.cancelWait = cancelWait
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-        setContentView(R.layout.client_wait_dialog)
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val builder = AlertDialog.Builder(it)
+            val inflater = requireActivity().layoutInflater
 
+            builder.setView(inflater.inflate(R.layout.client_wait_dialog, null))
+                .setNegativeButton(R.string.button_cancel,
+                    DialogInterface.OnClickListener { dialog, id ->
+                        getDialog()?.cancel()
+                        cancelWait()
+                    })
+            builder.create()
+        }?: throw IllegalStateException("Activity cannot be null")
     }
 
 }

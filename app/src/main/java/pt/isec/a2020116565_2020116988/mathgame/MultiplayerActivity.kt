@@ -52,7 +52,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     }
     private var job :Job? = null;
     private var dlg: AlertDialog? = null
-    private lateinit var clientInitDialog: ClientWaitingDialog
+    private var clientInitDialog: ClientWaitingDialog? = null
     private var points : Int = 0
         set(value) {
             field = value
@@ -107,16 +107,19 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     private fun connectionStateHandlers(it: ConnectionState) {
-        if (it == ConnectionState.WAITING_OTHERS){
-            clientInitDialog = ClientWaitingDialog(this)
-            clientInitDialog.show()
+        if (it == ConnectionState.WAITING_OTHERS && clientInitDialog == null){
+            clientInitDialog = ClientWaitingDialog(cancelWait)
+            clientInitDialog?.show(supportFragmentManager, "waitingFrag")
 
         }else if(it == ConnectionState.CONNECTION_ESTABLISHED){
-            Log.i("connectionStateHandlers", clientInitDialog.isShowing.toString())
-            if(clientInitDialog.isShowing)
-                clientInitDialog.cancel()
+            clientInitDialog?.dismiss()
+            clientInitDialog = null
         }
+    }
 
+    private var cancelWait = fun(){
+        modelView.stopGame()
+        finish()
     }
 
     private fun serverMode() {
@@ -265,6 +268,11 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                 }
             }
             State.OnDialogBack -> {
+                if (clientInitDialog?.isVisible == true){
+                    clientInitDialog!!.dismiss()
+                    clientInitDialog = null
+                    finish()
+                }
                 startTimer()
                 dialogQuit()
             }

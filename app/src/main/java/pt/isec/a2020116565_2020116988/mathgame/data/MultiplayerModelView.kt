@@ -70,7 +70,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     private var socket : Socket? = null;
     private val socketI : InputStream?
         get() = socket?.getInputStream();
-
+    private lateinit var clientOutStream: OutputStream
     private var sockets : MutableList<Socket>  = mutableListOf();
     private var exit : Boolean = false;
     private var lock : String = ""
@@ -258,7 +258,13 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
             TypeOfMessage.INFO_USER -> {
                 val id = message.player?.id;
                 synchronized(players){
-                    players[id]?.user = message.player?.user
+                    if(players.containsKey(id)){
+                        players.remove(id)
+                        data.nConnections--
+                        _nConnections.postValue(data.nConnections)
+                    }
+                    else
+                        players[id]?.user = message.player?.user
                 }
             }
             TypeOfMessage.SWIPE -> {
@@ -335,8 +341,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     private fun startCommunication(newsocket: Socket) {
         socket = newsocket;
-        val bufOut = socket!!.getOutputStream()
-        bufOut.run {
+        clientOutStream = socket!!.getOutputStream()
+        clientOutStream.run {
             val msg = Message(TypeOfMessage.INFO_USER, PlayerMessage(_state.value, null, data.currentUser, 0, 0, 0, 0))
             val json = Gson().toJson(msg)
             try {
@@ -437,23 +443,26 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     fun stopGame() {
         try {
             if (_mode.value == GameMode.SERVER_MODE){
-                val message = Message(
-                    TypeOfMessage.STATUS_GAME,
-                    PlayerMessage(
-                        State.OnGameOver,
-                        null,
-                        null,
-                        0,
-                        0,
-                        0,
-                        0)
-                )
-                sendMessageAll(message)
+                for (player in players)
+                    player.value.outputStream.close()
+                //TODO fechar thread de server?
                 serverSocket?.close()
                 serverSocket = null
             }
             else if(_mode.value == GameMode.CLIENT_MODE){
-                val message = null //TODO: verificar o tipo correto de mensagem a enviar
+                clientOutStream.run {
+                    val msg = Message(TypeOfMessage.INFO_USER, PlayerMessage(_state.value, null, data.currentUser, 0, 0, 0,
+                        data.currentUser!!.id))
+                    val json = Gson().toJson(msg)
+                    try {
+                        val printStream = PrintStream(this)
+                        printStream.println(json)
+                        printStream.flush()
+                    }catch (e:IOException){
+                        Log.i("StopGameClient", e.message.toString())
+                    }
+                }
+
                 socket?.close()
                 socket = null
                 thread?.join() //TODO tratar o fecho correto da thread
