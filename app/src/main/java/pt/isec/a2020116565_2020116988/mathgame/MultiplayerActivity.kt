@@ -112,8 +112,9 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             clientInitDialog.show()
 
         }else if(it == ConnectionState.CONNECTION_ESTABLISHED){
+            Log.i("connectionStateHandlers", clientInitDialog.isShowing.toString())
             if(clientInitDialog.isShowing)
-                clientInitDialog.dismiss()
+                clientInitDialog.cancel()
         }
 
     }
@@ -140,7 +141,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             viewModal.button.isEnabled = false;
 
             modelView.nConnections.observe(this@MultiplayerActivity){
-                if (dlg?.isShowing == true){
+                if (dlg?.isShowing == true && modelView.nConnections.value!! > 0){
                     viewModal.button.isEnabled = true
                     Log.i("Chegou cliente", modelView.nConnections.value.toString())
                    viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
@@ -258,8 +259,10 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun onStateChange(state :State) {
         when(state){
             State.OnGame -> {
-                startTimer()
-                Log.i("onStateChange", "OnGame");
+                if(modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED){
+                    startTimer()
+                    Log.i("onStateChange", "OnGame");
+                }
             }
             State.OnDialogBack -> {
                 startTimer()

@@ -392,6 +392,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     }
 
+    //Cliente, adicionar outros utilizadores à sua lista para score
     private fun infoUserMessage(message: MultiplayerModelView.Message?) {
         var users: MutableList<User> = _users.value!!;
         var u = message?.player?.user
@@ -405,8 +406,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         }
         if (!found){
             users.add(u!!);
-        }else
-            users.remove(u!!) //TODO verificar que este método só é usado para inicio e fecho do user
+        }
         _users.postValue(users);
     }
 
@@ -421,10 +421,10 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         if (message.player?.state == State.OnGame){
             val operations : MutableList<Operation>  = message.player?.table!!
             _operations.postValue(operations)
-            if (_state.value != State.OnGame){
-                _state.postValue(message.player?.state!!)
-            }
-            if (_connState.value == ConnectionState.CONNECTING){
+
+            //_state.postValue(message.player?.state!!)
+
+            if (_connState.value == ConnectionState.WAITING_OTHERS){
                 _connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
             }
         }
