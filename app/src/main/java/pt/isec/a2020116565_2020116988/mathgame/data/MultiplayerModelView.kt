@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
+import org.json.JSONObject
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
@@ -123,7 +124,17 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         }else{
             data.time = Data.START_TIME
         }
-        _time.postValue(data.time)
+        //_time.postValue(data.time)
+    }
+    fun newLevelTime(time:Int):Int {
+        var t = time
+        if ((t + 5) <= Data.START_TIME){
+            t = time+5
+        }else{
+            t = Data.START_TIME
+        }
+        return t;
+        //_time.postValue(data.time)
     }
 
     fun startNewLevel(){
@@ -142,7 +153,9 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         data.countRightAnswers++;
     }
 
-    fun swipe(index: Int) {
+
+
+    fun swipeServer(index:Int){
         if (data.operations[index] == data.maxOperation){
             maxOperationRigth()
             incCountRightAnswers();
@@ -157,7 +170,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         }else if (data.operations[index] == data.secondOperation){
             secondOperationRigth()
         }
-
     }
 
     fun decTime() {
@@ -218,6 +230,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     private fun startCommunicationWithClient(socket: Socket) {
         val bufOut = socket.getOutputStream()
         val bufI = socket.getInputStream().bufferedReader()
+        var idPlayer :Int = -1
         //Primeira mensagem com os dados
         var json = bufI.readLine();
         var message  = Gson().fromJson<Message>(json,Message::class.java)
@@ -230,6 +243,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         synchronized(players) {
             if (message.player != null){
                 message.player?.id = players.size
+                idPlayer = players.size
                 players[players.size] = PlayerMessage.mapToPlayer(message.player!!, bufOut);
             }
         }
@@ -268,21 +282,51 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 }
             }
             TypeOfMessage.SWIPE -> {
-                //checkJogada
-                Log.i("SWIPE", "CHECK JOGADA")
+                onSwipe(message, idPlayer);
             }
             else -> {}
             }
         }
 
     }
+
+    private fun onSwipe(message: Message, idPlayer : Int) {
+        var player = players[message.player?.id]
+        var index = message.player?.index
+
+        if (index == null || player == null)
+            return;
+        var message = Message(TypeOfMessage.SWIPE, null)
+        if (player.table.operations[index] == player.table.maxOperation){
+            player.points +=2
+            player.currectRigthAnswers++;
+            if (player.currectRigthAnswers == Data.COUNT_RIGHT_ANSWERS){
+                player.currectRigthAnswers = 0
+                player.state = State.OnDialogPause
+                //message.player = PlayerMessage.mapToPlayer()
+            }else{
+                var table = Table(player.level);
+                player.time = newLevelTime(player.time)
+            }
+
+        }else if (player.table.operations[index] == player.table.secondOperation){
+            var table = Table(player.level);
+            player.points +=1
+        }
+        sendMessage(player.outputStream);
+    }
+
+    private fun sendMessage(outputStream: OutputStream) {
+
+    }
+
     //Botao start
     fun startGameInServer() {
         synchronized(lock){
             exit = true;
         }
         _connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
-        var table: Table = Table()
+        var table = Table()
         table.generateTable()
         tables.add(table)
         data.operations = table.operations
@@ -296,10 +340,23 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         _state.postValue(State.OnGame)
 
         var message  = Message(TypeOfMessage.STATUS_GAME, PlayerMessage(State.OnGame, table.operations, null,0, 1,
-            Data.START_TIME, 0))
+            Data.START_TIME, 0, null))
+        updateNewLevel(data.time, data.points, data.level, 0, table, State.OnGame)
 
         thread{sendMessageAll(message)}
         // Criar tabuleiro e mandar para todos
+    }
+
+    private fun updateNewLevel(time: Int, points: Int, level: Int, numTable: Int, table:Table, state: State) {
+        synchronized(players){
+            for (player in players) {
+                player.value.numTable = numTable;
+                player.value.time = time; player.value.level=level;
+                player.value.points = points
+                player.value.table = table;
+                player.value.state = state
+            }
+        }
     }
 
     private fun sendMessageAll(message: MultiplayerModelView.Message) {
@@ -319,6 +376,25 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
             }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //Cliente
 
@@ -343,7 +419,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         socket = newsocket;
         clientOutStream = socket!!.getOutputStream()
         clientOutStream.run {
-            val msg = Message(TypeOfMessage.INFO_USER, PlayerMessage(_state.value, null, data.currentUser, 0, 0, 0, 0))
+            val msg = Message(TypeOfMessage.INFO_USER, PlayerMessage(_state.value,
+                null, data.currentUser, 0, 0, 0, 0, null))
             val json = Gson().toJson(msg)
             try {
                 val printStream = PrintStream(this)
@@ -422,17 +499,19 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     private fun statusGameMessage(message: MultiplayerModelView.Message) {
-        if (message.player?.state != null)
+        //Primeira mensagem, é para comecar
+        if (_connState.value == ConnectionState.WAITING_OTHERS && message.player?.state == State.OnGame){
+            _connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
+        }
+        if (message.player?.state != null) {
             _state.postValue(message.player?.state!!)
+        }
         if (message.player?.state == State.OnGame){
             val operations : MutableList<Operation>  = message.player?.table!!
             _operations.postValue(operations)
-
-            //_state.postValue(message.player?.state!!)
-
-            if (_connState.value == ConnectionState.WAITING_OTHERS){
-                _connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
-            }
+            _time.postValue(message.player?.time)
+            _points.postValue(message.player?.points)
+            _level.postValue(message.player?.level)
         }
     }
 
@@ -452,7 +531,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
             else if(_mode.value == GameMode.CLIENT_MODE){
                 clientOutStream.run {
                     val msg = Message(TypeOfMessage.INFO_USER, PlayerMessage(_state.value, null, data.currentUser, 0, 0, 0,
-                        data.currentUser!!.id))
+                        data.currentUser!!.id, null))
                     val json = Gson().toJson(msg)
                     try {
                         val printStream = PrintStream(this)
@@ -473,18 +552,32 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         }
     }
 
+    fun swipeClient(index: Int) {
+        clientOutStream.run {
+            var message = Message(TypeOfMessage.SWIPE, PlayerMessage(_state.value, null, null, data.points
+                , _level.value!!, _time.value!!, data.currentUser?.id?: -1, index))
+            var json = Gson().toJson(message);
+            var printStream = PrintStream(this);
+            printStream.println(json)
+            printStream.flush()
+        }
+    }
 
     data class Message(var type: TypeOfMessage, var player : PlayerMessage? ){
+
     }
 
 
     data class PlayerMessage(var state: State?, val table: MutableList<Operation>?, var user:User?,
-                    var points: Int, var level:Int, var time:Int, var id:Int) {
+                    var points: Int, var level:Int, var time:Int, var id:Int, var index:Int?) {
 
         companion object{
             fun mapToPlayer(message :PlayerMessage, out: OutputStream):Player{
-                return Player(State.OnGame, mutableListOf(), Operation(), Operation(),0, message.user,
-                0, 0, 0, message.id, out)
+                return Player(State.OnGame, Table(),0, message.user,
+                0, 0, 0, message.id, 0,out)
+            }
+            fun mapToDataClass(player: Player){
+
             }
         }
     }

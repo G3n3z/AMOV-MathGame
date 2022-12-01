@@ -5,11 +5,11 @@ import java.io.OutputStream
 import java.io.PrintStream
 import kotlin.concurrent.thread
 
-class Player(var state: State, val table: MutableList<Operation?>,
-            var maxOperation: Operation, var secondOperation: Operation,
+class Player(var state: State, var table: Table,
              var numTable : Int, var user: User?,
              var points: Int, var level:Int, var time:Int, var id:Int,
-            var outputStream: OutputStream) {
+             var currectRigthAnswers : Int,
+             var outputStream: OutputStream) {
 
 
     fun sendMessage(message: MultiplayerModelView.Message){
