@@ -12,18 +12,5 @@ class Player(var state: State, var table: Table,
              var outputStream: OutputStream) {
 
 
-    fun sendMessage(message: MultiplayerModelView.Message){
-        outputStream.run {
-            thread {
-                try {
-                    val printStream = PrintStream(this)
-                    printStream.println(message)
-                    printStream.flush()
-                } catch (_: Exception) {
-                    //stopGame()
-                }
-            }
-        }
-    }
 
 }

@@ -16,8 +16,5 @@ class ThreadClient(var socket: Socket) : Thread(){
     }
 
 
-    fun sendMessage(message: MultiplayerModelView.Message){
-
-    }
 
 }
