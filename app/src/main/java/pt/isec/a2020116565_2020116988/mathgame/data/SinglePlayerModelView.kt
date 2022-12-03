@@ -120,12 +120,18 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
     }
 
     fun decTime() {
+        if(data.time <= 0)
+            return
         data.time -=1
         _time.postValue(data.time)
     }
 
     fun cancelQuit() {
         _state.postValue(State.OnGame)
+    }
+
+    fun onGameOver() {
+        _state.postValue(State.OnGameOver)
     }
 
 }
