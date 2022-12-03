@@ -83,8 +83,11 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         _operations.postValue(data.operations);
     }
 
-    fun generateTable(){
-        data.generateTable(data.level)
+    fun generateTable(table: Table){
+        //data.generateTable(data.level)
+        data.operations = table.operations
+        data.maxOperation = table.maxOperation
+        data.secondOperation = table.secondOperation
         _operations.postValue(data.operations)
     }
 
@@ -113,10 +116,10 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     }
 
-    fun secondOperationRigth() {
+    fun secondOperationRigth(table: Table) {
         data.points += 1
         _points.postValue(data.points)
-        generateTable()
+        generateTable(table)
     }
 
     fun newLevelTime() {
@@ -130,8 +133,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         //_time.postValue(data.time)
     }
 
-    fun startNewLevel(){
-        generateTable()
+    fun startNewLevel(table: Table){
+        generateTable(table)
         newLevelTime()
         data.level+=1
         _level.postValue(data.level)
@@ -146,24 +149,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         data.countRightAnswers++;
     }
 
-
-
-    fun swipeServer(index:Int){
-        if (data.operations[index] == data.maxOperation){
-            maxOperationRigth()
-            incCountRightAnswers();
-            if (data.countRightAnswers == Data.COUNT_RIGHT_ANSWERS){
-                setCountRightAnswers(0)
-                showAnimationResume()
-            }else{
-                generateTable()
-                newLevelTime()
-            }
-
-        }else if (data.operations[index] == data.secondOperation){
-            secondOperationRigth()
-        }
-    }
 
     fun decTime() {
         data.time -=1
@@ -204,7 +189,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         try {
             if (_mode.value == GameMode.SERVER_MODE){
                 for (player in players)
-                    player.value.outputStream.close()
+                    player.value.outputStream?.close()
                 //TODO fechar thread de server?
                 serverSocket?.close()
                 serverSocket = null
@@ -241,6 +226,10 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     fun startClient(strIP: String, port: Int) {
         (service as ClientLogic).startClient(strIP, port)
+    }
+
+    fun swipe(index: Int) {
+        thread{service?.onSwipe(index)};
     }
 
     data class Message(var type: TypeOfMessage, var player : PlayerMessage? ){

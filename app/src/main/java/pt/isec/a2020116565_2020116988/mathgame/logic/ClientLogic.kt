@@ -62,6 +62,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
     }
 
     private fun startCommunication(newsocket: Socket) {
+        var idPlayer : Int = 0;
         socket = newsocket;
         clientOutStream = socket!!.getOutputStream()
         clientOutStream.run {
@@ -86,8 +87,8 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
         Log.i("CLIENT", json);
         if (type == TypeOfMessage.INFO_USER.name){
-            var message  = Gson().fromJson<PlayerMessage>(json, PlayerMessage::class.java)
-
+            val message  = Gson().fromJson<PlayerMessage>(json, PlayerMessage::class.java)
+            idPlayer = message.user?.id!!
             data.currentUser?.id = message.user?.id!!
             viewModel._connState.postValue(ConnectionState.WAITING_OTHERS)
         }
@@ -100,20 +101,23 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
                 when(type){
                     TypeOfMessage.STATUS_GAME.name ->{
-                        var message  = Gson().fromJson<StatusMessage>(json, StatusMessage::class.java)
+                        val message  = Gson().fromJson<StatusMessage>(json, StatusMessage::class.java)
                         statusGameMessage(message)
                     }
                     TypeOfMessage.NEW_TABLE.name ->{
-                        var message  = Gson().fromJson<StatusMessage>(json, StatusMessage::class.java)
+                        val message  = Gson().fromJson<StatusMessage>(json, StatusMessage::class.java)
                         newTableMessage(message);
                     }
                     TypeOfMessage.INFO_USER.name ->{
-                        var message  = Gson().fromJson<PlayerMessage>(json, PlayerMessage::class.java)
+                        val message  = Gson().fromJson<PlayerMessage>(json, PlayerMessage::class.java)
                         infoUserMessage(message)
                     }
                     TypeOfMessage.SWIPE.name ->{
-                        var message  = Gson().fromJson<MoveMessage>(json, MoveMessage::class.java)
-                        swipeResponseMessage(message)
+                        val message  = Gson().fromJson<MoveMessage>(json, MoveMessage::class.java)
+                        swipeResponseMessage(message, idPlayer)
+                    }
+                    TypeOfMessage.POINTS_PLAYER ->{
+
                     }
                 }
 
@@ -126,7 +130,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
     }
 
-    private fun swipeResponseMessage(message: MoveMessage) {
+    private fun swipeResponseMessage(message: MoveMessage, idPlayer: Int) {
 
     }
 
@@ -169,5 +173,17 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         }
     }
 
+    fun sendMessage(message:Message){
+        clientOutStream.run {
+            val json = Gson().toJson(message)
+            val printStream = PrintStream(this)
+            printStream.println(json)
+        }
+    }
+
+    override fun onSwipe(index : Int){
+        val message = MoveMessage(TypeOfMessage.SWIPE, index, viewModel._time.value!!, data.currentUser?.id!!)
+        thread{sendMessage(message)}
+    }
 
 }

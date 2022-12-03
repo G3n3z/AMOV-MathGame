@@ -9,7 +9,7 @@ class Player(var state: State, var table: Table,
              var numTable : Int, var user: User?,
              var points: Int, var level:Int, var time:Int, var id:Int,
              var currectRigthAnswers : Int,
-             var outputStream: OutputStream) {
+             var outputStream: OutputStream?) {
 
 
 

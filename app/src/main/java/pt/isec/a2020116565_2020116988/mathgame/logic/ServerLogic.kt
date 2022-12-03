@@ -10,10 +10,8 @@ import pt.isec.a2020116565_2020116988.mathgame.data.Player
 import pt.isec.a2020116565_2020116988.mathgame.data.Table
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.TypeOfMessage
-import pt.isec.a2020116565_2020116988.mathgame.payload.Message
-import pt.isec.a2020116565_2020116988.mathgame.payload.MoveMessage
-import pt.isec.a2020116565_2020116988.mathgame.payload.PlayerMessage
-import pt.isec.a2020116565_2020116988.mathgame.payload.StatusMessage
+import pt.isec.a2020116565_2020116988.mathgame.payload.*
+import java.io.BufferedReader
 import java.io.IOException
 import java.io.OutputStream
 import java.io.PrintStream
@@ -37,6 +35,8 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             try {
                 var keepGoing = true;
                 serverSocket?.soTimeout = 10000;
+                players[players.size] =
+                    Player(viewModel._state.value!!, Table(),0, data.currentUser,0,0,0, 0, 0, null);
                 while (keepGoing) {
                     var socket : Socket? = null
                     try {
@@ -104,7 +104,14 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 }
             }
         }
+        receiveMessageRoutine(bufI, idPlayer);
+
+    }
+
+    private fun receiveMessageRoutine(bufI:BufferedReader, idPlayer : Int) {
         var keepGoing = true;
+        var type : Any;
+        var json : String;
         //cilco de leitura
         while (keepGoing){
             try {
@@ -117,8 +124,8 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             }
             when(type){
                 TypeOfMessage.INFO_USER.name -> {
-                   val msg = Gson().fromJson(json, PlayerMessage::class.java)
-                   val id = msg.user?.id;
+                    val msg = Gson().fromJson(json, PlayerMessage::class.java)
+                    val id = msg.user?.id;
                     synchronized(viewModel.players){
                         if(viewModel.players.containsKey(id)){
                             viewModel.players.remove(id)
@@ -131,12 +138,11 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 }
                 TypeOfMessage.SWIPE.name -> {
                     val msg = Gson().fromJson(json, MoveMessage::class.java)
-                    onSwipe(msg, idPlayer);
+                    onSwipeMessage(msg, idPlayer);
                 }
                 else -> {}
             }
         }
-
     }
 
     private fun updateNewLevel(time: Int, points: Int, level: Int, numTable: Int, table: Table, state: State) {
@@ -154,15 +160,14 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
     private fun sendMessageAll(message: Message) {
         synchronized(players){
             for (player in players.values) {
-                var out = player.outputStream
                 var json = Gson().toJson(message)
                 try {
-                    out.run {
-                        val printStream  = PrintStream(this)
+                    player.outputStream?.run {
+                        val printStream = PrintStream(this)
                         printStream.println(json)
                         printStream.flush()
                     }
-                }catch (e : IOException){
+                } catch (e: IOException) {
                     Log.e("sendMessageAll", e.message.toString())
                 }
             }
@@ -174,10 +179,11 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             exit = true;
         }
         viewModel._connState.postValue(ConnectionState.CONNECTION_ESTABLISHED)
-        var table = Table()
-        table.generateTable()
+        val table = Table(1)
         tables.add(table)
         data.operations = table.operations
+        data.maxOperation = table.maxOperation
+        data.secondOperation = table.secondOperation
         data.time = Data.START_TIME
         data.level = 1
         data.points = 0
@@ -196,43 +202,151 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         // Criar tabuleiro e mandar para todos
     }
 
-    private fun onSwipe(message: MoveMessage, idPlayer : Int) {
-        var player = players[idPlayer]
-        var index = message.index
+    private fun onSwipeMessage(message: MoveMessage, idPlayer : Int) {
+        val player = players[idPlayer]
+        val index = message.index
+
 
         if (player == null)
             return;
-        //var msg = StatusMessage(TypeOfMessage.SWIPE, State.OnGame)
+
         if (player.table.operations[index] == player.table.maxOperation){
             player.points +=2
             player.currectRigthAnswers++;
             if (player.currectRigthAnswers == Data.COUNT_RIGHT_ANSWERS){
-                player.currectRigthAnswers = 0
-                player.state = State.OnDialogPause
-                //message.player = PlayerMessage.mapToPlayer()
+                arriveToNextLevel(player)
             }else{
-                var table = Table(player.level);
-                player.time = newLevelTime(player.time)
+                rightAnswersButNotNextLevel(player)
             }
-
+            sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, player.points, player.level, player.id));
         }else if (player.table.operations[index] == player.table.secondOperation){
-            var table = Table(player.level);
-            player.points +=1
+            secondRightAnswer(player)
+            sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, player.points, player.level, player.id));
         }
-        sendMessage(player.outputStream);
+    }
+
+    private fun arriveToNextLevel(player: Player) {
+        player.state = State.OnDialogPause
+        if(allPlayersFinished()){
+            tables.clear()
+            startNewLevel()
+        }else{ //Fica à espera dos outros
+            val msg = StatusMessage(TypeOfMessage.STATUS_GAME, player.state, null, player.points, player.time, player.level)
+            sendMessage(player.outputStream, msg)
+        }
+    }
+    private fun nextTable(player: Player):Table{
+        val table :Table;
+        if(player.numTable < tables.size){
+            table =  tables[player.numTable]
+        }else{
+            table = Table(player.level);
+            tables.add(table)
+        }
+        return table
+
+    }
+    private fun rightAnswersButNotNextLevel(player: Player) {
+        player.numTable++
+        val table : Table = nextTable(player)
+        player.table = table
+        val msg = StatusMessage(TypeOfMessage.NEW_TABLE, State.OnGame, table.operations, player.points, player.time, player.level)
+        sendMessage(player.outputStream, msg)
+    }
+
+
+    private fun secondRightAnswer(player: Player) {
+
+        val table : Table = nextTable(player)
+        player.points +=1
+        player.numTable++
+        player.table = table
+        player.time = newLevelTime(player.time)
+        val msg = StatusMessage(TypeOfMessage.SWIPE, State.OnDialogResume, table.operations, player.points, player.time, player.level)
+        sendMessage(player.outputStream, msg)
+    }
+    private fun startNewLevel() {
+        val table = Table(data.level+1)
+        tables.add(table)
+        data.operations = table.operations
+        data.time = newLevelTime(data.time)
+        data.level++
+        viewModel._operations.postValue(table.operations)
+        viewModel._time.postValue(data.time)
+        viewModel._level.postValue(data.level)
+        viewModel._points.postValue(data.points)
+        viewModel._state.postValue(State.OnGame)
+
+        for (player in players) {
+            val pl = player.value;
+            pl.time = newLevelTime(pl.time)
+            pl.numTable = 0
+            pl.currectRigthAnswers = 0
+            pl.state = State.OnGame
+            pl.table = table
+            pl.level++
+            val message  = StatusMessage(TypeOfMessage.STATUS_GAME, State.OnGame, table.operations,
+                0,Data.START_TIME, 1)
+            sendMessage(pl.outputStream, message)
+        }
+    }
+
+    private fun allPlayersFinished(): Boolean {
+        return players.none { (index, player) -> player.state == State.OnGame } && viewModel._state.value != State.OnGame
     }
 
     private fun newLevelTime(time:Int):Int {
         var t = time
-        if ((t + 5) <= Data.START_TIME){
-            t = time+5
-        }else{
-            t = Data.START_TIME
-        }
+        t = if ((t + 5) <= Data.START_TIME){
+            time+5
+            }else{
+                Data.START_TIME
+            }
         return t;
     }
 
-    private fun sendMessage(outputStream: OutputStream) {
+    private fun sendMessage(outputStream: OutputStream?, msg: StatusMessage) {
+        outputStream?.run {
+            val printStream = PrintStream(this)
+            val json = Gson().toJson(msg)
+            printStream.println(json)
+        }
+    }
+    private fun updatePlayerServer(table: Table?) {
+        if (table != null) {
+            players[0]?.table = table
+        }
+        players[0]?.points = data.points
+        players[0]?.level = data.level
+        players[0]?.time = data.time
+        players[0]?.state = viewModel._state.value!!
+        players[0]?.currectRigthAnswers = data.countRightAnswers
+        players[0]?.numTable = players[0]?.numTable?.plus(1)!!;
 
     }
+    override fun onSwipe(index : Int){
+
+        if (data.operations[index] == data.maxOperation){
+            viewModel.maxOperationRigth()
+            viewModel.incCountRightAnswers();
+
+            if (data.countRightAnswers == Data.COUNT_RIGHT_ANSWERS){
+                viewModel.setCountRightAnswers(0)
+                viewModel.showAnimationResume()
+                updatePlayerServer(null)
+            }else{
+                val table : Table = nextTable(players[0]!!)
+                viewModel.generateTable(table)
+                updatePlayerServer(table)
+            }
+            sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, data.points, data.level, data.currentUser?.id!!));
+        }else if (data.operations[index] == data.secondOperation){
+            val table : Table = nextTable(players[0]!!)
+            viewModel.secondOperationRigth(table)
+            updatePlayerServer(table)
+            sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, data.points, data.level, data.currentUser?.id!!));
+        }
+
+    }
+
 }

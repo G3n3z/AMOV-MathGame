@@ -246,7 +246,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     override fun swipe(index: Int) {
-        //TODO
+        modelView.swipe(index)
     }
 
     private fun registerCallbacksOnState() {
@@ -332,7 +332,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         Log.i("OnTimeOver", "Callback called");
         //dialog = null
         dlg?.cancel()
-        modelView.startNewLevel()
+        //modelView.startNewLevel()
     }
 
     private fun dialogQuit()

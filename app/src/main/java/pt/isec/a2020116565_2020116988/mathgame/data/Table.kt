@@ -13,9 +13,12 @@ class Table {
 
     constructor(level: Int) {
         this.level = level
+        generateTable()
     }
 
-    constructor()
+    constructor(){
+        generateTable()
+    }
 
 
     fun generateTable() {

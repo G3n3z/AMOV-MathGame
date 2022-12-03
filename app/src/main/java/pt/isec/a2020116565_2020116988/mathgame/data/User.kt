@@ -10,7 +10,7 @@ class User(user: String, photo: String?){
     init {
         userName = user;
         this.photo = photo;
-        id = -1;
+        id = 0;
     }
 
 
