@@ -30,6 +30,12 @@
     <string name="btn_emulator">Connect to emulator</string>
     <string name="button_connect">Connect</string>
     <string name="button_cancel">Cancel</string>
+    <string name="start">Start</string>
+    <string name="num_of_clients">Number of clients</string>
+    <string name="client_waiting_dlg">Waiting for server to start the game</string>
+    <string name="next_multi_level">You complete the level, now you should wait for other players</string>
+    <string name="congrats">Congratulations</string>
     <string name="game_over">Game Over</string>
     <string name="main_menu">Main Menu</string>
+
 </resources>

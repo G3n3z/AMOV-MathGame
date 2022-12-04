@@ -9,8 +9,6 @@ import pt.isec.a2020116565_2020116988.mathgame.State
 class SinglePlayerModelView(val data: Data) : ViewModel() {
 
 
-
-
     private val START_DIALOG_TIME = data.START_DIALOG_TIME
     var currentTimeDialog: Int = data.START_DIALOG_TIME
 
@@ -77,10 +75,10 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
      fun newLevelTime() {
         data.time
         val time = data.time;
-        if ((time + 5) <= data.START_TIME){
+        if ((time + 5) <= Data.START_TIME){
             data.time = data.time+5
         }else{
-            data.time = data.START_TIME
+            data.time = Data.START_TIME
         }
         _time.postValue(data.time)
     }
