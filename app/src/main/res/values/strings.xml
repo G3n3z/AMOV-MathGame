@@ -1,7 +1,5 @@
 <resources>
     <string name="app_name">MathGame</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="user_image">User Image</string>
     <string name="user_name">Username</string>
     <string name="profile">Profile</string>
@@ -9,7 +7,7 @@
     <string name="upload_image">Upload Image</string>
     <string name="single_player">Single Player</string>
     <string name="multi_player">MultiPlayer</string>
-    <string name="Top5">Top5</string>
+    <string name="Top5">Top 5</string>
     <string name="level">Level</string>
     <string name="points">Points</string>
     <string name="time">Time</string>
@@ -22,6 +20,7 @@
     <string name="guOK">YES</string>
     <string name="guNOK">NO</string>
     <string name="must_have_user">You must save a user</string>
+    <string name="profile_not_found">No profile to load</string>
     <string name="choose_multiplayer_mode">Choose mode</string>
     <string name="server_mode">Server</string>
     <string name="client_mode">Client</string>
@@ -36,4 +35,7 @@
     <string name="client_waiting_dlg">Waiting for server to start the game</string>
     <string name="next_multi_level">You complete the level, now you should wait for other players</string>
     <string name="congrats">Congratulations</string>
+    <string name="game_over">Game Over</string>
+    <string name="main_menu">Main Menu</string>
+
 </resources>
