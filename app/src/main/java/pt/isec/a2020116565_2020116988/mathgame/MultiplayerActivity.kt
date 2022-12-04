@@ -12,17 +12,21 @@ import android.text.InputFilter
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
+import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMultiplayerBinding
+import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevelMultiplayer
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
 import pt.isec.a2020116565_2020116988.mathgame.views.ClientWaitingDialog
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
+import pt.isec.a2020116565_2020116988.mathgame.views.ScoresRecycleViewAdapter
 import pt.isec.a2020116565_2020116988.mathgame.views.ServerModalInitial
 
 
@@ -46,6 +50,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     private var job :Job? = null;
     private var dlg: AlertDialog? = null
     private var clientInitDialog: ClientWaitingDialog? = null
+    private var dialog : DialogLevelMultiplayer? = null
     private var points : Int = 0
         set(value) {
             field = value
@@ -95,11 +100,20 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         }
         if (mode == GameMode.CLIENT_MODE) {
             modelView.connectionState.observe(this) { connectionStateHandlers(it) }
+        }else{
+            modelView.connectionState.observe(this) { connectionStateHandlersServer(it) }
         }
         gamePanelView = GamePanelView(this,null,0,0, app.data.operations, this);
         binding.gameTableMultiplayer.addView(gamePanelView)
         registerCallbacksOnState();
         registerCallbacksOnLabels();
+    }
+
+    private fun connectionStateHandlersServer(it: ConnectionState?) {
+        if(it == ConnectionState.CONNECTION_ESTABLISHED){
+            binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
+            binding.flScoresFragment.adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
+        }
     }
 
     private fun connectionStateHandlers(it: ConnectionState) {
@@ -110,6 +124,8 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         }else if(it == ConnectionState.CONNECTION_ESTABLISHED){
             clientInitDialog?.dismiss()
             clientInitDialog = null
+            binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
+            binding.flScoresFragment.adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
         }
     }
 
@@ -118,6 +134,159 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         finish()
     }
 
+
+
+    private fun registerCallbacksOnLabels() {
+        modelView.time.observe(this){
+            time = it
+        }
+        modelView.level.observe(this){
+            level = it;
+        }
+        modelView.points.observe(this){
+            points = it;
+        }
+        modelView.operation.observe(this){
+            gamePanelView.operations = it
+            gamePanelView.mount()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        dlg?.cancel()
+    }
+
+    override fun swipe(index: Int) {
+        modelView.swipe(index)
+    }
+
+    private fun registerCallbacksOnState() {
+        modelView.state.observe(this){
+            onStateChange(it);
+        }
+    }
+
+    private fun onStateChange(state :State) {
+        when(state){
+            State.OnGame -> {
+                if(modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED){
+                    startTimer()
+                    Log.i("onStateChange", "OnGame");
+                }
+                dialog?.dismiss()
+                dialog = null
+            }
+            State.OnDialogBack -> {
+                if (clientInitDialog?.isVisible == true){
+                    clientInitDialog!!.dismiss()
+                    clientInitDialog = null
+                    finish()
+                }
+                startTimer()
+                dialogQuit()
+            }
+            State.OnDialogResume -> {
+                Log.i("onStateChange", "OnDialogResume");
+                showAnimation()
+                stopJob()
+            }
+            State.OnDialogPause -> {
+                showAnimation()
+                Log.i("onStateChange", "OnDialogPause");
+                stopJob()
+            }
+            State.OnGameOver ->{}
+        }
+    }
+
+    private fun stopJob() {
+        if (job?.isActive == true){
+            job?.cancel()
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onStart() {
+        super.onStart()
+        Log.i("OnStart", modelView.state.value.toString())
+        modelView.refreshState()
+        binding.gamePontMultiplayer.text = "${getString(R.string.points)}: $points";
+        binding.gameLevel.text = "${getString(R.string.level)}: $level";
+
+    }
+
+    override fun onBackPressed() {
+        //Todo fechar server socket se carregar no sim
+        modelView.onBackPressed();
+        Log.i("BACK", "On back pressed")
+    }
+
+    private fun startTimer(){
+        if(job == null || job?.isActive == false && modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED) {
+            Log.i("StartTimer", "On timer")
+            CoroutineScope(Dispatchers.IO).async {
+                job = launch { onTimer(onTimeOver) }
+            }
+        }
+    }
+
+    var onTimeOver = fun(){
+        Log.i("APP", "On time over called")
+    }
+
+
+    private fun showAnimation() {
+        if (dialog == null) {
+            dialog = DialogLevelMultiplayer(this);
+            dialog?.show()
+        }
+
+
+    }
+
+    fun onDialogTimeOver(){
+        Log.i("OnTimeOver", "Callback called");
+        //dialog = null
+        dlg?.cancel()
+        //modelView.startNewLevel()
+    }
+
+    private fun dialogQuit()
+    {
+        if (dlg?.isShowing == true)
+            return;
+
+        dlg = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.giveup))
+            .setMessage(getString(R.string.giveupMessage))
+            .setPositiveButton(R.string.guOK) {d,b ->
+                job?.cancel()
+                modelView.stopGame()
+                super.onBackPressed()
+            }
+            .setNegativeButton(R.string.guNOK){d,b ->
+                d.dismiss()
+                modelView.cancelQuit()
+            }
+            .setCancelable(false)
+            .create()
+        dlg?.show()
+    }
+
+    private suspend fun onTimer(onTimeOver: () -> Unit){
+
+        while (true){
+            delay(1000)
+            CoroutineScope(Dispatchers.Main).async{
+                modelView.decTime()
+            }
+            if (time <= 0){
+                onTimeOver()
+                break;
+            }
+        }
+    }
     private fun serverMode() {
         val wifiManager = applicationContext.getSystemService(AppCompatActivity.WIFI_SERVICE) as WifiManager
         val ip = wifiManager.connectionInfo.ipAddress // Deprecated in API Level 31. Suggestion NetworkCallback
@@ -143,7 +312,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                 if (dlg?.isShowing == true && modelView.nConnections.value!! > 0){
                     viewModal.button.isEnabled = true
                     Log.i("Chegou cliente", modelView.nConnections.value.toString())
-                   viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
+                    viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
                 }
             }
             viewModal.button.setOnClickListener{
@@ -223,154 +392,5 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         if(dlg?.isShowing == false)
             dlg?.show()
     }
-
-    private fun registerCallbacksOnLabels() {
-        modelView.time.observe(this){
-            time = it
-        }
-        modelView.level.observe(this){
-            level = it;
-        }
-        modelView.points.observe(this){
-            points = it;
-        }
-        modelView.operation.observe(this){
-            gamePanelView.operations = it
-            gamePanelView.mount()
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        dlg?.cancel()
-    }
-
-    override fun swipe(index: Int) {
-        modelView.swipe(index)
-    }
-
-    private fun registerCallbacksOnState() {
-        modelView.state.observe(this){
-            onStateChange(it);
-        }
-    }
-
-    private fun onStateChange(state :State) {
-        when(state){
-            State.OnGame -> {
-                if(modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED){
-                    startTimer()
-                    Log.i("onStateChange", "OnGame");
-                }
-            }
-            State.OnDialogBack -> {
-                if (clientInitDialog?.isVisible == true){
-                    clientInitDialog!!.dismiss()
-                    clientInitDialog = null
-                    finish()
-                }
-                startTimer()
-                dialogQuit()
-            }
-            State.OnDialogResume -> {
-                Log.i("onStateChange", "OnDialogResume");
-                showAnimation()
-                stopJob()
-            }
-            State.OnDialogPause -> {
-                showAnimation()
-                Log.i("onStateChange", "OnDialogPause");
-            }
-            State.OnGameOver ->{}
-        }
-    }
-
-    private fun stopJob() {
-        if (job?.isActive == true){
-            job?.cancel()
-        }
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun onStart() {
-        super.onStart()
-        Log.i("OnStart", modelView.state.value.toString())
-        modelView.refreshState()
-        binding.gamePontMultiplayer.text = "${getString(R.string.points)}: $points";
-        binding.gameLevel.text = "${getString(R.string.level)}: $level";
-
-    }
-
-    override fun onBackPressed() {
-        //Todo fechar server socket se carregar no sim
-        modelView.onBackPressed();
-        Log.i("BACK", "On back pressed")
-    }
-
-    private fun startTimer(){
-        if(job == null || job?.isActive == false && modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED) {
-            Log.i("StartTimer", "On timer")
-            CoroutineScope(Dispatchers.IO).async {
-                job = launch { onTimer(binding.gameTimeMultiplayer, getString(R.string.time), onTimeOver) }
-            }
-        }
-    }
-
-    var onTimeOver = fun(){
-        Log.i("APP", "On time over called")
-    }
-
-
-    private fun showAnimation() {
-//        if (dialog == null) {
-//            dialog = DialogLevel(this, this::onDialogTimeOver, modelView.currentTimeDialog, modelView);
-//            dialog?.show()
-//        }
-    }
-
-    fun onDialogTimeOver(){
-        Log.i("OnTimeOver", "Callback called");
-        //dialog = null
-        dlg?.cancel()
-        //modelView.startNewLevel()
-    }
-
-    private fun dialogQuit()
-    {
-        if (dlg?.isShowing == true)
-            return;
-
-        dlg = AlertDialog.Builder(this)
-            .setTitle(getString(R.string.giveup))
-            .setMessage(getString(R.string.giveupMessage))
-            .setPositiveButton(R.string.guOK) {d,b ->
-                job?.cancel()
-                modelView.stopGame()
-                super.onBackPressed()
-            }
-            .setNegativeButton(R.string.guNOK){d,b ->
-                d.dismiss()
-                modelView.cancelQuit()
-            }
-            .setCancelable(false)
-            .create()
-        dlg?.show()
-    }
-
-
-    suspend fun onTimer(tv: TextView, label: String, onTimeOver: () -> Unit){
-
-        while (true){
-            delay(1000)
-            CoroutineScope(Dispatchers.Main).async{
-                modelView.decTime()
-            }
-            if (time <= 0){
-                onTimeOver()
-                break;
-            }
-        }
-    }
-
 
 }

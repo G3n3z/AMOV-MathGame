@@ -1,5 +1,7 @@
 package pt.isec.a2020116565_2020116988.mathgame.data
 
+import android.util.Log
+
 class Table {
 
     lateinit var maxOperation: Operation
@@ -56,5 +58,7 @@ class Table {
         ordered.sortBy { operation -> operation.calcOperation()}
         maxOperation = ordered[ordered.size-1]
         secondOperation = ordered[ordered.size-2]
+        Log.i("Operation", maxOperation.toString())
+        Log.i("Operation", secondOperation.toString())
     }
 }

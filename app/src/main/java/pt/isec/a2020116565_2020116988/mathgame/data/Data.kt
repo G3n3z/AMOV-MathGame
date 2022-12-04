@@ -64,8 +64,8 @@ class Data {
     }
 
     companion object {
-        const val START_TIME: Int = 90
-        const val COUNT_RIGHT_ANSWERS: Int = 2
+        const val START_TIME: Int = 180
+        const val COUNT_RIGHT_ANSWERS: Int = 1
     }
 
 
