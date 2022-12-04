@@ -1,24 +1,29 @@
 package pt.isec.a2020116565_2020116988.mathgame.data
 
-import android.media.Image
 import android.util.Log
 
-class Data {
+class Table {
 
-    var nConnections: Int = 0
-    var countRightAnswers: Int = 0;
-    var points: Int = 0;
-    var currentUser: User? = User("", "");
-    var operations : MutableList<Operation> = ArrayList(5);
-    var level:Int = 1;
-    var time: Int = START_TIME;
+    lateinit var maxOperation: Operation
+    lateinit var secondOperation: Operation
+    var operations: MutableList<Operation> = mutableListOf()
     var operators : MutableList<Char> = mutableListOf('+', '-')
     private var OPERATORS : MutableList<Char> = mutableListOf('+', '-', 'x', '/')
-    lateinit var maxOperation : Operation;
-    lateinit var secondOperation : Operation;
-    val START_DIALOG_TIME: Int = 5;
+    private var level = 1
 
-    fun generateTable(level: Int) {
+
+
+    constructor(level: Int) {
+        this.level = level
+        generateTable()
+    }
+
+    constructor(){
+        generateTable()
+    }
+
+
+    fun generateTable() {
         operations.clear();
 
         var numbers : MutableList<Int> = ArrayList()
@@ -28,6 +33,10 @@ class Data {
                 number = 1
             }
             numbers.add(number)
+        }
+        if (this.level >= 2) {
+            operators.add(OPERATORS[2])
+            operators.add(OPERATORS[3])
         }
 
         operations.add(Operation(numbers[0], numbers[1], numbers[2], operators[(0 until operators.size).random()],
@@ -44,29 +53,12 @@ class Data {
             operators[(0 until operators.size).random()]));
 
         //operations.forEach{ it -> Log.i("OPERATIONS", "${it.op1}${it.operator1}${it.op2}${it.operator2}${it.op3}") }
-        if (level == 2) {
-            operators.add(OPERATORS[2])
-            operators.add(OPERATORS[3])
-        }
+
         val ordered = operations.toMutableList()
         ordered.sortBy { operation -> operation.calcOperation()}
         maxOperation = ordered[ordered.size-1]
         secondOperation = ordered[ordered.size-2]
+        Log.i("Operation", maxOperation.toString())
+        Log.i("Operation", secondOperation.toString())
     }
-
-    fun startSinglePlayer() {
-        time = START_TIME
-        level = 1
-        points = 0;
-        operators =  mutableListOf('+', '-')
-        generateTable(1)
-
-    }
-
-    companion object {
-        const val START_TIME: Int = 180
-        const val COUNT_RIGHT_ANSWERS: Int = 1
-    }
-
-
 }
