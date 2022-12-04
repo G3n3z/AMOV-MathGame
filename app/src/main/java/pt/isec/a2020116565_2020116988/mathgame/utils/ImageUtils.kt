@@ -1,51 +1,46 @@
 package pt.isec.a2020116565_2020116988.mathgame.utils
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.util.Base64
 import android.view.View
 import android.widget.ImageView
-import java.io.File
-import java.io.FileOutputStream
-import java.lang.Double.max
-import java.lang.Double.min
+import java.io.*
 import kotlin.math.max
 import kotlin.math.min
 
-fun getTempFilename(context: Context) : String = File.createTempFile(
-    "image", ".img",
-    context.externalCacheDir).absolutePath
+fun encodeTobase64(context: Context, uri: Uri): String {
+    val input: InputStream? = context.contentResolver.openInputStream(uri)
+    val image: Bitmap = BitmapFactory.decodeStream(input)
+    input?.close()
 
+    val baos = ByteArrayOutputStream()
+    image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+    val b: ByteArray = baos.toByteArray()
 
-fun createFileFromUri(context: Context, uri : Uri,
-    filename : String = getTempFilename(context)) : String {
-
-    FileOutputStream(filename).use { outputStream ->
-        context.contentResolver.openInputStream(uri)?.use { inputStream -> inputStream.copyTo(outputStream)
-        } }
-    return filename
+    return Base64.encodeToString(b, Base64.DEFAULT)
 }
 
-
-
-fun setPic(view: View, path: String) {
+fun updatePic(view: View, encodedImage: String){
     val targetW = view.width
     val targetH = view.height
     if (targetH < 1 || targetW < 1)
         return
     val bmpOptions = BitmapFactory.Options()
     bmpOptions.inJustDecodeBounds = true
-    BitmapFactory.decodeFile(path, bmpOptions)
+    val b: ByteArray = Base64.decode(encodedImage, Base64.DEFAULT)
+    BitmapFactory.decodeByteArray(b, 0, b.size, bmpOptions)
     val photoW = bmpOptions.outWidth
     val photoH = bmpOptions.outHeight
     val scale = max(1,min(photoW / targetW, photoH / targetH))
     bmpOptions.inSampleSize = scale
     bmpOptions.inJustDecodeBounds = false
-    val bitmap = BitmapFactory.decodeFile(path, bmpOptions)
+    val bitmap = BitmapFactory.decodeByteArray(b, 0, b.size, bmpOptions)
     when {
         view is ImageView -> (view as ImageView).setImageBitmap(bitmap)
-        //else -> view.background = bitmap.toDrawable(view.resources)
         else -> view.background = BitmapDrawable(view.resources,bitmap)
     }
 }
