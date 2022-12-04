@@ -37,7 +37,7 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:id="@+id/photoIn"
-            android:contentDescription="asd" />
+            android:contentDescription="@string/profileimage" />
 
     </androidx.cardview.widget.CardView>
     <Button

@@ -77,6 +77,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         time = data.time;
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
+        supportActionBar?.hide()
         gamePanelView = GamePanelView(this,null,0,0, data.operations, this);
         binding.gameTable.addView(gamePanelView)
         registerCallbacksOnState();

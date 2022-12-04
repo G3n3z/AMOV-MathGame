@@ -1,39 +1,27 @@
 package pt.isec.a2020116565_2020116988.mathgame.fragments
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.drawToBitmap
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import pt.isec.a2020116565_2020116988.mathgame.Application
-import pt.isec.a2020116565_2020116988.mathgame.MainActivity
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.data.User
-import pt.isec.a2020116565_2020116988.mathgame.data.UserViewModel
-import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentGameBinding
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentUserProfileBinding
-import pt.isec.a2020116565_2020116988.mathgame.utils.createFileFromUri
-import pt.isec.a2020116565_2020116988.mathgame.utils.setPic
-import java.io.File
-import java.io.FileOutputStream
+import pt.isec.a2020116565_2020116988.mathgame.utils.encodeTobase64
+import pt.isec.a2020116565_2020116988.mathgame.utils.updatePic
 
 /**
  * A simple [Fragment] subclass.
@@ -53,7 +41,6 @@ class UserProfile : Fragment() {
             field = value;
         }
     val app: Application by lazy { activity?.application as Application }
-    private val userViewModel: UserViewModel by activityViewModels()
 
     private val requestPermissionLauncher = registerForActivityResult( ActivityResultContracts.RequestPermission())
     { isGranted ->
@@ -70,8 +57,7 @@ class UserProfile : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 var resultData = result.data;
                 resultData?.data?.let { uri ->
-                    imagePath = createFileFromUri(requireContext(), uri)
-                    app.data.currentUser?.photo = imagePath.toString()
+                    imagePath = encodeTobase64(requireContext(), uri)
                     updateView()
                 }
             }
@@ -81,7 +67,9 @@ class UserProfile : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i("CREATE", app.data.currentUser.toString())
+        username = app.data.currentUser?.userName.orEmpty()
+        imagePath = app.data.currentUser?.photo
+        Log.i("CREATE", username)
     }
 
     override fun onCreateView(
@@ -91,11 +79,10 @@ class UserProfile : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentUserProfileBinding.inflate(layoutInflater, container,false)
         verifyPermissions();
-        //username = app.data.currentUser?.userName ?: "";
-        //imagePath = app.data.currentUser?.photo;
+
         binding.editUserEditText.setText(username)
         Log.i("ONCREATE", username)
-        Log.i("ONCREATE", imagePath.toString())
+
         binding.profileUploadImage.setOnClickListener {
             if (permissionGranted){
                 Log.i("PERMISSIONS", "Tem")
@@ -107,12 +94,13 @@ class UserProfile : Fragment() {
         binding.userProfileBtnSave.setOnClickListener{
             saveProfile();
         }
-
+        binding.photoIn.post { updateView() }
         return binding.root;
     }
 
     override fun onStart() {
         super.onStart()
+        Log.i("ONSTART", username)
         updateView();
     }
     private fun chooseImage() {
@@ -132,10 +120,9 @@ class UserProfile : Fragment() {
     }
     private fun updateView(){
         if(imagePath == null){
-//            binding.photo.background = ResourcesCompat.getDrawable(resources
-//                ,Android., null)
+
         }else{
-            setPic(binding.photoIn, imagePath!!)
+            updatePic(binding.photoIn, imagePath!!)
         }
     }
 
@@ -153,46 +140,33 @@ class UserProfile : Fragment() {
         }
 
         username = binding.editUserEditText.text.trim().toString()
-//        app.data.currentUser = User(username, imagePath)
 
-        val filename = String.format("%s/%s.%s",
-            app.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-            username,
-            PROFILE_EXTENSION
-        )
-        FileOutputStream(filename).use { fos ->
-            binding.photoIn.drawToBitmap()
-                .compress(Bitmap.CompressFormat.PNG,100,fos)
+        val sharedPrefs = context?.getSharedPreferences(SHAREDPREFS, Context.MODE_PRIVATE)
+        with(sharedPrefs!!.edit()) {
+            putString(getString(R.string.profileUsername), username)
+            putString(getString(R.string.profilePhoto), imagePath)
+            apply()
         }
 
-        userViewModel.selectUser(User(username, imagePath))
+        app.data.currentUser = User(username, imagePath)
 
         findNavController().navigate(R.id.fragment_home)
-        Log.i("SAVE", username)
-        Log.i("SAVE", imagePath.toString())
+
+    }
+
+    fun loadUser(){
+        val sharedPrefs = context?.getSharedPreferences(SHAREDPREFS, Context.MODE_PRIVATE)
+        username = sharedPrefs?.getString(getString(R.string.profileUsername),"")!!
+        imagePath = sharedPrefs.getString(getString(R.string.profilePhoto),"")!!
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        app.externalCacheDir?.deleteRecursively() // verificar se está a correr bem
+        app.externalCacheDir?.deleteRecursively() //TODO verificar se está a correr bem e se é necessária
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment UserProfile.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            UserProfile().apply {
+        const val SHAREDPREFS = "ProfileSharedPrefs"
 
-            }
-
-        const val PROFILE_EXTENSION = "prf"
     }
 }

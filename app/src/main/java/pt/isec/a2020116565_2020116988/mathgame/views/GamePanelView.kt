@@ -34,6 +34,8 @@ class GamePanelView @JvmOverloads constructor(
     var cell_width: Int = 0;
     var cell_height: Int = 0;
     lateinit var owner: GameActivityInterface;
+    private val gameBoard : GridLayout
+        get() = findViewById(R.id.board)
     val gestureDetector : GestureDetector by lazy {
         GestureDetector(context, this)
     }
@@ -42,6 +44,10 @@ class GamePanelView @JvmOverloads constructor(
         this.operations = operations
         this.owner = owner
         mount()
+        //TODO api 22
+        post{
+             gameBoard.minimumHeight = (parent as View).height
+        }
 
     }
 

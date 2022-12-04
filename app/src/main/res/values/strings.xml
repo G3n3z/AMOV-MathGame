@@ -30,6 +30,10 @@
     <string name="btn_emulator">Connect to emulator</string>
     <string name="button_connect">Connect</string>
     <string name="button_cancel">Cancel</string>
-    <string name="game_over">Game Over</string>
     <string name="main_menu">Main Menu</string>
+    <string name="game_over">Game Over</string>
+    <string name="profileimage">profile image</string>
+    <string name="profileUsername">profileUsername</string>
+    <string name="profilePhoto">profilePhoto</string>
+    <string name="clearSharedPrefs">Clear Shared Prefs</string>
 </resources>
