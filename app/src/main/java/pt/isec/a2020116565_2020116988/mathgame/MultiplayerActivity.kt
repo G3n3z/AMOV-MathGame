@@ -328,6 +328,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             .setOnCancelListener {
                 //finish()
             }
+            .setCancelable(false)
             .create()
 
         modelView.startServer()

@@ -12,14 +12,16 @@ import pt.isec.a2020116565_2020116988.mathgame.fragments.SinglePlayerLeaderboard
 class SpRVAdapter(val info : ArrayList<SinglePlayerLeaderboard.Info>) : RecyclerView.Adapter<SpRVAdapter.SpViewHolder>() {
     class SpViewHolder(val view : View) : RecyclerView.ViewHolder(view) {
         var tv1 : TextView = view.findViewById(R.id.tv_pos_sp_lb)
-        var tv2 : TextView = view.findViewById(R.id.tv_time_sp_lb)
-        var tv3 : TextView = view.findViewById(R.id.tv_points_sp_lb)
+        var tv2 : TextView = view.findViewById(R.id.tv_name_sp_lb)
+        var tv3 : TextView = view.findViewById(R.id.tv_time_sp_lb)
+        var tv4 : TextView = view.findViewById(R.id.tv_points_sp_lb)
 
         @SuppressLint("SetTextI18n")
         fun update(info : SinglePlayerLeaderboard.Info) {
             tv1.text = "#" + info.str1
             tv2.text = info.str2
             tv3.text = info.str3
+            tv4.text = info.str4
         }
     }
 

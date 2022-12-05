@@ -83,7 +83,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         time = data.time;
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
-        supportActionBar?.hide()
+        supportActionBar?.hide() //TODO mudar para aparecer mas desativar o icon
         gamePanelView = GamePanelView(this,null,0,0, data.operations, this);
         binding.gameTable.addView(gamePanelView)
         registerCallbacksOnState();
