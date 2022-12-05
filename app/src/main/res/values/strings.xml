@@ -41,6 +41,8 @@
     <string name="client_waiting_dlg">Waiting for server to start the game</string>
     <string name="next_multi_level">You complete the level, now you should wait for other players</string>
     <string name="congrats">Congratulations</string>
-    <string name="game_over">Game Over</string>
-    <string name="main_menu">Main Menu</string>
+    <string name="choose_leaderboard">Choose Leaderboard</string>
+    <string name="multi_player_pts">MultiPlayer Points</string>
+    <string name="multi_player_time">MultiPlayer Time</string>
+    <string name="sp_leaderboard">Single Player Leaderboard</string>
 </resources>

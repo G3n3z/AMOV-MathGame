@@ -12,6 +12,7 @@ class Data {
     var operations : MutableList<Operation> = ArrayList(5);
     var level:Int = 1;
     var time: Int = START_TIME;
+    var totalTime: Int = 0 //TODO necessário para os tops VERIFICAR
     var operators : MutableList<Char> = mutableListOf('+', '-')
     private var OPERATORS : MutableList<Char> = mutableListOf('+', '-', 'x', '/')
     lateinit var maxOperation : Operation;

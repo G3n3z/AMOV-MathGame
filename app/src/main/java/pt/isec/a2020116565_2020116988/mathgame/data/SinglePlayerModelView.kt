@@ -121,6 +121,7 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
         if(data.time <= 0)
             return
         data.time -=1
+        data.totalTime++ //TODO adicionado para integrar nos tops
         _time.postValue(data.time)
     }
 
