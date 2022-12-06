@@ -17,6 +17,7 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMultiplayerBinding
@@ -51,6 +52,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     private var dlg: AlertDialog? = null
     private var clientInitDialog: ClientWaitingDialog? = null
     private var dialog : DialogLevelMultiplayer? = null
+    private var adapter : ScoresRecycleViewAdapter? = null;
     private var points : Int = 0
         set(value) {
             field = value
@@ -112,7 +114,11 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun connectionStateHandlersServer(it: ConnectionState?) {
         if(it == ConnectionState.CONNECTION_ESTABLISHED){
             binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
-            binding.flScoresFragment.adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
+            adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
+            binding.flScoresFragment.adapter = adapter
+        }
+        else if(it == ConnectionState.CONNECTION_LOST){
+            finish()
         }
     }
 
@@ -125,7 +131,18 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             clientInitDialog?.dismiss()
             clientInitDialog = null
             binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
-            binding.flScoresFragment.adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
+            adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
+            binding.flScoresFragment.adapter = adapter;
+        }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGameOver){
+            //modelView.stopGame()
+        }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGame ||
+            modelView._state.value!! == State.OnDialogPause){
+            Snackbar.make(binding.root, getString(R.string.connection_lost), Snackbar.LENGTH_LONG).show()
+            dialog?.cancel()
+            val intent = SinglePlayerActivity.getIntentFromMultiplayer(this, modelView.state.value?.ordinal!!)
+            app.data.generateMaxOperations();
+            finish()
+            startActivity(intent);
         }
     }
 
@@ -150,6 +167,10 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             gamePanelView.operations = it
             gamePanelView.mount()
         }
+        modelView.users.observe(this){
+            Log.i("registerCall", "reciclerView update")
+            adapter?.submitNewData(it)
+        }
     }
 
     override fun onPause() {
@@ -171,7 +192,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         when(state){
             State.OnGame -> {
                 if(modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED){
-                    startTimer()
+                    //modelView.startTimer()
                     Log.i("onStateChange", "OnGame");
                 }
                 dialog?.dismiss()
@@ -183,18 +204,18 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                     clientInitDialog = null
                     finish()
                 }
-                startTimer()
+
                 dialogQuit()
             }
             State.OnDialogResume -> {
                 Log.i("onStateChange", "OnDialogResume");
                 showAnimation()
-                stopJob()
+                //stopJob()
             }
             State.OnDialogPause -> {
                 showAnimation()
                 Log.i("onStateChange", "OnDialogPause");
-                stopJob()
+                //stopJob()
             }
             State.OnGameOver ->{}
         }
@@ -222,14 +243,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         Log.i("BACK", "On back pressed")
     }
 
-    private fun startTimer(){
-        if(job == null || job?.isActive == false && modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED) {
-            Log.i("StartTimer", "On timer")
-            CoroutineScope(Dispatchers.IO).async {
-                job = launch { onTimer(onTimeOver) }
-            }
-        }
-    }
+
 
     var onTimeOver = fun(){
         Log.i("APP", "On time over called")
