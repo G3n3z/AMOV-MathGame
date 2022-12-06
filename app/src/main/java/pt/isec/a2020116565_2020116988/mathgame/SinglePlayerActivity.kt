@@ -83,14 +83,22 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         time = data.time;
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
-        supportActionBar?.hide()
+//        supportActionBar?.hide()
         gamePanelView = GamePanelView(this,null,0,0, data.operations, this);
         binding.gameTable.addView(gamePanelView)
         registerCallbacksOnState();
         registerCallbacksOnLabels()
-
+        getStateByInt(intent.getIntExtra(STATE, -1));
         Log.i("OnCreate", modelView.state.value.toString())
 
+    }
+
+    private fun getStateByInt(intExtra: Int) {
+        if (intExtra == -1)
+            return;
+        var state = State.gameModeByInteger(intExtra);
+        Log.i("getStateByInt", state.toString())
+        modelView.setState(state)
     }
 
     private fun registerCallbacksOnLabels() {
@@ -267,9 +275,17 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     companion object{
 
+        val STATE = "STATE"
+
         fun getIntent(context:Context?): Intent {
             val intent = Intent(context, SinglePlayerActivity::class.java);
 
+            return intent;
+        }
+
+        fun getIntentFromMultiplayer(context:Context?, status :Int): Intent {
+            val intent = Intent(context, SinglePlayerActivity::class.java);
+            intent.putExtra(STATE, status);
             return intent;
         }
 
