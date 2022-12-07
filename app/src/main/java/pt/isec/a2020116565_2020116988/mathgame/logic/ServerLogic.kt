@@ -2,12 +2,11 @@ package pt.isec.a2020116565_2020116988.mathgame.logic
 
 import android.util.Log
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import org.json.JSONObject
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.data.*
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
-import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
 import pt.isec.a2020116565_2020116988.mathgame.enum.TypeOfMessage
 import pt.isec.a2020116565_2020116988.mathgame.payload.*
 import java.io.BufferedReader
@@ -29,6 +28,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
     private var tables: MutableList<Table> = mutableListOf()
     private var sockets: MutableList<Socket> = mutableListOf()
     private var threads: MutableList<Thread> = mutableListOf()
+    private var timerGameOver : Job? = null;
     fun startServer() {
         serverSocket = ServerSocket(MultiplayerModelView.SERVER_PORT)
 
@@ -142,19 +142,46 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                     val msg = Gson().fromJson(json, MoveMessage::class.java)
                     onSwipeMessage(msg, idPlayer);
                 }
-                TypeOfMessage.EXIT_USER ->{
+                TypeOfMessage.EXIT_USER.name ->{
                     val msg = Gson().fromJson(json, PlayerMessage::class.java)
                     removeUser(msg, idPlayer);
                     keepGoing = false;
+                    verifyStatusGame();
+                    //TODO: verificar se os outros ja acabaram
                 }
                 else -> {}
             }
         }
     }
 
+    private fun verifyStatusGame() {
+        if (allPlayersFinished()){
+            tables.clear()
+            stopDetector()
+            thread{
+                Thread.sleep(3000)
+                startNewLevel()
+            }
+        }else if (allGameOver()){
+            gameOver()
+        }
+
+    }
+
+    private fun gameOver() {
+
+    }
+
+    private fun allGameOver(): Boolean {
+        synchronized(players){
+            return players.all { (key, value) -> value.state == State.OnGameOver }
+        }
+    }
+
     private fun removeUser(msg: PlayerMessage, idPlayer: Int) {
         synchronized(players){
             players[idPlayer]?.user?.state = State.OnGameOver;
+            players[idPlayer]?.state = State.OnGameOver;
         }
         var users = viewModel._users.value!!
 
@@ -229,6 +256,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         updateNewLevel(data.time, data.points, data.level, 0, table, State.OnGame)
 
         sendMessageAll(message)
+        startDetector()
         // Criar tabuleiro e mandar para todos
     }
 
@@ -244,6 +272,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             player.currectRigthAnswers++;
             player.time = message.time
             if (player.currectRigthAnswers == Data.COUNT_RIGHT_ANSWERS){
+                player.state = State.OnDialogPause
                 arriveToNextLevel(player)
             }else{
                 rightAnswersButNotNextLevel(player)
@@ -269,10 +298,10 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
     }
 
     private fun arriveToNextLevel(player: Player) {
-        player.state = State.OnDialogPause
         val msg = StatusMessage(TypeOfMessage.STATUS_GAME, player.state, null, player.points, player.time, player.level)
         sendMessage(player.outputStream, msg)
         if(allPlayersFinished()){
+            stopDetector()
             tables.clear()
             thread{
                 Thread.sleep(3000)
@@ -326,6 +355,8 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         viewModel._state.postValue(State.OnGame)
         viewModel.startTimer()
         for (player in players) {
+            if(player.value.state == State.OnGameOver)
+                continue;
             val pl = player.value;
             pl.time = newLevelTime(pl.time)
             pl.numTable = 0
@@ -337,6 +368,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 pl.points,pl.time, pl.level)
             sendMessage(pl.outputStream, message)
         }
+        startDetector()
     }
 
     private fun allPlayersFinished(): Boolean {
@@ -385,6 +417,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 updatePlayerServer(null, State.OnDialogPause)
                 if (allPlayersFinished()){
                     tables.clear()
+                    stopDetector()
                     thread{
                         Thread.sleep(3000)
                         startNewLevel()
@@ -403,6 +436,42 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, data.points, data.level, data.currentUser?.id!!));
         }
 
+    }
+
+    fun startDetector(){
+        CoroutineScope(Dispatchers.IO).async {
+            timerGameOver = launch { detectGameOver() }
+        }
+    }
+
+    fun stopDetector(){
+        if (timerGameOver?.isActive == true){
+            timerGameOver?.cancel()
+        }
+    }
+
+    suspend fun detectGameOver(){
+        while (true){
+            delay(1000)
+            synchronized(players){
+                for (player in players) {
+                    if (player.value.state == State.OnGame) {
+                        player.value.time--
+                        if (player.value.time <= 0) {
+                            val msg = StatusMessage(
+                                TypeOfMessage.GAME_OVER,
+                                State.OnGameOver,
+                                null,
+                                player.value.points,
+                                0,
+                                player.value.level
+                            )
+                            sendMessage(player.value.outputStream, msg)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun exit() {

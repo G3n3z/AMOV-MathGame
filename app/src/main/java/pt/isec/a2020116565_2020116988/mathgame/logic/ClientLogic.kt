@@ -127,15 +127,24 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                         val message  = Gson().fromJson<UpdateStatusPlayer>(json, UpdateStatusPlayer::class.java)
                         updateListOfUsers(message);
                     }
+                    TypeOfMessage.GAME_OVER.name -> {
+                        val message = Gson().fromJson<StatusMessage>(json, StatusMessage::class.java)
+                        gameOver(message)
+                    }
                 }
 
             }catch (e : IOException){
-                //TODO: Passar para single player
                 Log.i("startCommunication", e.message.toString())
                 keepGoing=false
             }
         }
 
+    }
+
+    private fun gameOver(message: StatusMessage) {
+        viewModel._state.postValue(message.status)
+        viewModel._time.postValue(message.time)
+        data.time = message.time
     }
 
     private fun updateListOfUsers(message: UpdateStatusPlayer?) {
@@ -233,21 +242,14 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
     override fun exit() {
         try {
-            //clientOutStream.run {
-                val msg = PlayerMessage(
-                    TypeOfMessage.EXIT_USER,
-                    User(data.currentUser?.userName!!, null, data.currentUser?.id!!)
-                )
-                val json = Gson().toJson(msg)
-                sendMessage(msg)
-//                try {
-////                    val printStream = PrintStream(this)
-////                    printStream.println(json)
-////                    printStream.flush()
-//                } catch (e: IOException) {
-//                    Log.i("StopGameClient", e.message.toString())
-//                }
-           // }
+
+            val msg = PlayerMessage(
+                TypeOfMessage.EXIT_USER,
+                User(data.currentUser?.userName!!, null, data.currentUser?.id!!)
+            )
+
+            sendMessage(msg)
+
 
             socket?.close()
             socket = null
