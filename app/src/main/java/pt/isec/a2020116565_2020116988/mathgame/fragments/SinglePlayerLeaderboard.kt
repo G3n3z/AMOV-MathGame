@@ -1,12 +1,15 @@
 package pt.isec.a2020116565_2020116988.mathgame.fragments
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.LBPlayer
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentSinglePlayerLeaderboardBinding
 import pt.isec.a2020116565_2020116988.mathgame.utils.SpRVAdapter
@@ -15,6 +18,7 @@ import pt.isec.a2020116565_2020116988.mathgame.utils.SpRVAdapter
 class SinglePlayerLeaderboard : Fragment() {
 
     private lateinit var binding: FragmentSinglePlayerLeaderboardBinding
+    private var listenerRegistration: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +50,16 @@ class SinglePlayerLeaderboard : Fragment() {
      */
     private fun loadPlayers(){
         //TODO buscar dados a Firestore e mapear alterar os nullables
+        val db = Firebase.firestore
+        listenerRegistration = db.collection(Constants.SP_DB_COLLECTION).document(Constants.SP_DB_DOC)
+            .addSnapshotListener { docSS, e ->
+                if (e!=null) {
+                    return@addSnapshotListener
+                }
+                if (docSS!=null && docSS.exists()) {
+
+                }
+            }
         //TODO inicializar o listener
         val players: MutableList<LBPlayer> = mutableListOf()
         val item = LBPlayer()
@@ -70,6 +84,6 @@ class SinglePlayerLeaderboard : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        //TODO cancelar o listener
+        listenerRegistration?.remove()
     }
 }
