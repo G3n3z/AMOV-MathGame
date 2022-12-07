@@ -12,7 +12,7 @@
     <TextView
         android:id="@+id/tv_sp_leaderboard"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:text="@string/sp_leaderboard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -37,15 +37,31 @@
     <fragment
         android:id="@+id/fragment_top5_option"
         android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.Top5Option"
-        android:label="framgement_multiplayer_choose"
+        android:label="framgement_top5_choose"
         tools:layout="@layout/fragment_top5_option">
         <action
             android:id="@+id/action_fragment_top5_option_to_fragment_sp_leaderboard"
             app:destination="@id/fragment_sp_leaderboard" />
+        <action
+            android:id="@+id/action_fragment_top5_option_to_fragment_mp_leaderboards"
+            app:destination="@id/fragment_mp_leaderboard_points" />
+        <action
+            android:id="@+id/action_fragment_top5_option_to_fragment_mp_leaderboard_time"
+            app:destination="@id/fragment_mp_leaderboard_time" />
     </fragment>
     <fragment
         android:id="@+id/fragment_sp_leaderboard"
         android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.SinglePlayerLeaderboard"
         android:label="framgement_multiplayer_choose"
         tools:layout="@layout/fragment_single_player_leaderboard"/>
+    <fragment
+        android:id="@+id/fragment_mp_leaderboard_points"
+        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.MultiPlayerLbPoints"
+        android:label="framgement_multiplayer_lb_points"
+        tools:layout="@layout/fragment_multi_player_lb_points"/>
+    <fragment
+        android:id="@+id/fragment_mp_leaderboard_time"
+        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.MultiPlayerLbTime"
+        android:label="framgement_multiplayer_lb_time"
+        tools:layout="@layout/fragment_multi_player_lb_time"/>
 </navigation>

@@ -29,10 +29,10 @@ class Top5Option : Fragment() {
             findNavController().navigate(R.id.fragment_sp_leaderboard)
         }
         binding.btnMpTop5Pts.setOnClickListener {
-            //TODO chamar vista to top5 MP Pontos
+            findNavController().navigate(R.id.fragment_mp_leaderboard_points)
         }
         binding.btnMpTop5Time.setOnClickListener {
-            //TODO chamar vista to top5 MP tempo decorrido
+            findNavController().navigate(R.id.fragment_mp_leaderboard_time)
         }
 
         return binding.root

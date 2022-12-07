@@ -45,4 +45,8 @@
     <string name="multi_player_pts">MultiPlayer Points</string>
     <string name="multi_player_time">MultiPlayer Time</string>
     <string name="sp_leaderboard">Single Player Leaderboard</string>
+    <string name="mp_leaderboard">Multi Player Leaderboard</string>
+    <string name="mp_leaderboard_points">Highest Scores</string>
+    <string name="mp_leaderboard_time">Highest Elapsed Time</string>
+    <string name="mp_leaderboard_players">Players</string>
 </resources>
