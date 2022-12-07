@@ -5,10 +5,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import org.json.JSONObject
 import pt.isec.a2020116565_2020116988.mathgame.State
-import pt.isec.a2020116565_2020116988.mathgame.data.Data
-import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
-import pt.isec.a2020116565_2020116988.mathgame.data.Player
-import pt.isec.a2020116565_2020116988.mathgame.data.Table
+import pt.isec.a2020116565_2020116988.mathgame.data.*
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
 import pt.isec.a2020116565_2020116988.mathgame.enum.TypeOfMessage
@@ -145,9 +142,31 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                     val msg = Gson().fromJson(json, MoveMessage::class.java)
                     onSwipeMessage(msg, idPlayer);
                 }
+                TypeOfMessage.EXIT_USER ->{
+                    val msg = Gson().fromJson(json, PlayerMessage::class.java)
+                    removeUser(msg, idPlayer);
+                    keepGoing = false;
+                }
                 else -> {}
             }
         }
+    }
+
+    private fun removeUser(msg: PlayerMessage, idPlayer: Int) {
+        synchronized(players){
+            players[idPlayer]?.user?.state = State.OnGameOver;
+        }
+        var users = viewModel._users.value!!
+
+        synchronized(users){
+            for (user in users) {
+                if (user.id == msg.user?.id){
+                  user.state = State.OnGameOver;
+                }
+            }
+        }
+        viewModel._users.postValue(users);
+        sendMessageAll(msg)
     }
 
     private fun updateNewLevel(time: Int, points: Int, level: Int, numTable: Int, table: Table, state: State) {
@@ -203,7 +222,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         viewModel._level.postValue(data.level)
         viewModel._points.postValue(data.points)
         viewModel._state.postValue(State.OnGame)
-
+        viewModel.startTimer()
         message = StatusMessage(TypeOfMessage.STATUS_GAME, State.OnGame, table.operations,
         0,Data.START_TIME, 1)
 
@@ -229,11 +248,24 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             }else{
                 rightAnswersButNotNextLevel(player)
             }
+            updateRecicler(player)
             sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, player.points, player.level, player.id));
         }else if (player.table.operations[index] == player.table.secondOperation){
             secondRightAnswer(player)
             sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, player.points, player.level, player.id));
+            updateRecicler(player)
         }
+    }
+
+    private fun updateRecicler(player: Player) {
+        var users = viewModel._users.value!!
+        for (user in users) {
+            if(user.id == player.id){
+                user.points = player.points
+                user.nTables = player.numTable
+            }
+        }
+        viewModel._users.postValue(users);
     }
 
     private fun arriveToNextLevel(player: Player) {
@@ -292,7 +324,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         viewModel._level.postValue(data.level)
         viewModel._points.postValue(data.points)
         viewModel._state.postValue(State.OnGame)
-
+        viewModel.startTimer()
         for (player in players) {
             val pl = player.value;
             pl.time = newLevelTime(pl.time)
@@ -338,7 +370,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         players[0]?.state = state
         players[0]?.currectRigthAnswers = data.countRightAnswers
         players[0]?.numTable = players[0]?.numTable?.plus(1)!!;
-
+        updateRecicler(players[0]!!)
     }
     override fun onSwipe(index : Int){
 
@@ -349,6 +381,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             if (data.countRightAnswers == Data.COUNT_RIGHT_ANSWERS){
                 viewModel.setCountRightAnswers(0)
                 viewModel.showAnimationResume()
+                viewModel.stopJob()
                 updatePlayerServer(null, State.OnDialogPause)
                 if (allPlayersFinished()){
                     tables.clear()
@@ -383,6 +416,11 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             serverSocket?.close()
             serverSocket = null
             threads.forEach(Thread::join)
+            threads.clear()
+            sockets.clear()
+            data.nConnections = 0;
+            players.clear()
+            //viewModel._connState.postValue(ConnectionState.EXIT)
         }catch (e:IOException){
             Log.i("EXIT_SERVER", e.message.toString())
         }catch (ex:Exception){

@@ -30,8 +30,6 @@
     <string name="btn_emulator">Connect to emulator</string>
     <string name="button_connect">Connect</string>
     <string name="button_cancel">Cancel</string>
-    <string name="main_menu">Main Menu</string>
-    <string name="game_over">Game Over</string>
     <string name="profileimage">profile image</string>
     <string name="profileUsername">profileUsername</string>
     <string name="profilePhoto">profilePhoto</string>
@@ -41,6 +39,9 @@
     <string name="client_waiting_dlg">Waiting for server to start the game</string>
     <string name="next_multi_level">You complete the level, now you should wait for other players</string>
     <string name="congrats">Congratulations</string>
+    <string name="game_over">Game Over</string>
+    <string name="main_menu">Main Menu</string>
+    <string name="connection_lost">Connection Lost</string>
     <string name="choose_leaderboard">Choose Leaderboard</string>
     <string name="multi_player_pts">MultiPlayer Points</string>
     <string name="multi_player_time">MultiPlayer Time</string>
@@ -49,4 +50,5 @@
     <string name="mp_leaderboard_points">Highest Scores</string>
     <string name="mp_leaderboard_time">Highest Elapsed Time</string>
     <string name="mp_leaderboard_players">Players</string>
+
 </resources>

@@ -2,6 +2,8 @@ package pt.isec.a2020116565_2020116988.mathgame.data
 
 import android.media.Image
 import android.util.Log
+import pt.isec.a2020116565_2020116988.mathgame.State
+import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 
 class Data {
 
@@ -19,6 +21,8 @@ class Data {
     lateinit var maxOperation : Operation;
     lateinit var secondOperation : Operation;
     val START_DIALOG_TIME: Int = 5;
+    var state : State = State.OnGame
+    var connState: ConnectionState = ConnectionState.CONNECTING
 
     fun generateTable(level: Int) {
         operations.clear();
@@ -64,6 +68,13 @@ class Data {
         operators =  mutableListOf('+', '-')
         generateTable(1)
 
+    }
+
+    fun generateMaxOperations() {
+        val ordered = operations.toMutableList()
+        ordered.sortBy { operation -> operation.calcOperation()}
+        maxOperation = ordered[ordered.size-1]
+        secondOperation = ordered[ordered.size-2]
     }
 
     companion object {

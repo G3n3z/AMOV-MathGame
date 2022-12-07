@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
+import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
@@ -27,6 +28,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         val SERVER_PORT: Int = 9999
     }
 
+    private var job : Job? = null;
+
     private val START_DIALOG_TIME = data.START_DIALOG_TIME
     var currentTimeDialog: Int = data.START_DIALOG_TIME
 
@@ -36,7 +39,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     var players: MutableMap<Int, Player> = mutableMapOf()
 
-    var _connState: MutableLiveData<ConnectionState> = MutableLiveData(ConnectionState.CONNECTING)
+    var _connState: MutableLiveData<ConnectionState> = MutableLiveData(data.connState)
     var connectionState: LiveData<ConnectionState> = _connState
         get() = _connState
 
@@ -65,7 +68,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     val operation: LiveData<MutableList<Operation>>
         get() = _operations
 
-    var _state: MutableLiveData<State> = MutableLiveData(State.OnGame);
+    var _state: MutableLiveData<State> = MutableLiveData(data.state);
     val state: LiveData<State>
         get() = _state;
 
@@ -101,10 +104,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         _state.postValue(State.OnDialogResume)
     }
 
-    fun showAnimationPause(time: Int) {
-        currentTimeDialog = time
-        _state.postValue(State.OnDialogPause)
-    }
 
     fun cancelDialog() {
         currentTimeDialog = START_DIALOG_TIME
@@ -126,25 +125,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         generateTable(table)
     }
 
-    fun newLevelTime() {
-        data.time
-        val time = data.time;
-        if ((time + 5) <= Data.START_TIME) {
-            data.time = data.time + 5
-        } else {
-            data.time = Data.START_TIME
-        }
-        //_time.postValue(data.time)
-    }
-
-    fun startNewLevel(table: Table) {
-        generateTable(table)
-        newLevelTime()
-        data.level += 1
-        _level.postValue(data.level)
-        _state.postValue(State.OnGame)
-    }
-
     fun setCountRightAnswers(i: Int) {
         data.countRightAnswers = i
     }
@@ -155,6 +135,9 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
 
     fun decTime() {
+        if(data.time <= 0) {
+            return
+        }
         data.time -= 1
         _time.postValue(data.time)
     }
@@ -189,7 +172,13 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
      * Fecha os respetivos e espera pela a thread do cliente e termina
      */
     fun stopGame() {
-        service?.exit()
+        thread{
+            service?.exit()
+            service = null
+            data.connState = ConnectionState.CONNECTING
+            data.state = State.OnGame
+            stopJob()
+        }
     }
 
 
@@ -204,4 +193,30 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     fun swipe(index: Int) {
         thread { service?.onSwipe(index) };
     }
+
+    fun startTimer() {
+        if (job == null || job?.isActive == false) {
+            CoroutineScope(Dispatchers.IO).async {
+                job = launch { onTimer() }
+            }
+        }
+    }
+    private suspend fun onTimer(){
+
+        while (true){
+            delay(1000)
+            CoroutineScope(Dispatchers.Main).async{
+                decTime()
+            }
+            if (data.time <= 0){
+                _state.postValue(State.OnGameOver)
+                break;
+            }
+        }
+    }
+
+    fun stopJob() {
+        job?.cancel()
+    }
+
 }

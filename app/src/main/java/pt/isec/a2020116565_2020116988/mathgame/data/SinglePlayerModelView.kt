@@ -133,4 +133,8 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
         _state.postValue(State.OnGameOver)
     }
 
+    fun setState(state: State) {
+        _state.postValue(state)
+    }
+
 }
