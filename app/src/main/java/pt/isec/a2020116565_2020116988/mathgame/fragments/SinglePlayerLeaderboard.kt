@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.LBPlayer
@@ -49,37 +50,29 @@ class SinglePlayerLeaderboard : Fragment() {
      * Metodo para carregar os dados da Firestore para uma lista de jogadores
      */
     private fun loadPlayers(){
-        //TODO buscar dados a Firestore e mapear alterar os nullables
         val db = Firebase.firestore
-        listenerRegistration = db.collection(Constants.SP_DB_COLLECTION).document(Constants.SP_DB_DOC)
+        listenerRegistration = db.collection(Constants.SP_DB_COLLECTION)
+            .orderBy("points")
+            .limit(5)
             .addSnapshotListener { docSS, e ->
                 if (e!=null) {
                     return@addSnapshotListener
                 }
-                if (docSS!=null && docSS.exists()) {
 
+                val playersData = docSS!!.map {
+                    it.toObject(LBPlayer::class.java)
                 }
-            }
-        //TODO inicializar o listener
-        val players: MutableList<LBPlayer> = mutableListOf()
-        val item = LBPlayer()
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
 
-        updatePlayers(players.take(5))
+                updatePlayers(playersData)
+            }
     }
 
     /**
      * Metodo para enviar os dados da lista de jogadores para a vista
      */
-    private fun updatePlayers(players: List<LBPlayer>?) {
+    private fun updatePlayers(playersData: List<LBPlayer>) {
         val adapter = binding.rvSpLb.adapter as SpRVAdapter
-        adapter.addPlayers(players!!)
+        adapter.addPlayers(playersData)
     }
 
     override fun onDestroyView() {

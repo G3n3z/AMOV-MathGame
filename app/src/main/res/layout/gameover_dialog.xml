@@ -38,27 +38,16 @@
         android:textSize="20sp"
         android:layout_marginTop="15dp"
         android:text="@string/points"/>
+
     <Button
-        android:id="@+id/btn_gameover_top5"
+        android:id="@+id/btn_gameover_menu"
         android:layout_width="130dp"
         android:layout_height="40dp"
         app:layout_constraintTop_toBottomOf="@id/tvGameOverPoints"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:gravity="center"
-        android:layout_marginTop="30dp"
-        android:background="@color/material_dynamic_neutral30"
-        android:text="@string/Top5"
-        android:textColor="@color/white"/>
-    <Button
-        android:id="@+id/btn_gameover_menu"
-        android:layout_width="130dp"
-        android:layout_height="40dp"
-        app:layout_constraintTop_toBottomOf="@id/btn_gameover_top5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:gravity="center"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="50dp"
         android:background="@color/material_dynamic_neutral30"
         android:text="@string/main_menu"
         android:textColor="@color/white"/>

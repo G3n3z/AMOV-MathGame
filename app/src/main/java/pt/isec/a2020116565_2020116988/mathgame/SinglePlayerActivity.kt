@@ -11,10 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
@@ -69,6 +66,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
 
     lateinit var gamePanelView: GamePanelView
+    private var flag: Int = -1
 
     private val modelView : SinglePlayerModelView by viewModels{
         ViewModelFactory(app.data, 0)
@@ -101,6 +99,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun getStateByInt(intExtra: Int) {
         if (intExtra == -1)
             return
+        flag = intExtra
         var state = State.gameModeByInteger(intExtra)
         Log.i("getStateByInt", state.toString())
         modelView.setState(state)
@@ -252,81 +251,31 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     }
 
-    private var onGameOverDialogClose = fun(opt: Int){
-        when(opt){
-            1 -> {
-                updateSinglePlayerTop5()
-                Log.i("CALLBACK", "Nav to TOP 5")
-                finish()
-            }//TODO navigate to top 5
-            2 -> {
-                finish()
-            }
-        }
+    private var onGameOverDialogClose = fun(){
+        if(flag == -1)
+            updateSinglePlayerTop5()
+        finish()
     }
-
-    private var listenerRegistration: ListenerRegistration? = null
 
     private fun updateSinglePlayerTop5() {
         val db = Firebase.firestore
-        var players: MutableMap<String, LBPlayer> = mutableMapOf()
-        var pl: MutableList<LBPlayer> = mutableListOf()
-        //TODO ir buscar dados
-        db.collection(Constants.SP_DB_COLLECTION).document(Constants.SP_DB_DOC).get().addOnCompleteListener {
-            if (it.isSuccessful){
-                val document = it.result.data
-//                if (document.exists()){
-//                    players = document.data as MutableMap<String, LBPlayer>
-//                }
-                document?.let {
-                    for ((key, value) in document) {
-                        //players[key] = value
-                        pl.add(value as LBPlayer)
-                    }
-                }
+        val player = LBPlayer(
+            0,
+            data.level,
+            data.currentUser?.photo,
+            data.points,
+            data.totalTables,
+            data.totalTime,
+            data.currentUser?.userName
+        )
+
+        db.collection(Constants.SP_DB_COLLECTION).add(player)
+            .addOnSuccessListener {
+                Log.i("UPDATEDB", "addDataToFirestore: Success")
+            }.
+            addOnFailureListener { e->
+                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
             }
-        }
-        Log.i("DATA", players.toString())
-        Log.i("DATA", pl.toString())
-
-//        listenerRegistration = db.collection("Scores").document("Level1")
-//            .addSnapshotListener { docSS, e ->
-//                if (e!=null) {
-//                    return@addSnapshotListener
-//                }
-//                if (docSS!=null && docSS.exists()) {
-//                    val data1 = docSS.data?.values?.map { it as MutableMap<*, *> }
-//                    Log.i("DATA", data1.toString())
-//                }
-//            }
-
-
-
-
-        //TODO adicionar o novo player, dar sort e extrair só os 5 pmireiros OU comparar os valores dos scores com os existentes e retirar o espaço
-
-        //TODO remover dados da firestore e atualizar com os novos
-//
-//        val lbPlayer0 = LBPlayer(1,"dummy1","",1,1,1,1)
-//        val lbPlayer1 = LBPlayer(2,"dummy2","",2,2,2,2)
-//        val lbPlayer2 = LBPlayer(3,"dummy3","",3,3,3,3)
-//        val lbPlayer3 = LBPlayer(4,"dummy4","",4,4,4,4)
-//        val lbPlayer4 = LBPlayer(5,"dummy5","",5,5,5,5)
-//
-//        players[(lbPlayer0.id).toString()] = (lbPlayer0)
-//        players[(lbPlayer1.id).toString()] = (lbPlayer1)
-//        players[(lbPlayer2.id).toString()] = (lbPlayer2)
-//        players[(lbPlayer3.id).toString()] = (lbPlayer3)
-//        players[(lbPlayer4.id).toString()] = (lbPlayer4)
-//
-//        db.collection(Constants.SP_DB_COLLECTION).document(Constants.SP_DB_DOC).set(players)
-//            .addOnSuccessListener {
-//                Log.i("UPDATEDB", "addDataToFirestore: Success")
-//            }.
-//            addOnFailureListener { e->
-//                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
-//            }
-        listenerRegistration?.remove()
     }
 
     suspend fun onTimer(tv: TextView, label: String, onTimeOver: () -> Unit){
