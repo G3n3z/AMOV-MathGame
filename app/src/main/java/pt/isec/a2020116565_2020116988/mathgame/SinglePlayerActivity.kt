@@ -11,11 +11,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
-import pt.isec.a2020116565_2020116988.mathgame.data.Data
-import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
-import pt.isec.a2020116565_2020116988.mathgame.data.Operation
-import pt.isec.a2020116565_2020116988.mathgame.data.SinglePlayerModelView
+import pt.isec.a2020116565_2020116988.mathgame.data.*
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerBinding
 
 import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
@@ -83,7 +82,9 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         time = data.time;
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
-//        supportActionBar?.hide()
+
+//        supportActionBar?.hide() //TODO mudar para aparecer mas desativar o icon
+
         gamePanelView = GamePanelView(this,null,0,0, data.operations, this);
         binding.gameTable.addView(gamePanelView)
         registerCallbacksOnState();
@@ -250,6 +251,17 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private var onGameOverDialogClose = fun(opt: Int){
         when(opt){
             1 -> {
+                updateSinglePlayerTop5(
+                    LBPlayer(
+                        0,
+                        data.currentUser!!.userName,
+                        data.currentUser!!.photo!!,
+                        data.points,
+                        data.totalTime,
+                        data.level,
+                        data.totalTables
+                    )
+                )
                 Log.i("CALLBACK", "Nav to TOP 5")
                 finish()
             }//TODO navigate to top 5
@@ -257,6 +269,27 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 finish()
             }
         }
+    }
+
+    private fun updateSinglePlayerTop5(lbPlayer: LBPlayer) {
+        val db = Firebase.firestore
+
+        //TODO ir buscar dados
+
+        //TODO adicionar o novo player, dar sort e extrair só os 5 pmireiros OU comparar os valores dos scores com os existentes e retirar o espaço
+
+        //TODO remover dados da firestore e atualizar com os novos
+
+        val players : MutableMap<String,LBPlayer> = mutableMapOf()
+        players["0"] = lbPlayer
+
+        db.collection("Top5").document("SinglePlayer").set(players)
+            .addOnSuccessListener {
+                Log.i("UPDATEDB", "addDataToFirestore: Success")
+            }.
+            addOnFailureListener { e->
+                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
+            }
     }
 
     suspend fun onTimer(tv: TextView, label: String, onTimeOver: () -> Unit){

@@ -48,11 +48,14 @@ class Home : Fragment() {
                 startActivity(intent);
             }
         }
-        binding.btnProfile.setOnClickListener {
-            findNavController().navigate(R.id.fragment_profile);
-        }
         binding.btnMultiPlayer.setOnClickListener {
             findNavController().navigate(R.id.fragment_multiplayer_option)
+        }
+        binding.btnTop5.setOnClickListener {
+            findNavController().navigate(R.id.fragment_top5_option)
+        }
+        binding.btnProfile.setOnClickListener {
+            findNavController().navigate(R.id.fragment_profile);
         }
         return binding.root;
     }
