@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.LBPlayer
@@ -52,7 +52,7 @@ class SinglePlayerLeaderboard : Fragment() {
     private fun loadPlayers(){
         val db = Firebase.firestore
         listenerRegistration = db.collection(Constants.SP_DB_COLLECTION)
-            .orderBy("points")
+            .orderBy("points", Query.Direction.DESCENDING)
             .limit(5)
             .addSnapshotListener { docSS, e ->
                 if (e!=null) {
