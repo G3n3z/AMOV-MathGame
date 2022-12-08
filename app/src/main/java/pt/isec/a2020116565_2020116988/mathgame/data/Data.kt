@@ -79,6 +79,10 @@ class Data {
         time = START_TIME
         points = 0;
         level = 1
+        currentUser?.points = 0
+        currentUser?.nTables = 0
+        currentUser?.state = State.OnGame
+        
     }
 
     companion object {

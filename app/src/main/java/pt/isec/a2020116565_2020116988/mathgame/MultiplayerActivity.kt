@@ -83,7 +83,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         var mode :GameMode =  GameMode.gameModeByInteger(intent.getIntExtra(MODE, -1))
         Log.i("ATG", intent.getIntExtra(MODE, -1).toString())
         Log.i("ATG", mode.toString())
-        modelView.setMode(mode);
+        //modelView.setMode(mode);
 
         if (mode == GameMode.SERVER_MODE && modelView.connectionState.value == ConnectionState.CONNECTING){
             Log.i("Server", "SERVER_MODE")
