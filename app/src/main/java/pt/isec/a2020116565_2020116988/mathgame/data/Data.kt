@@ -14,6 +14,8 @@ class Data {
     var operations : MutableList<Operation> = ArrayList(5);
     var level:Int = 1;
     var time: Int = START_TIME;
+    var totalTime: Int = 0 //TODO necessário para os tops VERIFICAR
+    var totalTables: Int = 0 //TODO necessário para os tops VERIFICAR
     var operators : MutableList<Char> = mutableListOf('+', '-')
     private var OPERATORS : MutableList<Char> = mutableListOf('+', '-', 'x', '/')
     lateinit var maxOperation : Operation;
@@ -56,6 +58,7 @@ class Data {
         ordered.sortBy { operation -> operation.calcOperation()}
         maxOperation = ordered[ordered.size-1]
         secondOperation = ordered[ordered.size-2]
+        totalTables++
     }
 
     fun startSinglePlayer() {
@@ -88,7 +91,9 @@ class Data {
     }
 
     companion object {
+
         const val START_TIME: Int = 60
+
         const val COUNT_RIGHT_ANSWERS: Int = 1
     }
 

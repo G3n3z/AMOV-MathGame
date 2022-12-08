@@ -40,8 +40,12 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var tvName : TextView = view.findViewById(R.id.item_tv_name)
         var tvPont : TextView = view.findViewById(R.id.item_tv_points)
+//        var tvtime : TextView = view.findViewById(R.id.tvtime)
+
         var img : ImageView = view.findViewById(R.id.itemPhoto)
+
         var tvBoard : TextView = view.findViewById(R.id.item_tv_boards)
+
         var textUsername: String = view.context.getString(R.string.user_name)
         var textPont: String = view.context.getString(R.string.points)
         var textBoards: String = view.context.getString(R.string.boards)
