@@ -32,6 +32,8 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
     }
 
     fun submitNewData(list : MutableList<User>){
+        list.sortByDescending { it.points }
+        users = list;
         notifyDataSetChanged()
     }
 
@@ -39,13 +41,15 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
         var tvName : TextView = view.findViewById(R.id.item_tv_name)
         var tvPont : TextView = view.findViewById(R.id.item_tv_points)
         var img : ImageView = view.findViewById(R.id.itemPhoto)
-//        var tv3 : TextView = view.findViewById(R.id.tv3)
+        var tvBoard : TextView = view.findViewById(R.id.item_tv_boards)
         var textUsername: String = view.context.getString(R.string.user_name)
         var textPont: String = view.context.getString(R.string.points)
+        var textBoards: String = view.context.getString(R.string.boards)
 
         fun update(data : User) {
-            tvName.text =  textUsername + ": "+ data.userName
-            tvPont.text = textPont + ": "+ data.points.toString()
+            tvName.text =  data.userName
+            tvPont.text =  "$textPont: ${data.points}"
+            tvBoard.text = String.format("%s: %d", textBoards, data.nTables)
             if (data.state == State.OnGameOver){
                 tvName.setTextColor(Color.RED)
             }

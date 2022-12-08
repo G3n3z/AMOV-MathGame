@@ -42,4 +42,6 @@
     <string name="game_over">Game Over</string>
     <string name="main_menu">Main Menu</string>
     <string name="connection_lost">Connection Lost</string>
+    <string name="exit">Exit</string>
+    <string name="boards">Boards</string>
 </resources>

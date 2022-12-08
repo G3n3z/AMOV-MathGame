@@ -25,21 +25,6 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
     private var socket = viewModel.socket;
     var thread:Thread? = null
 
-    fun swipeClient(index: Int) {
-        clientOutStream.run {
-            val message = MoveMessage(
-                TypeOfMessage.SWIPE,
-                index,
-                viewModel._time.value!!,
-                data.currentUser?.id ?: -1
-            )
-            val json = Gson().toJson(message);
-            val printStream = PrintStream(this);
-            printStream.println(json)
-            printStream.flush()
-        }
-    }
-
 
     fun startClient(ip: String, serverPort: Int = MultiplayerModelView.SERVER_PORT) {
         if (socket != null || viewModel.connectionState.value != ConnectionState.CONNECTING){
@@ -50,8 +35,8 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                 val newsocket = Socket()
                 newsocket.connect(InetSocketAddress(ip,serverPort),5000)
                 viewModel._connState.postValue(ConnectionState.WAITING_OTHERS);
-                startCommunication(newsocket);
                 Log.i("startClient", "Connectou")
+                startCommunication(newsocket);
             }catch (e:Exception){
                 Log.i("startClient", e.message.toString())
             }
@@ -109,7 +94,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                     }
                     TypeOfMessage.NEW_TABLE.name ->{
                         val message  = Gson().fromJson<StatusMessage>(json, StatusMessage::class.java)
-                        newTableMessage(message);
+                        newTableMessage(message)
                     }
                     TypeOfMessage.INFO_USER.name ->{
                         val message  = Gson().fromJson<PlayerMessage>(json, PlayerMessage::class.java)
@@ -121,15 +106,15 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                     }
                     TypeOfMessage.EXIT_USER.name ->{
                         val message  = Gson().fromJson<PlayerMessage>(json, PlayerMessage::class.java)
-                        removeUser(message);
+                        userGiveUp(message)
                     }
                     TypeOfMessage.POINTS_PLAYER.name ->{
                         val message  = Gson().fromJson<UpdateStatusPlayer>(json, UpdateStatusPlayer::class.java)
-                        updateListOfUsers(message);
+                        updateListOfUsers(message)
                     }
                     TypeOfMessage.GAME_OVER.name -> {
-                        val message = Gson().fromJson<StatusMessage>(json, StatusMessage::class.java)
-                        gameOver(message)
+                        val message = Gson().fromJson<UpdateStatusPlayer>(json, UpdateStatusPlayer::class.java)
+                        gameOver(message, idPlayer)
                     }
                 }
 
@@ -141,10 +126,21 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
     }
 
-    private fun gameOver(message: StatusMessage) {
-        viewModel._state.postValue(message.status)
-        viewModel._time.postValue(message.time)
-        data.time = message.time
+    private fun gameOver(message: UpdateStatusPlayer, idPlayer: Int) {
+        if(message.idUser == idPlayer){
+            viewModel._state.postValue(message.state)
+            viewModel._time.postValue(0)
+            data.time = 0
+        }
+
+        val users = viewModel._users.value!!
+        for (user in users) {
+            if(message.idUser == user.id) {
+                user.state = message.state ?: user.state
+            }
+        }
+        viewModel._users.postValue(users)
+
     }
 
     private fun updateListOfUsers(message: UpdateStatusPlayer?) {
@@ -152,20 +148,24 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         for (user in users) {
             if (user.id  == message?.idUser){
                 user.points = message.points
+                user.state = message.state ?: user.state
+                user.nTables = message.numBoards
             }
         }
         viewModel._users.postValue(users);
     }
 
-    private fun removeUser(message: PlayerMessage) {
+    private fun userGiveUp(message: PlayerMessage) {
         val users = viewModel.users.value!!
-        var u : MutableList<User> = mutableListOf();
-        for (user in users) {
-            if (user.id != message.user?.id){
-                u.add(user)
+        synchronized(users) {
+            for (user in users) {
+                if (user.id == message.user?.id) {
+                    user.state = State.OnGameOver
+                }
             }
         }
-        viewModel._users.postValue(u);
+        users.sortBy { user -> user.points }
+        viewModel._users.postValue(users);
     }
 
     private fun swipeResponseMessage(message: MoveMessage, idPlayer: Int) {
@@ -200,6 +200,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         viewModel._level.postValue(message.level)
     }
 
+
     private fun statusGameMessage(message: StatusMessage) {
         //Primeira mensagem, é para comecar
         if (viewModel._connState.value == ConnectionState.WAITING_OTHERS && message.status == State.OnGame){
@@ -207,12 +208,12 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         }
         viewModel._state.postValue(message.status)
 
-        if (message.status == State.OnGame){
+        if (message.status == State.OnGame){ // Começar novo nivel
             val operations : MutableList<Operation>  = message.table!!
             data.operations = operations
             viewModel._operations.postValue(operations)
             viewModel.startTimer()
-        }else{
+        }else{ // Passou de nivel e é para entrar em dialog resume
             Log.i("statusGameMessage", "AQUI")
             viewModel.stopJob()
         }
@@ -255,9 +256,26 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
             socket = null
             thread?.join() //TODO tratar o fecho correto da thread
             thread = null
+            data.clear()
+            viewModel._users.postValue(mutableListOf())
         }catch (e:Exception){
             e.printStackTrace()
             Log.i("CLIENTE", e.message.toString())
+        }
+    }
+
+    override fun timeOver() {
+        val message = UpdateStatusPlayer(TypeOfMessage.GAME_OVER, State.OnGameOver, data.points, data.level, data.currentUser?.id!!, 0);
+        //thread{sendMessage(message)}
+    }
+
+    override fun closeSockets() {
+        try {
+            socket?.close()
+            socket = null
+            thread?.join()
+        }catch (e:Exception){
+            e.printStackTrace()
         }
     }
 

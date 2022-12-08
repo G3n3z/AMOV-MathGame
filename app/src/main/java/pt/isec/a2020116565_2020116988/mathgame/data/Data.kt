@@ -74,8 +74,15 @@ class Data {
         secondOperation = ordered[ordered.size-2]
     }
 
+    fun clear() {
+        operations.clear()
+        time = START_TIME
+        points = 0;
+        level = 1
+    }
+
     companion object {
-        const val START_TIME: Int = 180
+        const val START_TIME: Int = 60
         const val COUNT_RIGHT_ANSWERS: Int = 1
     }
 
