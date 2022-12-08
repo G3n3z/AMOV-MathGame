@@ -68,6 +68,8 @@ class Data {
     }
 
     fun generateMaxOperations() {
+        if (operations.size == 0)
+            return
         val ordered = operations.toMutableList()
         ordered.sortBy { operation -> operation.calcOperation()}
         maxOperation = ordered[ordered.size-1]

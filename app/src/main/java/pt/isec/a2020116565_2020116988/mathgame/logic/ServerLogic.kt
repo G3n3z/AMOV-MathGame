@@ -350,8 +350,8 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
     }
     private fun nextTable(player: Player):Table{
         val table :Table;
-        if(player.numTable < tables.size-1){
-            table =  tables[player.numTable]
+        if(player.numTable < tables.size){
+            table = tables[player.numTable]
         }else{
             table = Table(player.level);
             tables.add(table)
@@ -371,10 +371,10 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
 
     private fun secondRightAnswer(player: Player) {
 
+        player.numTable++
         val table : Table = nextTable(player)
         player.totalTables++;
         player.points +=1
-        player.numTable++
         player.table = table
         val msg = StatusMessage(TypeOfMessage.NEW_TABLE, State.OnGame, table.operations, player.points, player.time, player.level)
         sendMessage(player.outputStream, msg)
@@ -445,7 +445,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         players[0]?.time = data.time
         players[0]?.state = state
         players[0]?.currectRigthAnswers = data.countRightAnswers
-        players[0]?.numTable = players[0]?.numTable?.plus(1)!!;
+
         updateRecicler(players[0]!!)
     }
     override fun onSwipe(index : Int){
@@ -453,7 +453,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         if (data.operations[index] == data.maxOperation){
             viewModel.maxOperationRigth()
             viewModel.incCountRightAnswers();
-
+            players[0]?.numTable = players[0]?.numTable?.plus(1)!!;
             if (data.countRightAnswers == Data.COUNT_RIGHT_ANSWERS){
                 viewModel.setCountRightAnswers(0)
                 viewModel.showAnimationResume()
@@ -474,6 +474,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             }
             sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER,null, data.points, data.level, data.currentUser?.id!!, players[0]!!.totalTables));
         }else if (data.operations[index] == data.secondOperation){
+            players[0]?.numTable = players[0]?.numTable?.plus(1)!!;
             val table : Table = nextTable(players[0]!!)
             viewModel.secondOperationRigth(table)
             updatePlayerServer(table, State.OnGame)
@@ -504,8 +505,12 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                     if (player.value.state == State.OnGame) {
                         player.value.time--
                         if (player.value.time <= 0) {
-                            player.value.state = State.OnGameOver
-                            val msg = UpdateStatusPlayer(TypeOfMessage.GAME_OVER, State.OnGameOver, player.value.points,
+                            if(allGameOver()){
+                                player.value.state = State.OnGame
+                            }else{
+                                player.value.state = State.OnGameOver
+                            }
+                            val msg = UpdateStatusPlayer(TypeOfMessage.GAME_OVER, player.value.state, player.value.points,
                                 player.value.level, player.value.id, player.value.totalTables
                             )
                             finished = true

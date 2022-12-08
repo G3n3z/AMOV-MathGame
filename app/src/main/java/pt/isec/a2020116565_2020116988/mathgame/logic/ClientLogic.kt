@@ -132,7 +132,6 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
             viewModel._time.postValue(0)
             data.time = 0
         }
-
         val users = viewModel._users.value!!
         for (user in users) {
             if(message.idUser == user.id) {
