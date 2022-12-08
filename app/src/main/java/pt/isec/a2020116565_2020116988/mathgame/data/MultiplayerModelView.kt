@@ -20,6 +20,7 @@ import java.io.OutputStream
 import java.io.PrintStream
 import java.net.ServerSocket
 import java.net.Socket
+import java.util.LinkedList
 import kotlin.concurrent.thread
 
 class MultiplayerModelView(private val data :Data):ViewModel() {
@@ -29,6 +30,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     private var job : Job? = null;
+
+    var usersUpdate: MutableLiveData<LinkedList<Int>> = MutableLiveData(LinkedList())
 
     private val START_DIALOG_TIME = data.START_DIALOG_TIME
     var currentTimeDialog: Int = data.START_DIALOG_TIME
@@ -162,11 +165,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         (service as ServerLogic).startServer()
     }
 
-    //Botao start
-
-
-    //Cliente
-
     /**
      * Método para terminar o jogo tanto do lado do servidor como no cliente
      * Fecha os respetivos e espera pela a thread do cliente e termina
@@ -209,7 +207,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 decTime()
             }
             if (data.time <= 0){
-                _state.postValue(State.OnGameOver)
+                service?.timeOver()
+                //_state.postValue(State.OnGameOver)
                 break;
             }
         }
@@ -218,5 +217,10 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     fun stopJob() {
         job?.cancel()
     }
+
+    fun closeSockets() {
+        service?.closeSockets();
+    }
+
 
 }

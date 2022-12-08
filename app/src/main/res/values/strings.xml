@@ -42,6 +42,10 @@
     <string name="game_over">Game Over</string>
     <string name="main_menu">Main Menu</string>
     <string name="connection_lost">Connection Lost</string>
+
+    <string name="exit">Exit</string>
+    <string name="boards">Boards</string>
+
     <string name="choose_leaderboard">Choose Leaderboard</string>
     <string name="multi_player_pts">MultiPlayer Points</string>
     <string name="multi_player_time">MultiPlayer Time</string>
