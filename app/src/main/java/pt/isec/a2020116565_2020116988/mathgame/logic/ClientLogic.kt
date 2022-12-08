@@ -39,6 +39,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                 startCommunication(newsocket);
             }catch (e:Exception){
                 Log.i("startClient", e.message.toString())
+                viewModel._connState.postValue(ConnectionState.EXIT)
             }
         }
     }

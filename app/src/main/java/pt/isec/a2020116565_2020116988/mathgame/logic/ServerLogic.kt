@@ -572,8 +572,8 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
 
     override fun closeSockets() {
         try {
-            sockets.forEach(Socket::close)
             serverSocket?.close()
+            sockets.forEach(Socket::close)
             serverSocket = null
             threads.forEach(Thread::join)
         }catch (e:Exception){

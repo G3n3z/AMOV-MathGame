@@ -149,6 +149,9 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             app.data.generateMaxOperations();
             finish()
             startActivity(intent);
+        }else if (it == ConnectionState.EXIT){
+            modelView.closeSockets()
+            finish()
         }
     }
 
@@ -384,6 +387,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                     ).show()
                     //finish()
                 } else {
+                    Log.i("dialog ip",strIP )
                     modelView.startClient(strIP, MultiplayerModelView.SERVER_PORT-1);
                 }
             }
