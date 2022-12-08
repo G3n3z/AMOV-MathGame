@@ -21,7 +21,10 @@ import pt.isec.a2020116565_2020116988.mathgame.utils.SpRVAdapter
 class MultiPlayerLbPoints : Fragment() {
 
     private lateinit var binding: FragmentMultiPlayerLbPointsBinding
-    private var listenerRegistration: ListenerRegistration? = null
+    private var listenerRegistrationGames: ListenerRegistration? = null
+    private var listenerRegistrationPlayers: ListenerRegistration? = null
+    private var index: Int? = null
+    private var gameRefs = mutableListOf<LBMultiPlayer>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,10 +51,9 @@ class MultiPlayerLbPoints : Fragment() {
 
     }
 
-
     private fun loadGames(){
         val db = Firebase.firestore
-        listenerRegistration = db.collection(Constants.MP_DB_COLLECTION)
+        listenerRegistrationGames = db.collection(Constants.MP_DB_COLLECTION)
             .orderBy("points", Query.Direction.DESCENDING)
             .limit(5)
             .addSnapshotListener { docSS, e ->
@@ -59,23 +61,33 @@ class MultiPlayerLbPoints : Fragment() {
                     return@addSnapshotListener
                 }
 
-                val games = mutableListOf<LBMultiPlayer>()
+                gameRefs = mutableListOf()
                 docSS!!.documents.forEach {
                     val docRef = it.reference.id
                     val game = it.toObject(LBMultiPlayer::class.java)!!
                     game.id = docRef
-                    games.add(game)
+                    gameRefs.add(game)
                 }
 
-                val posi: Int
-                updateGames(games)
+                updateGames(gameRefs)
 
-                /*if (pos != -1){
-                    gamesData[pos]
-                    Log.i("TAG", gamesData[pos].toString())
-                    Log.i("TAG", pos.toString())
-                }*/
+            }
+    }
 
+    private fun loadPlayers(){
+        val db = Firebase.firestore
+        listenerRegistrationPlayers = db.collection(Constants.MP_DB_COLLECTION)
+            .document(gameRefs[index!!].id).collection(Constants.MP_PLAYERS_DB_COLLECTION)
+            .addSnapshotListener { docSS, e ->
+                if (e!=null) {
+                    return@addSnapshotListener
+                }
+
+                val playersData = docSS!!.map {
+                    it.toObject(LBPlayer::class.java)
+                }
+
+                updatePlayers(playersData)
             }
     }
 
@@ -84,7 +96,8 @@ class MultiPlayerLbPoints : Fragment() {
         adapter.addGames(gamesData)
         adapter.setOnClickListener(object :MpRVAdapter.onItemClickListener{
             override fun onItemClick(pos: Int) {
-                Log.i("TAG", pos.toString())
+                index = pos
+                loadPlayers()
             }
         })
     }
@@ -96,7 +109,8 @@ class MultiPlayerLbPoints : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        listenerRegistration?.remove()
+        listenerRegistrationGames?.remove()
+        listenerRegistrationPlayers?.remove()
     }
 
 }

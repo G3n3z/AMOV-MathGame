@@ -263,9 +263,13 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         val players = mutableListOf<LBPlayer>()
         val player1 = LBPlayer(1)
         val player2 = LBPlayer(2)
+        val player3 = LBPlayer(3)
+        val player4 = LBPlayer(4)
         players.add(player1)
         players.add(player2)
-        val game = LBMultiPlayer(points = 1, totalTime = 1)
+        players.add(player3)
+        players.add(player4)
+        val game = LBMultiPlayer(points = 20, totalTime = 20)
 
         val docRef = db.collection(Constants.MP_DB_COLLECTION).document()
 
@@ -276,6 +280,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             addOnFailureListener { e->
                 Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
             }
+
         players.forEach {
             docRef.collection(Constants.MP_PLAYERS_DB_COLLECTION).add(it)
         }
