@@ -8,4 +8,14 @@ data class LBPlayer(
     var totalTables: Int = 0,
     var totalTime: Int = 0,
     var username: String? = ""
-)
+){
+    fun mapPlayerToLBPlayer(player: Player){
+        id = player.id
+        level = player.level
+        photo = player.user?.photo
+        points = player.points
+        totalTables = player.totalTables
+        totalTime = player.totalTime
+        username = player.user?.userName
+    }
+}

@@ -68,6 +68,10 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             //data.time = value
             binding.gameTimeMultiplayer.text = getString(R.string.time) + ": ${value}";
         }
+    var totalTime: Int = 0
+        set (value) {
+            field = value
+        }
 
     private lateinit var binding : ActivityMultiplayerBinding;
     val app: Application by lazy { application as Application }
@@ -165,6 +169,9 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun registerCallbacksOnLabels() {
         modelView.time.observe(this){
             time = it
+        }
+        modelView.totalTime.observe(this){
+            totalTime = it
         }
         modelView.level.observe(this){
             level = it;
@@ -295,6 +302,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         super.onDestroy()
         modelView.users.removeObservers(this)
         modelView.time.removeObservers(this)
+        modelView.totalTime.removeObservers(this)
         modelView.points.removeObservers(this)
         modelView.level.removeObservers(this)
         modelView.nConnections.removeObservers(this)

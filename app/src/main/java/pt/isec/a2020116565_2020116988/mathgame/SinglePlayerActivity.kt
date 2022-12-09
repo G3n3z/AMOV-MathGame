@@ -85,8 +85,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
 
-//        supportActionBar?.hide() //TODO mudar para aparecer mas desativar o icon
-
         gamePanelView = GamePanelView(this,null,0,0, data.operations, this)
         binding.gameTable.addView(gamePanelView)
         registerCallbacksOnState()
@@ -253,37 +251,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private var onGameOverDialogClose = fun(){
         if(flag == -1)
-//            updateSinglePlayerTop5()
-            updateMultiPlayerTop5()
+            updateSinglePlayerTop5()
         finish()
-    }
-
-    private fun updateMultiPlayerTop5() {
-        val db = Firebase.firestore
-        val players = mutableListOf<LBPlayer>()
-        val player1 = LBPlayer(1)
-        val player2 = LBPlayer(2)
-        val player3 = LBPlayer(3)
-        val player4 = LBPlayer(4)
-        players.add(player1)
-        players.add(player2)
-        players.add(player3)
-        players.add(player4)
-        val game = LBMultiPlayer(points = 20, totalTime = 20)
-
-        val docRef = db.collection(Constants.MP_DB_COLLECTION).document()
-
-        docRef.set(game)
-            .addOnSuccessListener {
-                Log.i("UPDATEDB", "addDataToFirestore: Success")
-            }.
-            addOnFailureListener { e->
-                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
-            }
-
-        players.forEach {
-            docRef.collection(Constants.MP_PLAYERS_DB_COLLECTION).add(it)
-        }
     }
 
     private fun updateSinglePlayerTop5() {

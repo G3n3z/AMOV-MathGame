@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import pt.isec.a2020116565_2020116988.mathgame.R
@@ -39,18 +40,24 @@ class SpRVAdapter(var context: Context?) : RecyclerView.Adapter<SpRVAdapter.SpVi
      * Mapeamento dos campos da vista aos atributos dos players
      */
     class SpViewHolder(val view : View, var context: Context?) : RecyclerView.ViewHolder(view) {
+        var tvphoto: ImageView = view.findViewById(R.id.iv_photo_sp_lb)
         var tvpos : TextView = view.findViewById(R.id.tv_pos_sp_lb)
         var tvname : TextView = view.findViewById(R.id.tv_name_sp_lb)
-        var tvtime : TextView = view.findViewById(R.id.tv_time_sp_lb)
+        var tvboards: TextView = view.findViewById(R.id.tv_boards_sp_lb)
         var tvpoints : TextView = view.findViewById(R.id.tv_points_sp_lb)
+        var tvtime : TextView = view.findViewById(R.id.tv_time_sp_lb)
 
 
         @SuppressLint("SetTextI18n")
         fun update(playersInfo: LBPlayer, position: Int ,context: Context?) {
+            tvphoto.post {
+                updatePic(tvphoto, playersInfo.photo!!)
+            }
             tvpos.text = "#" + (position+1).toString()
             tvname.text = playersInfo.username
-            tvtime.text = "${context?.getString(R.string.time)} : ${playersInfo.totalTime}"
-            tvpoints.text = "${context?.getString(R.string.points)} : ${playersInfo.points}"
+            tvboards.text = "${context?.getString(R.string.boards)}: ${playersInfo.totalTables}"
+            tvtime.text = "${context?.getString(R.string.time)}: ${playersInfo.totalTime}"
+            tvpoints.text = "${context?.getString(R.string.points)}: ${playersInfo.points}"
         }
     }
 
