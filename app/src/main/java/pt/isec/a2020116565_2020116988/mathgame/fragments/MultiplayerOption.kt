@@ -40,10 +40,12 @@ class MultiplayerOption : Fragment() {
     ): View {
         binding = FragmentMultiplayerOptionBinding.inflate(inflater, container, false);
         binding.btnServerMode.setOnClickListener {
+            app.data.clear()
             val intent = MultiplayerActivity.getServerModeIntent(requireContext())
             startActivity(intent)
         }
         binding.btnClientMode.setOnClickListener {
+            app.data.clear()
             val intent = MultiplayerActivity.getClientModeIntent(requireContext())
             startActivity(intent)
         }

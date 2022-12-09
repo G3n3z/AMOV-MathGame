@@ -12,7 +12,6 @@ import android.text.InputFilter
 import android.text.Spanned
 import android.util.Log
 import android.util.Patterns
-import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -25,10 +24,7 @@ import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevelMultiplayer
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
-import pt.isec.a2020116565_2020116988.mathgame.views.ClientWaitingDialog
-import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
-import pt.isec.a2020116565_2020116988.mathgame.views.ScoresRecycleViewAdapter
-import pt.isec.a2020116565_2020116988.mathgame.views.ServerModalInitial
+import pt.isec.a2020116565_2020116988.mathgame.views.*
 
 
 class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
@@ -53,6 +49,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     private var clientInitDialog: ClientWaitingDialog? = null
     private var dialog : DialogLevelMultiplayer? = null
     private var adapter : ScoresRecycleViewAdapter? = null;
+    private var dialogGameOver : GameOverMultiDialog? = null;
     private var points : Int = 0
         set(value) {
             field = value
@@ -86,7 +83,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         var mode :GameMode =  GameMode.gameModeByInteger(intent.getIntExtra(MODE, -1))
         Log.i("ATG", intent.getIntExtra(MODE, -1).toString())
         Log.i("ATG", mode.toString())
-        modelView.setMode(mode);
+        //modelView.setMode(mode);
 
         if (mode == GameMode.SERVER_MODE && modelView.connectionState.value == ConnectionState.CONNECTING){
             Log.i("Server", "SERVER_MODE")
@@ -100,41 +97,50 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             clientMode()
 
         }
-        if (mode == GameMode.CLIENT_MODE) {
-            modelView.connectionState.observe(this) { connectionStateHandlers(it) }
-        }else{
-            modelView.connectionState.observe(this) { connectionStateHandlersServer(it) }
-        }
+
+         modelView.connectionState.observe(this) { connectionStateHandlers(it, mode) }
+
+
+
         gamePanelView = GamePanelView(this,null,0,0, app.data.operations, this);
         binding.gameTableMultiplayer.addView(gamePanelView)
         registerCallbacksOnState();
         registerCallbacksOnLabels();
     }
 
-    private fun connectionStateHandlersServer(it: ConnectionState?) {
-        if(it == ConnectionState.CONNECTION_ESTABLISHED){
-            binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
-            adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
-            binding.flScoresFragment.adapter = adapter
-        }
-        else if(it == ConnectionState.CONNECTION_LOST){
-            finish()
-        }
-    }
+//    private fun connectionStateHandlersServer(it: ConnectionState?) {
+//        if(it == ConnectionState.CONNECTION_ESTABLISHED){
+//            binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
+//            adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
+//            binding.flScoresFragment.adapter = adapter
+//        }
+//        else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGame){
+//            val intent = SinglePlayerActivity.getIntentFromMultiplayer(this, modelView.state.value?.ordinal!!)
+//            app.data.generateMaxOperations();
+//            finish()
+//            startActivity(intent);
+//        }
+//        else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGameOver){
+//            finish()
+//        }
+//    }
 
-    private fun connectionStateHandlers(it: ConnectionState) {
+    private fun connectionStateHandlers(it: ConnectionState, mode : GameMode) {
         if (it == ConnectionState.WAITING_OTHERS && clientInitDialog == null){
-            clientInitDialog = ClientWaitingDialog(cancelWait)
-            clientInitDialog?.show(supportFragmentManager, "waitingFrag")
-
+            if(mode == GameMode.CLIENT_MODE) {
+                clientInitDialog = ClientWaitingDialog(cancelWait)
+                clientInitDialog?.show(supportFragmentManager, "waitingFrag")
+            }
         }else if(it == ConnectionState.CONNECTION_ESTABLISHED){
-            clientInitDialog?.dismiss()
-            clientInitDialog = null
+            if(mode == GameMode.CLIENT_MODE){
+                clientInitDialog?.dismiss()
+                clientInitDialog = null
+            }
             binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
             adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
             binding.flScoresFragment.adapter = adapter;
         }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGameOver){
-            //modelView.stopGame()
+            finish()
         }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGame ||
             modelView._state.value!! == State.OnDialogPause){
             Snackbar.make(binding.root, getString(R.string.connection_lost), Snackbar.LENGTH_LONG).show()
@@ -143,6 +149,9 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             app.data.generateMaxOperations();
             finish()
             startActivity(intent);
+        }else if (it == ConnectionState.EXIT){
+            modelView.closeSockets()
+            finish()
         }
     }
 
@@ -170,12 +179,14 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         modelView.users.observe(this){
             Log.i("registerCall", "reciclerView update")
             adapter?.submitNewData(it)
+            dialogGameOver?.update(it);
         }
     }
 
     override fun onPause() {
         super.onPause()
         dlg?.cancel()
+        dialogGameOver?.dismiss()
     }
 
     override fun swipe(index: Int) {
@@ -191,10 +202,6 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun onStateChange(state :State) {
         when(state){
             State.OnGame -> {
-                if(modelView.connectionState.value == ConnectionState.CONNECTION_ESTABLISHED){
-                    //modelView.startTimer()
-                    Log.i("onStateChange", "OnGame");
-                }
                 dialog?.dismiss()
                 dialog = null
             }
@@ -204,20 +211,24 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                     clientInitDialog = null
                     finish()
                 }
-
                 dialogQuit()
             }
             State.OnDialogResume -> {
                 Log.i("onStateChange", "OnDialogResume");
                 showAnimation()
-                //stopJob()
+
             }
             State.OnDialogPause -> {
                 showAnimation()
                 Log.i("onStateChange", "OnDialogPause");
-                //stopJob()
+
             }
-            State.OnGameOver ->{}
+            State.OnGameOver ->{
+                if (dialogGameOver == null || dialogGameOver?.isShowing == false){
+                    dialogGameOver = GameOverMultiDialog(this, modelView.users.value!!, this::onExit)
+                    dialogGameOver?.show()
+                }
+            }
         }
     }
 
@@ -238,15 +249,8 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     override fun onBackPressed() {
-        //Todo fechar server socket se carregar no sim
         modelView.onBackPressed();
         Log.i("BACK", "On back pressed")
-    }
-
-
-
-    var onTimeOver = fun(){
-        Log.i("APP", "On time over called")
     }
 
 
@@ -256,14 +260,12 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             dialog?.show()
         }
 
-
     }
 
-    fun onDialogTimeOver(){
-        Log.i("OnTimeOver", "Callback called");
-        //dialog = null
-        dlg?.cancel()
-        //modelView.startNewLevel()
+
+    fun onExit(){
+        modelView.stopGame()
+        finish()
     }
 
     private fun dialogQuit()
@@ -278,6 +280,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                 job?.cancel()
                 modelView.stopGame()
                 super.onBackPressed()
+                finish()
             }
             .setNegativeButton(R.string.guNOK){d,b ->
                 d.dismiss()
@@ -288,18 +291,15 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         dlg?.show()
     }
 
-    private suspend fun onTimer(onTimeOver: () -> Unit){
+    override fun onDestroy() {
+        super.onDestroy()
+        modelView.users.removeObservers(this)
+        modelView.time.removeObservers(this)
+        modelView.points.removeObservers(this)
+        modelView.level.removeObservers(this)
+        modelView.nConnections.removeObservers(this)
+        modelView.state.removeObservers(this)
 
-        while (true){
-            delay(1000)
-            CoroutineScope(Dispatchers.Main).async{
-                modelView.decTime()
-            }
-            if (time <= 0){
-                onTimeOver()
-                break;
-            }
-        }
     }
     private fun serverMode() {
         val wifiManager = applicationContext.getSystemService(AppCompatActivity.WIFI_SERVICE) as WifiManager
@@ -323,8 +323,8 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             viewModal.button.isEnabled = false;
 
             modelView.nConnections.observe(this@MultiplayerActivity){
-                if (dlg?.isShowing == true && modelView.nConnections.value!! > 0){
-                    viewModal.button.isEnabled = true
+                if (dlg?.isShowing == true) {
+                    viewModal.button.isEnabled = modelView.nConnections.value!! > 0
                     Log.i("Chegou cliente", modelView.nConnections.value.toString())
                     viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
                 }
@@ -388,6 +388,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                     ).show()
                     //finish()
                 } else {
+                    Log.i("dialog ip",strIP )
                     modelView.startClient(strIP, MultiplayerModelView.SERVER_PORT-1);
                 }
             }

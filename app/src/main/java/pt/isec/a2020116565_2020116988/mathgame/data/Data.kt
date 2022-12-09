@@ -71,14 +71,29 @@ class Data {
     }
 
     fun generateMaxOperations() {
+        if (operations.size == 0)
+            return
         val ordered = operations.toMutableList()
         ordered.sortBy { operation -> operation.calcOperation()}
         maxOperation = ordered[ordered.size-1]
         secondOperation = ordered[ordered.size-2]
     }
 
+    fun clear() {
+        operations.clear()
+        time = START_TIME
+        points = 0;
+        level = 1
+        currentUser?.points = 0
+        currentUser?.nTables = 0
+        currentUser?.state = State.OnGame
+        
+    }
+
     companion object {
-        const val START_TIME: Int = 10
+
+        const val START_TIME: Int = 60
+
         const val COUNT_RIGHT_ANSWERS: Int = 1
     }
 

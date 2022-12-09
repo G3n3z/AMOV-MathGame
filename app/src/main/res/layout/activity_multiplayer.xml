@@ -55,7 +55,9 @@
         android:padding="10dp"
         android:id="@+id/flScoresFragment"
         android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp">
+        android:layout_marginRight="15dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        >
 
     </androidx.recyclerview.widget.RecyclerView>
 
