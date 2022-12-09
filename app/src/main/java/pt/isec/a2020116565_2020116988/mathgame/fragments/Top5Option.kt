@@ -37,8 +37,4 @@ class Top5Option : Fragment() {
 
         return binding.root
     }
-
-    companion object {
-
-    }
 }

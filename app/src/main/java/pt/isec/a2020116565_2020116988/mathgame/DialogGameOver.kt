@@ -10,11 +10,11 @@ import android.widget.Button
 import android.widget.TextView
 import pt.isec.a2020116565_2020116988.mathgame.data.SinglePlayerModelView
 
-class DialogGameOver(context : Context, viewModel : SinglePlayerModelView, callback: (Int) -> Unit) : Dialog(context)
+class DialogGameOver(context: Context, viewModel: SinglePlayerModelView, callback: () -> Unit) : Dialog(context)
 {
     private var level: Int
     private var points: Int
-    private var callback : (Int) -> Unit
+    private var callback : () -> Unit
     private val viewModel : SinglePlayerModelView
 
     init {
@@ -36,16 +36,9 @@ class DialogGameOver(context : Context, viewModel : SinglePlayerModelView, callb
         findViewById<TextView>(R.id.tvGameOverLevel).text = "${context.getString(R.string.level)}: $level"
         findViewById<TextView>(R.id.tvGameOverPoints).text = "${context.getString(R.string.points)}: $points";
 
-        findViewById<Button>(R.id.btn_gameover_top5).setOnClickListener {
-            Log.i("DGO","Btn top5 pressed")
-            this.cancel()
-            callback(1)
-        }
-
         findViewById<Button>(R.id.btn_gameover_menu).setOnClickListener {
-            Log.i("DGO","Btn menu pressed")
             this.cancel()
-            callback(2)
+            callback()
         }
     }
 }

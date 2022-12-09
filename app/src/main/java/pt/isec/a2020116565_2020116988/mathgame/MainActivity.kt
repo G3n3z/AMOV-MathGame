@@ -37,27 +37,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        //Ler de um ficheiro
-        //data = readDataOfInternalStorage()
-    }
-
-    private fun readDataOfInternalStorage():Data{
-        val data : Data = Data();
-        data.currentUser = null;
-        val index = 0;
-        try {
-            data.currentUser = User("", "");
-            applicationContext.openFileInput( Constants.USER_FILE)?.bufferedReader().use {
-                it?.forEachLine {
-
-                }
-            }
-
-
-        } catch (e: IOException) {
-            return data;
-        }
-        return data;
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

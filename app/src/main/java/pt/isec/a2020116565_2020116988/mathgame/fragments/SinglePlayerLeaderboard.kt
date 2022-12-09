@@ -1,12 +1,16 @@
 package pt.isec.a2020116565_2020116988.mathgame.fragments
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.LBPlayer
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentSinglePlayerLeaderboardBinding
 import pt.isec.a2020116565_2020116988.mathgame.utils.SpRVAdapter
@@ -15,6 +19,7 @@ import pt.isec.a2020116565_2020116988.mathgame.utils.SpRVAdapter
 class SinglePlayerLeaderboard : Fragment() {
 
     private lateinit var binding: FragmentSinglePlayerLeaderboardBinding
+    private var listenerRegistration: ListenerRegistration? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,31 +50,33 @@ class SinglePlayerLeaderboard : Fragment() {
      * Metodo para carregar os dados da Firestore para uma lista de jogadores
      */
     private fun loadPlayers(){
-        //TODO buscar dados a Firestore e mapear alterar os nullables
-        //TODO inicializar o listener
-        val players: MutableList<LBPlayer> = mutableListOf()
-        val item = LBPlayer()
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
-        players.add(item)
+        val db = Firebase.firestore
+        listenerRegistration = db.collection(Constants.SP_DB_COLLECTION)
+            .orderBy("points", Query.Direction.DESCENDING)
+            .limit(5)
+            .addSnapshotListener { docSS, e ->
+                if (e!=null) {
+                    return@addSnapshotListener
+                }
 
-        updatePlayers(players.take(5))
+                val playersData = docSS!!.map {
+                    it.toObject(LBPlayer::class.java)
+                }
+
+                updatePlayers(playersData)
+            }
     }
 
     /**
      * Metodo para enviar os dados da lista de jogadores para a vista
      */
-    private fun updatePlayers(players: List<LBPlayer>?) {
+    private fun updatePlayers(playersData: List<LBPlayer>) {
         val adapter = binding.rvSpLb.adapter as SpRVAdapter
-        adapter.addPlayers(players!!)
+        adapter.addPlayers(playersData)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        //TODO cancelar o listener
+        listenerRegistration?.remove()
     }
 }

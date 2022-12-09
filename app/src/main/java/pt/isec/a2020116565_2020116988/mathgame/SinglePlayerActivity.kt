@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
+import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.*
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerBinding
 
@@ -34,70 +35,72 @@ class ViewModelFactory(private val data: Data, private val type:Int): ViewModelP
 
 class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
-    lateinit var data: Data;
+    lateinit var data: Data
     val app: Application by lazy { application as Application }
     lateinit var binding : ActivitySinglePlayerBinding
-    lateinit var fragment:GameFragment;
+    lateinit var fragment:GameFragment
     var job: Job? = null
     var dlg : AlertDialog? = null
     lateinit var maxOperation: Operation
     lateinit var secondOperation: Operation
-    private var dialog : DialogLevel? = null;
+    private var dialog : DialogLevel? = null
     private var gameOverDialog : DialogGameOver? = null
     private var points : Int = 0
         set(value) {
             field = value
-            binding.gamePont.text = "${getString(R.string.points)}: $value";
+            binding.gamePont.text = "${getString(R.string.points)}: $value"
         }
 
     var level: Int = 0
         set(value) {
             field = value
             //data.level = value
-            binding.gameLevel.text = "${getString(R.string.level)}: $value";
+            binding.gameLevel.text = "${getString(R.string.level)}: $value"
         }
     var time: Int = 0
         set (value) {
             field = value
             //data.time = value
-            binding.gameTime.text = getString(R.string.time) + ": ${value}";
+            binding.gameTime.text = getString(R.string.time) + ": ${value}"
         }
 
 
     lateinit var gamePanelView: GamePanelView
+    private var flag: Int = -1
 
     private val modelView : SinglePlayerModelView by viewModels{
         ViewModelFactory(app.data, 0)
-    };
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySinglePlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        data = app.data;
+        data = app.data
 
-        points = data.points;
-        level = data.level;
-        time = data.time;
+        points = data.points
+        level = data.level
+        time = data.time
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
 
 //        supportActionBar?.hide() //TODO mudar para aparecer mas desativar o icon
 
-        gamePanelView = GamePanelView(this,null,0,0, data.operations, this);
+        gamePanelView = GamePanelView(this,null,0,0, data.operations, this)
         binding.gameTable.addView(gamePanelView)
-        registerCallbacksOnState();
+        registerCallbacksOnState()
         registerCallbacksOnLabels()
-        getStateByInt(intent.getIntExtra(STATE, -1));
+        getStateByInt(intent.getIntExtra(STATE, -1))
         Log.i("OnCreate", modelView.state.value.toString())
 
     }
 
     private fun getStateByInt(intExtra: Int) {
         if (intExtra == -1)
-            return;
-        var state = State.gameModeByInteger(intExtra);
+            return
+        flag = intExtra
+        var state = State.gameModeByInteger(intExtra)
         Log.i("getStateByInt", state.toString())
         modelView.setState(state)
     }
@@ -107,10 +110,10 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             time = it
         }
         modelView.level.observe(this){
-            level = it;
+            level = it
         }
         modelView.points.observe(this){
-            points = it;
+            points = it
         }
         modelView.operation.observe(this){
             gamePanelView.operations = it
@@ -122,7 +125,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun registerCallbacksOnState() {
         modelView.state.observe(this){
-            onStateChange(it);
+            onStateChange(it)
         }
     }
 
@@ -130,20 +133,20 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         when(state){
             State.OnGame -> {
                 startTimer()
-                Log.i("onStateChange", "OnGame");
+                Log.i("onStateChange", "OnGame")
             }
             State.OnDialogBack -> {
                 startTimer()
                 dialogQuit()
             }
             State.OnDialogResume -> {
-                Log.i("onStateChange", "OnDialogResume");
+                Log.i("onStateChange", "OnDialogResume")
                 showAnimation()
                 stopJob()
             }
             State.OnDialogPause -> {
                 showAnimation()
-                Log.i("onStateChange", "OnDialogPause");
+                Log.i("onStateChange", "OnDialogPause")
             }
             State.OnGameOver ->{
                 showGameOverDialog()
@@ -162,8 +165,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         super.onStart()
         Log.i("OnStart", modelView.state.value.toString())
         modelView.refreshState()
-        binding.gamePont.text = "${getString(R.string.points)}: $points";
-        binding.gameLevel.text = "${getString(R.string.level)}: $level";
+        binding.gamePont.text = "${getString(R.string.points)}: $points"
+        binding.gameLevel.text = "${getString(R.string.level)}: $level"
 
     }
 
@@ -176,7 +179,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     }
     override fun onBackPressed() {
         if(modelView.state.value == State.OnGame)
-            modelView.onBackPressed();
+            modelView.onBackPressed()
         Log.i("BACK", "On back pressed")
     }
 
@@ -206,13 +209,13 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun showAnimation() {
         if (dialog == null) {
-            dialog = DialogLevel(this, this::onDialogTimeOver, modelView.currentTimeDialog, modelView);
+            dialog = DialogLevel(this, this::onDialogTimeOver, modelView.currentTimeDialog, modelView)
             dialog?.show()
         }
     }
 
     fun onDialogTimeOver(){
-        Log.i("OnTimeOver", "Callback called");
+        Log.i("OnTimeOver", "Callback called")
         dialog = null
         dlg?.cancel()
         modelView.startNewLevel()
@@ -221,9 +224,9 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun dialogQuit()
     {
         if (dlg?.isShowing == true)
-            return;
+            return
 
-         dlg = AlertDialog.Builder(this)
+        dlg = AlertDialog.Builder(this)
             .setTitle(getString(R.string.giveup))
             .setMessage(getString(R.string.giveupMessage))
             .setPositiveButton(R.string.guOK) {d,b ->
@@ -248,42 +251,54 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     }
 
-    private var onGameOverDialogClose = fun(opt: Int){
-        when(opt){
-            1 -> {
-                updateSinglePlayerTop5(
-                    LBPlayer(
-                        0,
-                        data.currentUser!!.userName,
-                        data.currentUser!!.photo!!,
-                        data.points,
-                        data.totalTime,
-                        data.level,
-                        data.totalTables
-                    )
-                )
-                Log.i("CALLBACK", "Nav to TOP 5")
-                finish()
-            }//TODO navigate to top 5
-            2 -> {
-                finish()
+    private var onGameOverDialogClose = fun(){
+        if(flag == -1)
+//            updateSinglePlayerTop5()
+            updateMultiPlayerTop5()
+        finish()
+    }
+
+    private fun updateMultiPlayerTop5() {
+        val db = Firebase.firestore
+        val players = mutableListOf<LBPlayer>()
+        val player1 = LBPlayer(1)
+        val player2 = LBPlayer(2)
+        val player3 = LBPlayer(3)
+        val player4 = LBPlayer(4)
+        players.add(player1)
+        players.add(player2)
+        players.add(player3)
+        players.add(player4)
+        val game = LBMultiPlayer(points = 20, totalTime = 20)
+
+        val docRef = db.collection(Constants.MP_DB_COLLECTION).document()
+
+        docRef.set(game)
+            .addOnSuccessListener {
+                Log.i("UPDATEDB", "addDataToFirestore: Success")
+            }.
+            addOnFailureListener { e->
+                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
             }
+
+        players.forEach {
+            docRef.collection(Constants.MP_PLAYERS_DB_COLLECTION).add(it)
         }
     }
 
-    private fun updateSinglePlayerTop5(lbPlayer: LBPlayer) {
+    private fun updateSinglePlayerTop5() {
         val db = Firebase.firestore
+        val player = LBPlayer(
+            0,
+            data.level,
+            data.currentUser?.photo,
+            data.points,
+            data.totalTables,
+            data.totalTime,
+            data.currentUser?.userName
+        )
 
-        //TODO ir buscar dados
-
-        //TODO adicionar o novo player, dar sort e extrair só os 5 pmireiros OU comparar os valores dos scores com os existentes e retirar o espaço
-
-        //TODO remover dados da firestore e atualizar com os novos
-
-        val players : MutableMap<String,LBPlayer> = mutableMapOf()
-        players["0"] = lbPlayer
-
-        db.collection("Top5").document("SinglePlayer").set(players)
+        db.collection(Constants.SP_DB_COLLECTION).add(player)
             .addOnSuccessListener {
                 Log.i("UPDATEDB", "addDataToFirestore: Success")
             }.
@@ -301,25 +316,25 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             }
             if (time <= 0){
                 onTimeOver()
-                break;
+                break
             }
         }
     }
 
     companion object{
 
-        val STATE = "STATE"
+        const val STATE = "STATE"
 
         fun getIntent(context:Context?): Intent {
-            val intent = Intent(context, SinglePlayerActivity::class.java);
+            val intent = Intent(context, SinglePlayerActivity::class.java)
 
-            return intent;
+            return intent
         }
 
         fun getIntentFromMultiplayer(context:Context?, status :Int): Intent {
-            val intent = Intent(context, SinglePlayerActivity::class.java);
-            intent.putExtra(STATE, status);
-            return intent;
+            val intent = Intent(context, SinglePlayerActivity::class.java)
+            intent.putExtra(STATE, status)
+            return intent
         }
 
     }
