@@ -84,10 +84,12 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         time = data.time
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
+
         val orientation = resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             supportActionBar?.hide()
         }
+
 
         gamePanelView = GamePanelView(this,null,0,0, data.operations, this)
         binding.gameTable.addView(gamePanelView)
@@ -243,46 +245,17 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun showGameOverDialog()
     {
+        if(flag == -1)
+            updateSinglePlayerTop5()
+
         if(gameOverDialog?.isShowing == true)
             return
         gameOverDialog = DialogGameOver(this, modelView, onGameOverDialogClose)
         gameOverDialog?.show()
-
     }
 
     private var onGameOverDialogClose = fun(){
-        if(flag == -1)
-//            updateSinglePlayerTop5()
-            updateMultiPlayerTop5()
         finish()
-    }
-
-    private fun updateMultiPlayerTop5() {
-        val db = Firebase.firestore
-        val players = mutableListOf<LBPlayer>()
-        val player1 = LBPlayer(1)
-        val player2 = LBPlayer(2)
-        val player3 = LBPlayer(3)
-        val player4 = LBPlayer(4)
-        players.add(player1)
-        players.add(player2)
-        players.add(player3)
-        players.add(player4)
-        val game = LBMultiPlayer(points = 20, totalTime = 20)
-
-        val docRef = db.collection(Constants.MP_DB_COLLECTION).document()
-
-        docRef.set(game)
-            .addOnSuccessListener {
-                Log.i("UPDATEDB", "addDataToFirestore: Success")
-            }.
-            addOnFailureListener { e->
-                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
-            }
-
-        players.forEach {
-            docRef.collection(Constants.MP_PLAYERS_DB_COLLECTION).add(it)
-        }
     }
 
     private fun updateSinglePlayerTop5() {

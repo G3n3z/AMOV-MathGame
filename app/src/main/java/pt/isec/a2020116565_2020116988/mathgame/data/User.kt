@@ -5,7 +5,7 @@ import pt.isec.a2020116565_2020116988.mathgame.State
 
 class User(var userName: String,var photo: String?, var id: Int, var state: State){
 
-
+    var totalTime: Int = 0
     var points : Int = 0;
     var nTables : Int = 0;
 

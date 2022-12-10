@@ -2,10 +2,13 @@ package pt.isec.a2020116565_2020116988.mathgame.logic
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import kotlinx.coroutines.*
 import org.json.JSONObject
 import pt.isec.a2020116565_2020116988.mathgame.State
+import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.*
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.TypeOfMessage
@@ -17,8 +20,6 @@ import java.io.PrintStream
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
-import java.time.LocalDateTime
-import java.util.Date
 import kotlin.concurrent.thread
 
 class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) : LogicGame {
@@ -49,7 +50,20 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 var keepGoing = true;
                 serverSocket?.soTimeout = 10000;
                 players[players.size] =
-                    Player(viewModel._state.value!!, Table(),0, data.currentUser,0,0,0, 0, 0,0, null);
+                    Player(
+                        viewModel._state.value!!,
+                        Table(),
+                        0,
+                        data.currentUser,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        null
+                    );
                 while (keepGoing) {
                     var socket : Socket? = null
                     try {
@@ -99,7 +113,20 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
 
                 message?.user?.id = players.size
                 idPlayer = players.size
-                players[players.size] = Player(State.OnGame, Table(), 0, message?.user,0,0,0,idPlayer,0,0, bufOut);
+                players[players.size] = Player(
+                    State.OnGame,
+                    Table(),
+                    0,
+                    message?.user,
+                    0,
+                    0,
+                    0,
+                    idPlayer,
+                    0,
+                    0,
+                    0,
+                    bufOut
+                );
 
             }
         }else{
@@ -240,7 +267,8 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         synchronized(players){
             for (player in players) {
                 player.value.numTable = numTable;
-                player.value.time = time; player.value.level=level;
+                player.value.time = time;
+                player.value.level = level;
                 player.value.points = points
                 player.value.table = table;
                 player.value.state = state
@@ -527,6 +555,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 for (player in players) {
                     if (player.value.state == State.OnGame) {
                         player.value.time--
+                        player.value.totalTime++
                         if (player.value.time <= 0) {
                             if(allGameOver()){
                                 player.value.state = State.OnGame
@@ -548,7 +577,9 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             if (finished){
                 Log.i("detectGameOver", "GAME OVER")
                 if (allGameOver()){ //Todos perderam
+                    updateMultiPlayerTop5()
                     break
+
                 }else if (allPlayersFinished()){ //Todos acabaram o nivel
                     startNewLevelAtSeconds(3000, false)
                     break
@@ -587,6 +618,42 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         }
 
 
+    }
+
+    private fun updateMultiPlayerTop5() {
+        val db = Firebase.firestore
+        val top5players = mutableListOf<LBPlayer>()
+        var sumPoints: Int = 0
+        var maxTime: Int = 0
+
+        players.forEach {
+            val tempPlayer = LBPlayer()
+            tempPlayer.run {
+                mapPlayerToLBPlayer(it.value)
+            }
+            top5players.add(tempPlayer)
+
+            sumPoints += it.value.points
+
+            if (it.value.totalTime > maxTime)
+                maxTime = it.value.totalTime
+        }
+
+        val game = LBMultiPlayer(points = sumPoints, totalTime = maxTime)
+
+        val docRef = db.collection(Constants.MP_DB_COLLECTION).document()
+
+        docRef.set(game)
+            .addOnSuccessListener {
+                Log.i("UPDATEDB", "addDataToFirestore: Success")
+            }.
+            addOnFailureListener { e->
+                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
+            }
+
+        top5players.forEach {
+            docRef.collection(Constants.MP_PLAYERS_DB_COLLECTION).add(it)
+        }
     }
 
     override fun timeOver() {

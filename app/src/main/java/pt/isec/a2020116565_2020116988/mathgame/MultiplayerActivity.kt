@@ -258,7 +258,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun showAnimation() {
         if (dialog == null) {
-            dialog = DialogLevelMultiplayer(this);
+            dialog = DialogLevelMultiplayer(this)
             dialog?.show()
         }
 
@@ -404,7 +404,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             .setNegativeButton(R.string.button_cancel) { _: DialogInterface, _: Int ->
                 finish()
             }
-            .setCancelable(false)
+            .setCancelable(true)
             .setView(edtBox)
             .create()
         if(dlg?.isShowing == false)

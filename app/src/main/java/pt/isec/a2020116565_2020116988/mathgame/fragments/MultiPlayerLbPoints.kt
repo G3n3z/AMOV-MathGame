@@ -74,6 +74,17 @@ class MultiPlayerLbPoints : Fragment() {
             }
     }
 
+    private fun updateGames(gamesData: List<LBMultiPlayer>) {
+        val adapter = binding.rvMpLbPoints.adapter as MpRVAdapter
+        adapter.addGames(gamesData)
+        adapter.setOnClickListener(object :MpRVAdapter.onItemClickListener{
+            override fun onItemClick(pos: Int) {
+                index = pos
+                loadPlayers()
+            }
+        })
+    }
+
     private fun loadPlayers(){
         val db = Firebase.firestore
         listenerRegistrationPlayers = db.collection(Constants.MP_DB_COLLECTION)
@@ -89,17 +100,6 @@ class MultiPlayerLbPoints : Fragment() {
 
                 updatePlayers(playersData)
             }
-    }
-
-    private fun updateGames(gamesData: List<LBMultiPlayer>) {
-        val adapter = binding.rvMpLbPoints.adapter as MpRVAdapter
-        adapter.addGames(gamesData)
-        adapter.setOnClickListener(object :MpRVAdapter.onItemClickListener{
-            override fun onItemClick(pos: Int) {
-                index = pos
-                loadPlayers()
-            }
-        })
     }
 
     private fun updatePlayers(playersData: List<LBPlayer>) {

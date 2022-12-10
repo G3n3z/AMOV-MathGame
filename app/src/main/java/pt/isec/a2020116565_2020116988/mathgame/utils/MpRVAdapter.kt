@@ -25,7 +25,7 @@ class MpRVAdapter(var context: Context?) : RecyclerView.Adapter<MpRVAdapter.MpVi
     private var gamesInfo: MutableList<LBMultiPlayer> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MpViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.sp_leaderboard_item,parent,false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.mp_leaderboard_item,parent,false)
         return MpViewHolder(view, posListener, context)
     }
 
@@ -45,14 +45,10 @@ class MpRVAdapter(var context: Context?) : RecyclerView.Adapter<MpRVAdapter.MpVi
         notifyDataSetChanged()
     }
 
-    /**
-     * Mapeamento dos campos da vista aos atributos dos players
-     */
     class MpViewHolder(val view : View, listener: onItemClickListener, var context: Context?) : RecyclerView.ViewHolder(view) {
-        var tvpos : TextView = view.findViewById(R.id.tv_pos_sp_lb)
-        var tvname : TextView = view.findViewById(R.id.tv_name_sp_lb)
-        var tvtime : TextView = view.findViewById(R.id.tv_time_sp_lb)
-        var tvpoints : TextView = view.findViewById(R.id.tv_points_sp_lb)
+        var tvpos : TextView = view.findViewById(R.id.tv_pos_mp_item)
+        var tvtime : TextView = view.findViewById(R.id.tv_time_mp_item)
+        var tvpoints : TextView = view.findViewById(R.id.tv_points_mp_item)
 
         init {
             view.setOnClickListener {
@@ -63,9 +59,8 @@ class MpRVAdapter(var context: Context?) : RecyclerView.Adapter<MpRVAdapter.MpVi
         @SuppressLint("SetTextI18n")
         fun update(gamesInfo: LBMultiPlayer, position: Int, context: Context?) {
             tvpos.text = "#" + (position+1).toString()
-            tvname.text = ""
-            tvtime.text = ""
-            tvpoints.text = gamesInfo.points.toString()
+            tvtime.text = "${context?.getString(R.string.time)}: ${gamesInfo.totalTime}"
+            tvpoints.text = "${context?.getString(R.string.points)}: ${gamesInfo.points}"
         }
     }
 
