@@ -311,7 +311,6 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         data.points = 0
         viewModel._operations.postValue(table.operations)
         viewModel._time.postValue(data.time)
-        viewModel._totalTime.postValue(data.totalTime)
         viewModel._level.postValue(data.level)
         viewModel._points.postValue(data.points)
         viewModel._state.postValue(State.OnGame)
@@ -533,6 +532,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 for (player in players) {
                     if (player.value.state == State.OnGame) {
                         player.value.time--
+                        player.value.totalTime++
                         if (player.value.time <= 0) {
                             if(allGameOver()){
                                 player.value.state = State.OnGame
@@ -554,6 +554,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             if (finished){
                 Log.i("detectGameOver", "GAME OVER")
                 if (allGameOver()){ //Todos perderam
+                    updateMultiPlayerTop5()
                     break;
                 }else if (allPlayersFinished()){ //Todos acabaram o nivel
                     startNewLevelAtSeconds(3000, false);
@@ -566,8 +567,6 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
     }
 
     override fun exit() {
-        //TODO atualizar top5 MP verificar se ok
-        updateMultiPlayerTop5()
         try {
 
             sockets.forEach(Socket::close)
@@ -610,7 +609,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             sumPoints += it.value.points
 
             if (it.value.totalTime > maxTime)
-                maxTime = it.value.time
+                maxTime = it.value.totalTime
         }
 
         val game = LBMultiPlayer(points = sumPoints, totalTime = maxTime)

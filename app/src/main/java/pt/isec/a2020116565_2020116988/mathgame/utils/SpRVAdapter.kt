@@ -43,6 +43,7 @@ class SpRVAdapter(var context: Context?) : RecyclerView.Adapter<SpRVAdapter.SpVi
         var tvphoto: ImageView = view.findViewById(R.id.iv_photo_sp_lb)
         var tvpos : TextView = view.findViewById(R.id.tv_pos_sp_lb)
         var tvname : TextView = view.findViewById(R.id.tv_name_sp_lb)
+        var tvlevel : TextView = view.findViewById(R.id.tv_lvl_sp_lb)
         var tvboards: TextView = view.findViewById(R.id.tv_boards_sp_lb)
         var tvpoints : TextView = view.findViewById(R.id.tv_points_sp_lb)
         var tvtime : TextView = view.findViewById(R.id.tv_time_sp_lb)
@@ -55,6 +56,7 @@ class SpRVAdapter(var context: Context?) : RecyclerView.Adapter<SpRVAdapter.SpVi
             }
             tvpos.text = "#" + (position+1).toString()
             tvname.text = playersInfo.username
+            tvlevel.text = "${context?.getString(R.string.level)}: ${playersInfo.level}"
             tvboards.text = "${context?.getString(R.string.boards)}: ${playersInfo.totalTables}"
             tvtime.text = "${context?.getString(R.string.time)}: ${playersInfo.totalTime}"
             tvpoints.text = "${context?.getString(R.string.points)}: ${playersInfo.points}"

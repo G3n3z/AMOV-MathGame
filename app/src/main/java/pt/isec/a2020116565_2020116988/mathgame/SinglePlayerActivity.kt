@@ -242,16 +242,16 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun showGameOverDialog()
     {
+        if(flag == -1)
+            updateSinglePlayerTop5()
+
         if(gameOverDialog?.isShowing == true)
             return
         gameOverDialog = DialogGameOver(this, modelView, onGameOverDialogClose)
         gameOverDialog?.show()
-
     }
 
     private var onGameOverDialogClose = fun(){
-        if(flag == -1)
-            updateSinglePlayerTop5()
         finish()
     }
 

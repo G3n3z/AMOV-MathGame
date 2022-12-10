@@ -68,10 +68,6 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             //data.time = value
             binding.gameTimeMultiplayer.text = getString(R.string.time) + ": ${value}";
         }
-    var totalTime: Int = 0
-        set (value) {
-            field = value
-        }
 
     private lateinit var binding : ActivityMultiplayerBinding;
     val app: Application by lazy { application as Application }
@@ -170,9 +166,6 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         modelView.time.observe(this){
             time = it
         }
-        modelView.totalTime.observe(this){
-            totalTime = it
-        }
         modelView.level.observe(this){
             level = it;
         }
@@ -263,7 +256,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun showAnimation() {
         if (dialog == null) {
-            dialog = DialogLevelMultiplayer(this);
+            dialog = DialogLevelMultiplayer(this)
             dialog?.show()
         }
 
@@ -302,7 +295,6 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         super.onDestroy()
         modelView.users.removeObservers(this)
         modelView.time.removeObservers(this)
-        modelView.totalTime.removeObservers(this)
         modelView.points.removeObservers(this)
         modelView.level.removeObservers(this)
         modelView.nConnections.removeObservers(this)
@@ -410,7 +402,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             .setNegativeButton(R.string.button_cancel) { _: DialogInterface, _: Int ->
                 finish()
             }
-            .setCancelable(false)
+            .setCancelable(true)
             .setView(edtBox)
             .create()
         if(dlg?.isShowing == false)

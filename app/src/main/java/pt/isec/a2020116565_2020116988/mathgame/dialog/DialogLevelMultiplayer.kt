@@ -17,6 +17,7 @@ class DialogLevelMultiplayer(context: Context) : Dialog(context) {
         requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.dialog_level_multiplayer)
         setWidthPercent(90)
+        setCancelable(false)
     }
 
     fun setWidthPercent(percentage: Int) {

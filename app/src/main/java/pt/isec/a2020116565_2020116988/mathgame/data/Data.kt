@@ -87,7 +87,7 @@ class Data {
         currentUser?.points = 0
         currentUser?.nTables = 0
         currentUser?.state = State.OnGame
-        
+        totalTime = 0
     }
 
     companion object {

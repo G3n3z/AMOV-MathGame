@@ -59,10 +59,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     var time: LiveData<Int> = _time
         get() = _time
 
-    var _totalTime: MutableLiveData<Int> = MutableLiveData(data.time)
-    var totalTime: LiveData<Int> = _totalTime
-        get() = _totalTime
-
     var _points: MutableLiveData<Int> = MutableLiveData(data.points)
     var points: LiveData<Int> = _points
         get() = _points
@@ -146,9 +142,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
             return
         }
         data.time -= 1
-        data.totalTime += 1
         _time.postValue(data.time)
-        _totalTime.postValue(data.totalTime)
     }
 
     fun cancelQuit() {
