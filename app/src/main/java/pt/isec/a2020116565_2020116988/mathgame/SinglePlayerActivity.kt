@@ -153,7 +153,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 showAnimation()
                 Log.i("onStateChange", "OnDialogPause")
             }
-            State.OnGameOver ->{
+            State.OnGameOver, State.WINNER ->{
                 showGameOverDialog()
             }
         }
