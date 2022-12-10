@@ -54,5 +54,6 @@
     <string name="mp_leaderboard_points">Highest Scores</string>
     <string name="mp_leaderboard_time">Highest Elapsed Time</string>
     <string name="mp_leaderboard_players">Players</string>
+    <string name="resume">Resume</string>
 
 </resources>

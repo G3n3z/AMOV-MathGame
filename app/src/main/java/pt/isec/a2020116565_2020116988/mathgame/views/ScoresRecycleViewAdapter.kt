@@ -2,12 +2,16 @@ package pt.isec.a2020116565_2020116988.mathgame.views
 
 
 import android.graphics.Color
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.bumptech.glide.request.RequestOptions
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.data.User
@@ -37,7 +41,7 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
         notifyDataSetChanged()
     }
 
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ViewHolder(var view: View) : RecyclerView.ViewHolder(view) {
         var tvName : TextView = view.findViewById(R.id.item_tv_name)
         var tvPont : TextView = view.findViewById(R.id.item_tv_points)
 //        var tvtime : TextView = view.findViewById(R.id.tvtime)
@@ -57,10 +61,14 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
             if (data.state == State.OnGameOver){
                 tvName.setTextColor(Color.RED)
             }
+
             if(img.drawable == null) {
-                img.post {
-                    updatePic(img, data.photo!!)
-                }
+                val imageByteArray: ByteArray = Base64.decode( data.photo!!, Base64.DEFAULT)
+                Glide.with(view.context)
+                    .load(imageByteArray)
+                    .circleCrop()
+                    .into(img);
+
             }
         }
 

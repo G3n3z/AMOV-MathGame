@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "234061861349",
+    "project_id": "mathgame-2020116565-2020116988",
+    "storage_bucket": "mathgame-2020116565-2020116988.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234061861349:android:cee3fe068c1f3198cf1f0c",
+        "android_client_info": {
+          "package_name": "pt.isec.a2020116565_2020116988.mathgame"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234061861349-10thon34bmj3vc2bfqkcb282vu5tpjt6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "pt.isec.a2020116565_2020116988.mathgame",
+            "certificate_hash": "b3be2f60ee71cbc10af449dd4a6f64b838143eb6"
+          }
+        },
+        {
+          "client_id": "234061861349-9cr6lp2pm4nd626jfmt5nqppe5brijg3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCd9Vh3ipAFKUXC34mLhgwaeQsPjNOjEI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "234061861349-9cr6lp2pm4nd626jfmt5nqppe5brijg3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
