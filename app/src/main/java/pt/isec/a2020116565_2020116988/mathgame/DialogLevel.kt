@@ -8,7 +8,6 @@ import android.util.Log
 import android.view.Window
 import android.widget.Button
 import android.widget.TextView
-import androidx.fragment.app.activityViewModels
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.data.SinglePlayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.utils.setSizePercent

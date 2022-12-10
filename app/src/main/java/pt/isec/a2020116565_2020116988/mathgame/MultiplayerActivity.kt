@@ -16,6 +16,7 @@ import android.util.Patterns
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
@@ -86,8 +87,6 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             supportActionBar?.hide()
         }
         val mode :GameMode =  GameMode.gameModeByInteger(intent.getIntExtra(MODE, -1))
-        Log.i("ATG", intent.getIntExtra(MODE, -1).toString())
-        Log.i("ATG", mode.toString())
 
         if (mode == GameMode.SERVER_MODE && modelView.connectionState.value == ConnectionState.CONNECTING){
             Log.i("Server", "SERVER_MODE")
@@ -102,30 +101,12 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
 
         }
 
-         modelView.connectionState.observe(this) { connectionStateHandlers(it, mode) }
 
         gamePanelView = GamePanelView(this,null,0,0, app.data.operations, this);
         binding.gameTableMultiplayer.addView(gamePanelView)
-        registerCallbacksOnState();
-        registerCallbacksOnLabels();
+
     }
 
-//    private fun connectionStateHandlersServer(it: ConnectionState?) {
-//        if(it == ConnectionState.CONNECTION_ESTABLISHED){
-//            binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
-//            adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
-//            binding.flScoresFragment.adapter = adapter
-//        }
-//        else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGame){
-//            val intent = SinglePlayerActivity.getIntentFromMultiplayer(this, modelView.state.value?.ordinal!!)
-//            app.data.generateMaxOperations();
-//            finish()
-//            startActivity(intent);
-//        }
-//        else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGameOver){
-//            finish()
-//        }
-//    }
 
     private fun connectionStateHandlers(it: ConnectionState, mode : GameMode) {
         if (it == ConnectionState.WAITING_OTHERS && clientInitDialog == null){
@@ -141,11 +122,11 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             binding.flScoresFragment.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
             adapter = ScoresRecycleViewAdapter(modelView.users.value!!)
             binding.flScoresFragment.adapter = adapter;
-        }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGameOver){
+        }else if(it == ConnectionState.CONNECTION_LOST && (modelView._state.value!! == State.OnGameOver || modelView._state.value!! == State.WINNER)){
             finish()
-        }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGame ||
-            modelView._state.value!! == State.OnDialogPause){
-            Snackbar.make(binding.root, getString(R.string.connection_lost), Snackbar.LENGTH_LONG).show()
+        }else if(it == ConnectionState.CONNECTION_LOST && (modelView._state.value!! == State.OnGame ||
+            modelView._state.value!! == State.OnDialogPause) ){
+            modelView.closeSockets()
             dialog?.cancel()
             val intent = SinglePlayerActivity.getIntentFromMultiplayer(this, modelView.state.value?.ordinal!!)
             app.data.generateMaxOperations();
@@ -187,7 +168,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
 
     override fun onPause() {
         super.onPause()
-        dlg?.cancel()
+        //dlg?.cancel()
         dialogGameOver?.dismiss()
     }
 
@@ -225,24 +206,23 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                 Log.i("onStateChange", "OnDialogPause");
 
             }
-            State.OnGameOver ->{
+            State.OnGameOver, State.WINNER ->{
                 if (dialogGameOver == null || dialogGameOver?.isShowing == false){
-                    dialogGameOver = GameOverMultiDialog(this, modelView.users.value!!, this::onExit)
+                    dialogGameOver = GameOverMultiDialog(this, modelView.users.value!!, this::onExit, state)
                     dialogGameOver?.show()
                 }
             }
         }
     }
 
-    private fun stopJob() {
-        if (job?.isActive == true){
-            job?.cancel()
-        }
-    }
 
     @SuppressLint("SetTextI18n")
     override fun onStart() {
         super.onStart()
+        val mode :GameMode =  GameMode.gameModeByInteger(intent.getIntExtra(MODE, -1))
+        modelView.connectionState.observe(this) { connectionStateHandlers(it, mode) }
+        registerCallbacksOnState();
+        registerCallbacksOnLabels();
         Log.i("OnStart", modelView.state.value.toString())
         modelView.refreshState()
         binding.gamePontMultiplayer.text = "${getString(R.string.points)}: $points";
@@ -279,7 +259,6 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             .setTitle(getString(R.string.giveup))
             .setMessage(getString(R.string.giveupMessage))
             .setPositiveButton(R.string.guOK) {d,b ->
-                job?.cancel()
                 modelView.stopGame()
                 super.onBackPressed()
                 finish()
@@ -314,33 +293,34 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         )
         var viewModal = ServerModalInitial(this, null, 0, 0)
 
-        val ll = LinearLayout(this).apply {
-            val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-            this.setPadding(50, 50, 50, 50)
-            layoutParams = params
-            setBackgroundColor(Color.rgb(240, 224, 208))
-            orientation = LinearLayout.HORIZONTAL
-            viewModal.tvIp.text = String.format(getString(R.string.msg_ip_address),strIPAddress)
-            viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
-            viewModal.button.isEnabled = false;
+        viewModal.tvIp.text = String.format(getString(R.string.msg_ip_address),strIPAddress)
+        viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
+        viewModal.button.isEnabled = false;
 
-            modelView.nConnections.observe(this@MultiplayerActivity){
-                if (dlg?.isShowing == true) {
-                    viewModal.button.isEnabled = modelView.nConnections.value!! > 0
-                    Log.i("Chegou cliente", modelView.nConnections.value.toString())
-                    viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
-                }
+        modelView.nConnections.observe(this@MultiplayerActivity){
+            if (dlg?.isShowing == true) {
+                viewModal.button.isEnabled = modelView.nConnections.value!! > 0
+                Log.i("Chegou cliente", modelView.nConnections.value.toString())
+                viewModal.tvClients.text = getString(R.string.num_of_clients) + ": " + modelView.nConnections.value.toString()
             }
-            viewModal.button.setOnClickListener{
-                modelView.startGameInServer();
-                dlg?.dismiss()
-            }
-            addView(viewModal)
+        }
+        viewModal.button.setOnClickListener{
+            modelView.startGameInServer();
+            dlg?.dismiss()
+        }
+        viewModal.buttonCancel.setOnClickListener {
+            dlg?.dismiss()
+            modelView.stopGame()
+            finish()
+        }
+        viewModal.apply {
+            val params = ConstraintLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            layoutParams = params
         }
 
         dlg = AlertDialog.Builder(this)
             .setTitle(R.string.server_mode)
-            .setView(ll)
+            .setView(viewModal)
             .setOnCancelListener {
                 //finish()
             }
@@ -391,7 +371,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                     //finish()
                 } else {
                     Log.i("dialog ip",strIP )
-                    modelView.startClient(strIP, MultiplayerModelView.SERVER_PORT-1);
+                    modelView.startClient(strIP, MultiplayerModelView.SERVER_PORT);
                 }
             }
             .setNeutralButton(R.string.btn_emulator) { _: DialogInterface, _: Int ->

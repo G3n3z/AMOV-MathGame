@@ -24,6 +24,7 @@ class ServerModalInitial @JvmOverloads constructor(
     val tvClients : TextView = findViewById(R.id.tvClients);
     val tvIp : TextView = findViewById(R.id.ip_tv);
     val button : Button = findViewById(R.id.btn_start);
+    val buttonCancel : Button = findViewById(R.id.btn_cancel_server_modal);
 
 
 }
