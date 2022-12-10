@@ -222,5 +222,10 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         service?.closeSockets();
     }
 
+    fun incPoints(points: Int) {
+        data.points += points;
+        _points.postValue(data.points)
+    }
+
 
 }
