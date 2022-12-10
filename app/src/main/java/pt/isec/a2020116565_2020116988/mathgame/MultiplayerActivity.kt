@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.net.wifi.WifiManager
 import androidx.appcompat.app.AppCompatActivity
@@ -80,10 +81,13 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         super.onCreate(savedInstanceState)
         binding = ActivityMultiplayerBinding.inflate(layoutInflater);
         setContentView(binding.root)
-        var mode :GameMode =  GameMode.gameModeByInteger(intent.getIntExtra(MODE, -1))
+        val orientation = resources.configuration.orientation
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            supportActionBar?.hide()
+        }
+        val mode :GameMode =  GameMode.gameModeByInteger(intent.getIntExtra(MODE, -1))
         Log.i("ATG", intent.getIntExtra(MODE, -1).toString())
         Log.i("ATG", mode.toString())
-        //modelView.setMode(mode);
 
         if (mode == GameMode.SERVER_MODE && modelView.connectionState.value == ConnectionState.CONNECTING){
             Log.i("Server", "SERVER_MODE")
@@ -99,8 +103,6 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         }
 
          modelView.connectionState.observe(this) { connectionStateHandlers(it, mode) }
-
-
 
         gamePanelView = GamePanelView(this,null,0,0, app.data.operations, this);
         binding.gameTableMultiplayer.addView(gamePanelView)

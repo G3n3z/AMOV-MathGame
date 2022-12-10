@@ -3,21 +3,23 @@ package pt.isec.a2020116565_2020116988.mathgame
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.*
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerBinding
-
 import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
@@ -48,19 +50,17 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private var points : Int = 0
         set(value) {
             field = value
-            binding.gamePont.text = "${getString(R.string.points)}: $value"
+            binding.gamePont.text = String.format("%s: %d", getString(R.string.points), value)
         }
 
     var level: Int = 0
         set(value) {
             field = value
-            //data.level = value
             binding.gameLevel.text = "${getString(R.string.level)}: $value"
         }
     var time: Int = 0
         set (value) {
             field = value
-            //data.time = value
             binding.gameTime.text = getString(R.string.time) + ": ${value}"
         }
 
@@ -85,6 +85,12 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         maxOperation = data.maxOperation
         secondOperation = data.secondOperation
 
+        val orientation = resources.configuration.orientation
+        if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            supportActionBar?.hide()
+        }
+
+
         gamePanelView = GamePanelView(this,null,0,0, data.operations, this)
         binding.gameTable.addView(gamePanelView)
         registerCallbacksOnState()
@@ -97,10 +103,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun getStateByInt(intExtra: Int) {
         if (intExtra == -1)
             return
-        flag = intExtra
-        var state = State.gameModeByInteger(intExtra)
-        Log.i("getStateByInt", state.toString())
-        modelView.setState(state)
+        Snackbar.make(binding.root, getString(R.string.connection_lost), Toast.LENGTH_LONG).show()
     }
 
     private fun registerCallbacksOnLabels() {
@@ -212,7 +215,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
-    fun onDialogTimeOver(){
+    private fun onDialogTimeOver(){
         Log.i("OnTimeOver", "Callback called")
         dialog = null
         dlg?.cancel()

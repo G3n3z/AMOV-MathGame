@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
@@ -122,7 +124,11 @@ class UserProfile : Fragment() {
         if(imagePath == null){
 
         }else{
-            updatePic(binding.photoIn, imagePath!!)
+            val imageByteArray: ByteArray = Base64.decode( imagePath, Base64.DEFAULT)
+            Glide.with(requireContext())
+                .load(imageByteArray)
+                .circleCrop()
+                .into(binding.photoIn);
         }
     }
 

@@ -246,7 +246,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
             val msg = PlayerMessage(
                 TypeOfMessage.EXIT_USER,
-                User(data.currentUser?.userName!!, null, data.currentUser?.id!!)
+                User(data.currentUser?.userName!!, null, data.currentUser?.id!!, viewModel._state.value!!)
             )
 
             sendMessage(msg)

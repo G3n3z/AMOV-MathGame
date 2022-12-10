@@ -37,7 +37,7 @@ class GameOverMultiDialog(context: Context, var users: MutableList<User>, var on
         adapter.submitNewData(users)
     }
 
-    fun setSizePercent(percentage: Int, percentageHeight : Int) {
+    private fun setSizePercent(percentage: Int, percentageHeight : Int) {
         val percent = percentage.toFloat() / 100
         val percentH = percentageHeight.toFloat() / 100
         val dm = Resources.getSystem().displayMetrics
