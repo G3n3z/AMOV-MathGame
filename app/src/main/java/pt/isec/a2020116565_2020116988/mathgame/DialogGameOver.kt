@@ -28,7 +28,7 @@ class DialogGameOver(context: Context, viewModel: SinglePlayerModelView, callbac
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
+//        requestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.gameover_dialog)
         level = viewModel.level.value!!
         points = viewModel.points.value!!

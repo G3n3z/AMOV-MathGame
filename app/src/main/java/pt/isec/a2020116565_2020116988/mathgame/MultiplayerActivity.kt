@@ -143,8 +143,8 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             binding.flScoresFragment.adapter = adapter;
         }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGameOver){
             finish()
-        }else if(it == ConnectionState.CONNECTION_LOST && modelView._state.value!! == State.OnGame ||
-            modelView._state.value!! == State.OnDialogPause){
+        }else if(it == ConnectionState.CONNECTION_LOST && (modelView._state.value!! == State.OnGame ||
+            modelView._state.value!! == State.OnDialogPause)){
             Snackbar.make(binding.root, getString(R.string.connection_lost), Snackbar.LENGTH_LONG).show()
             dialog?.cancel()
             val intent = SinglePlayerActivity.getIntentFromMultiplayer(this, modelView.state.value?.ordinal!!)
@@ -391,7 +391,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
                     //finish()
                 } else {
                     Log.i("dialog ip",strIP )
-                    modelView.startClient(strIP, MultiplayerModelView.SERVER_PORT-1);
+                    modelView.startClient(strIP, MultiplayerModelView.SERVER_PORT);
                 }
             }
             .setNeutralButton(R.string.btn_emulator) { _: DialogInterface, _: Int ->
@@ -404,7 +404,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             .setNegativeButton(R.string.button_cancel) { _: DialogInterface, _: Int ->
                 finish()
             }
-            .setCancelable(true)
+            .setCancelable(false)
             .setView(edtBox)
             .create()
         if(dlg?.isShowing == false)

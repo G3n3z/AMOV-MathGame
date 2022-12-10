@@ -43,7 +43,7 @@ class DialogLevel(context: Context, callback: () -> Unit, startTime : Int, viewM
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setSizePercent(60, 90, window)
         }else{
-            setSizePercent(90, 60, window)
+            setSizePercent(90, 40, window)
         }
         tvTime = findViewById(R.id.tvDialogTime);
         val button = findViewById<Button>(R.id.button_dialog_level);

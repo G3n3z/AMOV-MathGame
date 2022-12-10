@@ -103,7 +103,7 @@ class UserProfile : Fragment() {
     override fun onStart() {
         super.onStart()
         Log.i("ONSTART", username)
-        updateView();
+        //updateView();
     }
     private fun chooseImage() {
         val intent = Intent(Intent.ACTION_PICK)

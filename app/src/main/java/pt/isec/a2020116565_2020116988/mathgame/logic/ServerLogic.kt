@@ -207,6 +207,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 _connState.postValue(ConnectionState.CONNECTION_LOST)
                 viewModel.stopJob()
                 stopDetector()
+                return
             }
         }
         if (allPlayersFinished()){
@@ -645,10 +646,10 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
 
         docRef.set(game)
             .addOnSuccessListener {
-                Log.i("UPDATEDB", "addDataToFirestore: Success")
+                Log.i("UPDATEDB", "addDataToFirestore Multiplayer: Success")
             }.
             addOnFailureListener { e->
-                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
+                Log.i("UPDATEDB", "addDataToFirestore Multiplayer: ${e.message}")
             }
 
         top5players.forEach {

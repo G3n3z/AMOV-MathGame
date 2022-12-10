@@ -1,6 +1,7 @@
 package pt.isec.a2020116565_2020116988.mathgame.views
 
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.util.Base64
 import android.view.LayoutInflater
@@ -10,12 +11,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.request.RequestOptions
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.data.User
-import pt.isec.a2020116565_2020116988.mathgame.utils.updatePic
 
 
 class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Adapter<ScoresRecycleViewAdapter.ViewHolder>() {
@@ -35,6 +33,7 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
         return users.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun submitNewData(list : MutableList<User>){
         list.sortByDescending { it.points }
         users = list;
@@ -54,6 +53,7 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
         var textPont: String = view.context.getString(R.string.points)
         var textBoards: String = view.context.getString(R.string.boards)
 
+        @SuppressLint("SetTextI18n")
         fun update(data : User) {
             tvName.text =  data.userName
             tvPont.text =  "$textPont: ${data.points}"
