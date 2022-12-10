@@ -55,5 +55,7 @@
     <string name="mp_leaderboard_time">Highest Elapsed Time</string>
     <string name="mp_leaderboard_players">Players</string>
     <string name="resume">Resume</string>
+    <string name="winner">Winner</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

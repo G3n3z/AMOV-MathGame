@@ -81,9 +81,12 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                 Log.i("CLIENT", "Waiting Message")
                 json = bufIn.readLine();
                 if (json == null){
-                    viewModel._connState.postValue(ConnectionState.CONNECTION_LOST)
-                    viewModel.stopJob()
-                    return;
+                    if (viewModel._connState.value == ConnectionState.CONNECTION_ESTABLISHED) {
+                        viewModel._connState.postValue(ConnectionState.CONNECTION_LOST)
+                        viewModel.stopJob()
+                    }
+                    viewModel._connState.postValue(ConnectionState.EXIT)
+                    break;
                 }
                 type = JSONObject(json).get("typeOfMessage")
                 Log.i("CLIENT", json);
@@ -124,6 +127,9 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                 keepGoing=false
             }
         }
+        try {
+            socket?.close()
+        }catch (_:Exception){}
 
     }
 

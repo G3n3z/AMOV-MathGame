@@ -207,8 +207,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 decTime()
             }
             if (data.time <= 0){
-                service?.timeOver()
-                //_state.postValue(State.OnGameOver)
+//                service?.timeOver()
+//                //_state.postValue(State.OnGameOver)
                 break;
             }
         }
@@ -219,12 +219,17 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     fun closeSockets() {
+        _connState.postValue(ConnectionState.EXIT)
         service?.closeSockets();
     }
 
     fun incPoints(points: Int) {
         data.points += points;
         _points.postValue(data.points)
+    }
+
+    fun showAnimationPause() {
+        _state.postValue(State.OnDialogPause)
     }
 
 
