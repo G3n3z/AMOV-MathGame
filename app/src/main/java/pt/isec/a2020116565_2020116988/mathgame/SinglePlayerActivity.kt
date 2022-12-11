@@ -95,15 +95,19 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         binding.gameTable.addView(gamePanelView)
         registerCallbacksOnState()
         registerCallbacksOnLabels()
-        getStateByInt(intent.getIntExtra(STATE, -1))
+        getStateByInt()
         Log.i("OnCreate", modelView.state.value.toString())
 
     }
 
-    private fun getStateByInt(intExtra: Int) {
-        if (intExtra == -1)
+    private fun getStateByInt() {
+        val stateExtra = intent.getIntExtra(STATE, -1)
+        val flagExtra = intent.getIntExtra(FLAG, -1)
+        flag = flagExtra
+        if (stateExtra == -1)
             return
-        Snackbar.make(binding.root, getString(R.string.connection_lost), Toast.LENGTH_LONG).show()
+        Snackbar.make(binding.root, getString(R.string.connection_lost), Snackbar.LENGTH_LONG).show()
+        intent.putExtra(STATE,-1)
     }
 
     private fun registerCallbacksOnLabels() {
@@ -177,6 +181,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         job?.cancel()
         dialog = null
         dlg?.cancel()
+        gameOverDialog?.cancel()
+        gameOverDialog = null
     }
     override fun onBackPressed() {
         if(modelView.state.value == State.OnGame)
@@ -245,16 +251,15 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private fun showGameOverDialog()
     {
-        if(flag == -1)
-            updateSinglePlayerTop5()
-
-        if(gameOverDialog?.isShowing == true)
+       if(gameOverDialog?.isShowing == true)
             return
         gameOverDialog = DialogGameOver(this, modelView, onGameOverDialogClose)
-        gameOverDialog?.show()
+        gameOverDialog!!.show()
     }
 
     private var onGameOverDialogClose = fun(){
+        if(flag == -1)
+            updateSinglePlayerTop5()
         finish()
     }
 
@@ -272,10 +277,10 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
         db.collection(Constants.SP_DB_COLLECTION).add(player)
             .addOnSuccessListener {
-                Log.i("UPDATEDB", "addDataToFirestore: Success")
+                Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: Success")
             }.
             addOnFailureListener { e->
-                Log.i("UPDATEDB", "addDataToFirestore: ${e.message}")
+                Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: ${e.message}")
             }
     }
 
@@ -296,6 +301,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     companion object{
 
         const val STATE = "STATE"
+        const val FLAG = "DB_WRITE"
 
         fun getIntent(context:Context?): Intent {
             val intent = Intent(context, SinglePlayerActivity::class.java)
@@ -306,6 +312,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         fun getIntentFromMultiplayer(context:Context?, status :Int): Intent {
             val intent = Intent(context, SinglePlayerActivity::class.java)
             intent.putExtra(STATE, status)
+            intent.putExtra(FLAG, 1)
             return intent
         }
 

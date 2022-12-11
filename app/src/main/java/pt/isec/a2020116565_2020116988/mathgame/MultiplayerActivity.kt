@@ -384,7 +384,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             .setNegativeButton(R.string.button_cancel) { _: DialogInterface, _: Int ->
                 finish()
             }
-            .setCancelable(true)
+            .setCancelable(false)
             .setView(edtBox)
             .create()
         if(dlg?.isShowing == false)

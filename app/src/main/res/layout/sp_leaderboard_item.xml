@@ -8,20 +8,12 @@
     android:background="@drawable/rounded_corner"
     android:layout_marginBottom="4dp">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_item"
+    <ImageView
+        android:id="@+id/iv_photo_sp_lb"
         android:layout_width="60dp"
-        android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintCircleRadius="300dp"
-        app:cardCornerRadius="50dp" >
-        <ImageView
-            android:id="@+id/iv_photo_sp_lb"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/profilePhoto" />
-    </androidx.cardview.widget.CardView>
+        android:layout_height="60dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/profilePhoto" />
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"

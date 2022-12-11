@@ -2,12 +2,14 @@ package pt.isec.a2020116565_2020116988.mathgame.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.data.LBPlayer
 
@@ -51,9 +53,11 @@ class SpRVAdapter(var context: Context?) : RecyclerView.Adapter<SpRVAdapter.SpVi
 
         @SuppressLint("SetTextI18n")
         fun update(playersInfo: LBPlayer, position: Int ,context: Context?) {
-            tvphoto.post {
-                updatePic(tvphoto, playersInfo.photo!!)
-            }
+            val imageByteArray: ByteArray = Base64.decode( playersInfo.photo!!, Base64.DEFAULT)
+            Glide.with(view.context)
+                .load(imageByteArray)
+                .circleCrop()
+                .into(tvphoto)
             tvpos.text = "#" + (position+1).toString()
             tvname.text = playersInfo.username
             tvlevel.text = "${context?.getString(R.string.level)}: ${playersInfo.level}"
