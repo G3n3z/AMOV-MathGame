@@ -12,17 +12,22 @@ import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.data.SinglePlayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.utils.setSizePercent
 
-class DialogLevel(context: Context, callback: () -> Unit, startTime : Int, viewModel: SinglePlayerModelView) : Dialog(context) {
+class DialogLevel(
+    context: Context,
+    callback: () -> Unit,
+    startTime: Int,
+    viewModel: SinglePlayerModelView
+) : Dialog(context) {
 
-    private var startTimer : Int;
-    private var callback : () -> Unit;
-    var job : Job? = null;
-    private var time :Int;
-    private var paused : Boolean = false;
+    private var startTimer: Int;
+    private var callback: () -> Unit;
+    var job: Job? = null;
+    private var time: Int;
+    private var paused: Boolean = false;
     private lateinit var tvTime: TextView;
-    private var internalInt : Int = 0;
+    private var internalInt: Int = 0;
 
-    private val viewModel : SinglePlayerModelView;
+    private val viewModel: SinglePlayerModelView;
 
     init {
         this.startTimer = startTime;
@@ -41,7 +46,7 @@ class DialogLevel(context: Context, callback: () -> Unit, startTime : Int, viewM
         val orientation = context.resources.configuration.orientation
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             setSizePercent(60, 90, window)
-        }else{
+        } else {
             setSizePercent(90, 40, window)
         }
         tvTime = findViewById(R.id.tvDialogTime);
@@ -51,20 +56,20 @@ class DialogLevel(context: Context, callback: () -> Unit, startTime : Int, viewM
         val timeText = context.getString(R.string.time)
         if (paused) {
             button.text = resumeText
-        }else{
+        } else {
             startJob()
             button.text = pauseText
         }
         tvTime.text = String.format("%s %d", timeText, time)
 
         button.setOnClickListener {
-            if (paused){
+            if (paused) {
                 viewModel.showAnimationResume()
                 time = viewModel.currentTimeDialog
                 startJob();
                 (it as Button).text = pauseText
                 Log.i("Dialog", "PAUSE")
-            }else{
+            } else {
                 viewModel.showAnimationPause(time)
                 job?.cancel();
                 Log.i("Dialog", "RESUME")
@@ -76,21 +81,20 @@ class DialogLevel(context: Context, callback: () -> Unit, startTime : Int, viewM
 
     private fun startJob() {
 
-        CoroutineScope(Dispatchers.IO).async{
-            job = launch{
-                while (true) {
-                    delay(1000)
-                    time -= 1;
+        job = CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                delay(1000)
+                time -= 1;
+                tvTime.post {
                     tvTime.text = "Time: $time";
-                    viewModel.currentTimeDialog = time;
-                    if (time <= 0){
-                        this@DialogLevel.cancel()
-                        viewModel.cancelDialog()
-                        callback();
-                        break;
-                    }
                 }
-
+                viewModel.currentTimeDialog = time;
+                if (time <= 0) {
+                    this@DialogLevel.cancel()
+                    viewModel.cancelDialog()
+                    callback();
+                    break;
+                }
             }
         }
     }
