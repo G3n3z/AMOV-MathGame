@@ -33,7 +33,7 @@
     <string name="profileimage">profile image</string>
     <string name="profileUsername">profileUsername</string>
     <string name="profilePhoto">profilePhoto</string>
-    <string name="clearSharedPrefs">Clear Shared Prefs</string>
+    <string name="clearSharedPrefs">Clear Profile</string>
     <string name="start">Start</string>
     <string name="num_of_clients">Number of clients</string>
     <string name="client_waiting_dlg">Waiting for server to start the game</string>
@@ -57,5 +57,16 @@
     <string name="resume">Resume</string>
     <string name="winner">Winner</string>
     <string name="cancel">Cancel</string>
+    <string name="credits">Credits</string>
+    <string name="authors">Authors</string>
+    <string name="authors_name">Daniel Fernandes</string>
+    <string name="authors_name2">Hugo Jorge</string>
+    <string name="author1photo">Author 1 Image</string>
+    <string name="nothing_reponse" />
+    <string name="right_answers">Correct</string>
+    <string name="second_answers">Almost</string>
+    <string name="wrong_response">Wrong</string>
+    <string name="fail_save_firestore">Fail save your game</string>
+    <string name="connection_failed">Connection Failed</string>
 
 </resources>

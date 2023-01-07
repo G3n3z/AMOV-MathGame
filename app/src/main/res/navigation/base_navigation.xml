@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_fragment_home_to_fragment_top5_option"
             app:destination="@id/fragment_top5_option" />
+        <action
+            android:id="@+id/action_fragment_home_to_fragment_credits"
+            app:destination="@id/fragment_credits" />
     </fragment>
     <fragment
         android:id="@+id/fragment_multiplayer_option"
@@ -64,4 +67,9 @@
         android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.MultiPlayerLbTime"
         android:label="framgement_multiplayer_lb_time"
         tools:layout="@layout/fragment_multi_player_lb_time"/>
+    <fragment
+        android:id="@+id/fragment_credits"
+        android:name="pt.isec.a2020116565_2020116988.mathgame.fragments.CreditsFragment"
+        android:label="framgment_credits"
+        tools:layout="@layout/fragment_credits"/>
 </navigation>

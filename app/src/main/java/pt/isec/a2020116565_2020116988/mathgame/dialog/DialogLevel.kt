@@ -1,4 +1,4 @@
-package pt.isec.a2020116565_2020116988.mathgame
+package pt.isec.a2020116565_2020116988.mathgame.dialog
 
 import android.app.Dialog
 import android.content.Context
@@ -9,6 +9,8 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import kotlinx.coroutines.*
+import pt.isec.a2020116565_2020116988.mathgame.R
+import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.data.SinglePlayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.utils.setSizePercent
 

@@ -9,6 +9,7 @@ import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
+import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
 import pt.isec.a2020116565_2020116988.mathgame.enum.TypeOfMessage
 import pt.isec.a2020116565_2020116988.mathgame.logic.ClientLogic
 import pt.isec.a2020116565_2020116988.mathgame.logic.LogicGame
@@ -31,7 +32,9 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     private var job : Job? = null;
 
-    var usersUpdate: MutableLiveData<LinkedList<Int>> = MutableLiveData(LinkedList())
+    var _moveResult: MutableLiveData<MoveResult> = MutableLiveData(MoveResult.NOTHING)
+    val moveResult : LiveData<MoveResult>
+        get() = _moveResult
 
     private val START_DIALOG_TIME = data.START_DIALOG_TIME
     var currentTimeDialog: Int = data.START_DIALOG_TIME
@@ -219,7 +222,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     fun closeSockets() {
-        _connState.postValue(ConnectionState.EXIT)
+        //_connState.postValue(ConnectionState.EXIT)
         service?.closeSockets();
     }
 

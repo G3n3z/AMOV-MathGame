@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#2059AF"
-    tools:context=".MainActivity">
+    tools:context=".ativities.MainActivity">
 
     <fragment
         android:layout_width="match_parent"

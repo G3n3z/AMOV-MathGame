@@ -58,5 +58,15 @@
     <string name="resume">Continuar</string>
     <string name="winner">Vencedor</string>
     <string name="cancel">Cancelar</string>
-
+    <string name="credits">Credits</string>
+    <string name="authors">Autores</string>
+    <string name="authors_name">Daniel Fernandes</string>
+    <string name="authors_name2">Hugo Jorge</string>
+    <string name="author1photo">Autor 1 Image</string>
+    <string name="nothing_reponse" />
+    <string name="right_answers">Correcto</string>
+    <string name="second_answers">Quase!</string>
+    <string name="wrong_response">Errado</string>
+    <string name="fail_save_firestore">Falha ao gravar o seu jogo</string>
+    <string name="connection_failed">Falha na coneção</string>
 </resources>

@@ -9,9 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import pt.isec.a2020116565_2020116988.mathgame.MainActivity
+import pt.isec.a2020116565_2020116988.mathgame.ativities.MainActivity
 import pt.isec.a2020116565_2020116988.mathgame.R
-import pt.isec.a2020116565_2020116988.mathgame.SinglePlayerActivity
+import pt.isec.a2020116565_2020116988.mathgame.ativities.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentHomeBinding
 
 /**
@@ -53,13 +53,25 @@ class Home : Fragment() {
             }
         }
         binding.btnMultiPlayer.setOnClickListener {
-            findNavController().navigate(R.id.fragment_multiplayer_option)
+            if((activity as MainActivity).app.data.currentUser == null){
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.must_have_user),
+                    Snackbar.LENGTH_LONG
+                ).show()
+                findNavController().navigate(R.id.fragment_profile);
+            }else{
+                findNavController().navigate(R.id.fragment_multiplayer_option)
+            }
         }
         binding.btnTop5.setOnClickListener {
             findNavController().navigate(R.id.fragment_top5_option)
         }
         binding.btnProfile.setOnClickListener {
             findNavController().navigate(R.id.fragment_profile);
+        }
+        binding.btnCredits.setOnClickListener {
+            findNavController().navigate(R.id.fragment_credits);
         }
         return binding.root;
     }

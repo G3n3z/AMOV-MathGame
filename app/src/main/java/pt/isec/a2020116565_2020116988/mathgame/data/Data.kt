@@ -10,7 +10,7 @@ class Data {
     var nConnections: Int = 0
     var countRightAnswers: Int = 0;
     var points: Int = 0;
-    var currentUser: User? = User("", "");
+    var currentUser: User? = null;
     var operations : MutableList<Operation> = ArrayList(5);
     var level:Int = 1;
     var time: Int = START_TIME;
@@ -88,13 +88,14 @@ class Data {
         currentUser?.nTables = 0
         currentUser?.state = State.OnGame
         totalTime = 0
+        countRightAnswers = 0
     }
 
     companion object {
 
-        const val START_TIME: Int = 10
+        const val START_TIME: Int = 60
 
-        const val COUNT_RIGHT_ANSWERS: Int = 1
+        const val COUNT_RIGHT_ANSWERS: Int = 3
     }
 
 
