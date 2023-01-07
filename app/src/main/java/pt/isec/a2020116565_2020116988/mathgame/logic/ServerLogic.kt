@@ -216,7 +216,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             removeUser(msg, idPlayer);
             socket.close()
             sockets.remove(socket)
-            verifyStatusGame(msg);
+            verifyStatusGame(msg, idPlayer);
         }
     }
 
@@ -230,9 +230,9 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         }
     }
 
-    private fun verifyStatusGame(message : PlayerMessage) {
+    private fun verifyStatusGame(message : PlayerMessage, idPlayer: Int) {
         if (countPlayersActive() == 1){
-            if (message.user?.state != State.OnGameOver){
+            if (players[idPlayer]?.state != State.OnGameOver){
                 _connState.postValue(ConnectionState.CONNECTION_LOST)
                 viewModel.stopJob()
                 stopDetector()

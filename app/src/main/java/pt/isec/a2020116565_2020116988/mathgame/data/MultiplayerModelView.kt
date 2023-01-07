@@ -78,15 +78,9 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     val state: LiveData<State>
         get() = _state;
 
-    private var serverSocket: ServerSocket? = null
     var socket: Socket? = null;
-    private val socketI: InputStream?
-        get() = socket?.getInputStream();
-    lateinit var clientOutStream: OutputStream
-    var sockets: MutableList<Socket> = mutableListOf();
-    private var exit: Boolean = false;
-    private var lock: String = ""
-    private var thread: Thread? = null
+
+    var lastState: State? = null;
 
     private var service: LogicGame? = null;
 
@@ -103,6 +97,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     fun onBackPressed() {
+        lastState = _state.value;
         _state.postValue(State.OnDialogBack)
     }
 
@@ -149,7 +144,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     fun cancelQuit() {
-        _state.postValue(State.OnGame)
+        _state.postValue(lastState)
     }
 
     fun setMode(mode: GameMode) {

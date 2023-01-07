@@ -68,5 +68,7 @@
     <string name="wrong_response">Wrong</string>
     <string name="fail_save_firestore">Fail save your game</string>
     <string name="connection_failed">Connection Failed</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

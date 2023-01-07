@@ -34,8 +34,7 @@ class Home : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        // Inflate the layout for this fragment
-        //var root =  inflater.inflate(R.layout.fragment_home, container, false)
+
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         binding.btnSinglePlayer.setOnClickListener {
             if((activity as MainActivity).app.data.currentUser == null){

@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         data = Data()
         binding = ActivityMainBinding.inflate(layoutInflater);
         setContentView(binding.root)
-        pageAdapter = FragmentAdapter(this, binding);
+
         //Get data of database
         loadUserFromFile()
     }
