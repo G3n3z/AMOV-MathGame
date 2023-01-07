@@ -53,7 +53,16 @@ class Home : Fragment() {
             }
         }
         binding.btnMultiPlayer.setOnClickListener {
-            findNavController().navigate(R.id.fragment_multiplayer_option)
+            if((activity as MainActivity).app.data.currentUser == null){
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.must_have_user),
+                    Snackbar.LENGTH_LONG
+                ).show()
+                findNavController().navigate(R.id.fragment_profile);
+            }else{
+                findNavController().navigate(R.id.fragment_multiplayer_option)
+            }
         }
         binding.btnTop5.setOnClickListener {
             findNavController().navigate(R.id.fragment_top5_option)

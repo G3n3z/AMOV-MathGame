@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.ativities.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.data.Operation
 import pt.isec.a2020116565_2020116988.mathgame.data.Orientation
@@ -27,7 +28,6 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
     val gestureDetector : GestureDetector by lazy {
         GestureDetector(context, this)
     }
-    lateinit var gameInterface:GameActivityInterface;
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,7 +43,7 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
     override fun onStart() {
         super.onStart()
         //TODO:check!!!
-        operations = (activity as SinglePlayerActivity).data.operations;
+        operations = (activity?.application as Application).data.operations;
 
         binding.cell1.text = operations[0].op1.toString();
         binding.cell2.text = operations[0].operator1.toString()

@@ -88,11 +88,12 @@ class Data {
         currentUser?.nTables = 0
         currentUser?.state = State.OnGame
         totalTime = 0
+        countRightAnswers = 0
     }
 
     companion object {
 
-        const val START_TIME: Int = 30
+        const val START_TIME: Int = 60
 
         const val COUNT_RIGHT_ANSWERS: Int = 3
     }

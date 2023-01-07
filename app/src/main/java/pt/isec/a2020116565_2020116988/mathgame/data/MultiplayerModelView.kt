@@ -219,7 +219,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     fun closeSockets() {
-        _connState.postValue(ConnectionState.EXIT)
+        //_connState.postValue(ConnectionState.EXIT)
         service?.closeSockets();
     }
 
