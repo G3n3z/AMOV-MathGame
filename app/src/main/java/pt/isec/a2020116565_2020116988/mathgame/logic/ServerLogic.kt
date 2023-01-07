@@ -147,11 +147,11 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 }
             }
         }
-        receiveMessageRoutine(bufI, idPlayer);
+        receiveMessageRoutine(bufI, idPlayer, socket);
 
     }
 
-    private fun receiveMessageRoutine(bufI:BufferedReader, idPlayer : Int) {
+    private fun receiveMessageRoutine(bufI:BufferedReader, idPlayer : Int, socket: Socket) {
         var keepGoing = true;
         var type : Any;
         var json : String;
@@ -163,6 +163,17 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 type = JSONObject(json).get("typeOfMessage")
             }catch (e : Exception){
                 Log.i("startComm", e.message.toString())
+                if (players[idPlayer]?.state != State.OnGameOver){
+                    if (_connState.value == ConnectionState.CONNECTING){
+                        removeUserInConnection(idPlayer);
+                    }else{
+                        removeUser(PlayerMessage(TypeOfMessage.EXIT_USER, players[idPlayer]?.user), idPlayer);
+                        connLost(socket)
+                    }
+                }else{
+                    exitUser(idPlayer, socket, PlayerMessage(TypeOfMessage.EXIT_USER, players[idPlayer]?.user))
+                }
+
                 break;
             }
             Log.i("Server msg recebida", json)
@@ -179,19 +190,31 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                     onSwipeMessage(msg, idPlayer);
                 }
                 TypeOfMessage.EXIT_USER.name ->{
-                    if (_connState.value == ConnectionState.CONNECTING){
-                        removeUserInConnection(idPlayer);
-                        keepGoing = false;
-                    }else{
-                        val msg = Gson().fromJson(json, PlayerMessage::class.java)
-                        removeUser(msg, idPlayer);
-                        keepGoing = false;
-                        //TODO fechar socket e remove-lo
-                        verifyStatusGame(msg);
-                    }
+                    val msg = Gson().fromJson(json, PlayerMessage::class.java)
+                    exitUser(idPlayer, socket, msg)
+                    keepGoing = false;
                 }
                 else -> {}
             }
+        }
+    }
+
+    private fun connLost(socket: Socket){
+        socket.close()
+        sockets.remove(socket)
+        _connState.postValue(ConnectionState.CONNECTION_LOST)
+        viewModel.stopJob()
+        stopDetector()
+    }
+
+    private fun exitUser(idPlayer: Int, socket: Socket, msg:PlayerMessage){
+        if (_connState.value == ConnectionState.CONNECTING){
+            removeUserInConnection(idPlayer);
+        }else{
+            removeUser(msg, idPlayer);
+            socket.close()
+            sockets.remove(socket)
+            verifyStatusGame(msg);
         }
     }
 
