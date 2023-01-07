@@ -5,12 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.State
+import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
 
 class SinglePlayerModelView(val data: Data) : ViewModel() {
 
 
     private val START_DIALOG_TIME = data.START_DIALOG_TIME
     var currentTimeDialog: Int = data.START_DIALOG_TIME
+
+    private var _moveResult: MutableLiveData<MoveResult> = MutableLiveData(MoveResult.NOTHING)
+    val moveResult : LiveData<MoveResult>
+        get() = _moveResult
 
     private var _level: MutableLiveData<Int> = MutableLiveData(data.level)
     var level : LiveData<Int> = _level
@@ -110,9 +115,12 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
                 generateTable()
                 newLevelTime()
             }
-
+            _moveResult.postValue(MoveResult.MAX_OPERATION);
         }else if (data.operations[index] == data.secondOperation){
             secondOperationRigth()
+            _moveResult.postValue(MoveResult.SECOND_OPERATION);
+        }else{
+            _moveResult.postValue(MoveResult.WRONG_OPERATION);
         }
 
     }

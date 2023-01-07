@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.CreditsFragment"
+    android:background="@color/background"
+    android:id="@+id/fragment_credits">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/title_credits"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.10"
+        android:text="@string/credits"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/background"
+        android:textSize="32sp"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/title_credits"
+        android:id="@+id/frame_author1"
+        android:orientation="vertical"
+        android:layout_marginTop="30dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/authors_name"
+            android:id="@+id/tv_name_authors"
+            android:textSize="26sp"/>
+
+
+        <ImageView
+            android:id="@+id/image_author1"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="30dp"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name_authors"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="@string/author1photo"
+            android:src="@drawable/author1"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/frame_author1"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintVertical_bias="0.1"
+            android:text="@string/authors_name2"
+            android:id="@+id/tv_name_authors_2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textSize="26sp" />
+
+        <ImageView
+            android:id="@+id/image_author2"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:maxHeight="150dp"
+            android:maxWidth="150dp"
+            android:layout_marginTop="30dp"
+            android:contentDescription="@string/author1photo"
+            android:src="@drawable/author2"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name_authors_2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--    <TextView-->
+<!--        android:id="@+id/tv_name_authors2"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/authors_name2"-->
+<!--        android:textSize="26sp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/image_author1"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/image_author2"/>-->
+
+<!--    <ImageView-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="150dp"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/tv_name_authors2"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        android:id="@+id/image_author2"-->
+<!--        android:contentDescription="@string/author1photo"-->
+<!--        android:src="@drawable/author2"/>-->
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

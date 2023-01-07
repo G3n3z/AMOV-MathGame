@@ -124,7 +124,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
             }catch (e : IOException){
                 Log.i("startCommunication", e.message.toString())
-                keepGoing=false
+                keepGoing = false
             }
         }
         try {

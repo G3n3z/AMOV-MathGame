@@ -1,13 +1,12 @@
-package pt.isec.a2020116565_2020116988.mathgame
+package pt.isec.a2020116565_2020116988.mathgame.dialog
 
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import android.view.Window
 import android.widget.Button
 import android.widget.TextView
+import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.data.SinglePlayerModelView
 
 class DialogGameOver(context: Context, viewModel: SinglePlayerModelView, callback: () -> Unit) : Dialog(context)

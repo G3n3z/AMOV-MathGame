@@ -1,13 +1,13 @@
-package pt.isec.a2020116565_2020116988.mathgame
+package pt.isec.a2020116565_2020116988.mathgame.ativities
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
-import android.os.Bundle
+import android.graphics.Color
+import android.os.*
 import android.util.Log
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,12 +17,19 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.*
+import pt.isec.a2020116565_2020116988.mathgame.Application
+import pt.isec.a2020116565_2020116988.mathgame.R
+import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
 import pt.isec.a2020116565_2020116988.mathgame.data.*
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerBinding
+import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogGameOver
+import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevel
+import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
 import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
+import kotlin.concurrent.thread
 
 class ViewModelFactory(private val data: Data, private val type:Int): ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -42,6 +49,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var binding : ActivitySinglePlayerBinding
     lateinit var fragment:GameFragment
     var job: Job? = null
+    var jobResult: Job? = null
     var dlg : AlertDialog? = null
     lateinit var maxOperation: Operation
     lateinit var secondOperation: Operation
@@ -120,6 +128,30 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         modelView.points.observe(this){
             points = it
         }
+        modelView.moveResult.observe(this){
+            jobResult?.cancel()
+            when(it) {
+                MoveResult.NOTHING -> {binding.moveResponse.text = ""}
+                MoveResult.WRONG_OPERATION -> {
+                    binding.moveResponse.text = getString(R.string.wrong_response)
+                    binding.moveResponse.setTextColor(Color.RED)
+                    vibratePhone()
+                }
+                MoveResult.MAX_OPERATION -> {
+                    binding.moveResponse.text = getString(R.string.right_answers)
+                    binding.moveResponse.setTextColor(Color.GREEN)
+                }
+                MoveResult.SECOND_OPERATION ->{
+                    binding.moveResponse.text = getString(R.string.second_answers)
+                    binding.moveResponse.setTextColor(Color.BLUE)
+                }
+            }
+            if(it != MoveResult.NOTHING){
+                jobResult = CoroutineScope(Dispatchers.IO).launch{ clean() }
+            }
+
+        }
+
         modelView.operation.observe(this){
             gamePanelView.operations = it
             gamePanelView.mount()
@@ -128,13 +160,18 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
+    private suspend fun clean(){
+        delay(1000)
+        binding.moveResponse?.post{binding.moveResponse?.text = ""}
+    }
+
     private fun registerCallbacksOnState() {
         modelView.state.observe(this){
             onStateChange(it)
         }
     }
 
-    private fun onStateChange(state :State) {
+    private fun onStateChange(state : State) {
         when(state){
             State.OnGame -> {
                 startTimer()
@@ -183,6 +220,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         dlg?.cancel()
         gameOverDialog?.cancel()
         gameOverDialog = null
+        jobResult?.cancel()
+        binding.moveResponse?.text = ""
     }
     override fun onBackPressed() {
         if(modelView.state.value == State.OnGame)
@@ -236,11 +275,11 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         dlg = AlertDialog.Builder(this)
             .setTitle(getString(R.string.giveup))
             .setMessage(getString(R.string.giveupMessage))
-            .setPositiveButton(R.string.guOK) {d,b ->
+            .setPositiveButton(R.string.guOK) { d, b ->
                 job?.cancel()
                 super.onBackPressed()
             }
-            .setNegativeButton(R.string.guNOK){d,b ->
+            .setNegativeButton(R.string.guNOK){ d, b ->
                 d.dismiss()
                 modelView.cancelQuit()
             }
@@ -280,6 +319,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: Success")
             }.
             addOnFailureListener { e->
+                //TODO: Lançar snack
                 Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: ${e.message}")
             }
     }
@@ -295,6 +335,22 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 onTimeOver()
                 break
             }
+        }
+    }
+
+    private fun vibratePhone() {
+
+        val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            getSystemService(VIBRATOR_SERVICE) as Vibrator
+        }
+        if (Build.VERSION.SDK_INT >= 26) {
+            vib.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vib.vibrate(200)
         }
     }
 

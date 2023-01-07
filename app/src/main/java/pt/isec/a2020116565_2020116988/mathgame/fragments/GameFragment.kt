@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
-import pt.isec.a2020116565_2020116988.mathgame.SinglePlayerActivity
+import pt.isec.a2020116565_2020116988.mathgame.ativities.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.data.Operation
 import pt.isec.a2020116565_2020116988.mathgame.data.Orientation
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentGameBinding
@@ -42,7 +42,7 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
 
     override fun onStart() {
         super.onStart()
-        Log.i("ISEC", "START")
+        //TODO:check!!!
         operations = (activity as SinglePlayerActivity).data.operations;
 
         binding.cell1.text = operations[0].op1.toString();
@@ -133,7 +133,6 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
             Log.i("FLING", "${p0.x-initial[0]} - ${cell_width*index}, ${cell_width*(index+1)} vertical")
             index = calcColumn(index, orientation)
             if (index < 0) return true;
-            Log.i("INDEX", "$index")
             Log.i("Operation", "${operations[index].op1}${operations[index].operator1}" +
                     "${operations[index].op2}${operations[index].operator2}${operations[index].op3}")
         }else if(abs(distanceX) > 100){
@@ -142,7 +141,6 @@ class GameFragment : Fragment(), GestureDetector.OnGestureListener {
             index = calcColumn(index, orientation)
             if (index < 0) return true;
             Log.i("INDEX", "$index")
-            Log.i("FLING", "$index horizontal")
             Log.i("Operation", "${operations[index].op1}${operations[index].operator1}" +
                     "${operations[index].op2}${operations[index].operator2}${operations[index].op3}")
         }

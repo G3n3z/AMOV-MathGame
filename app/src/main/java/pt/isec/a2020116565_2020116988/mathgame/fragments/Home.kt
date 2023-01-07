@@ -9,9 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import pt.isec.a2020116565_2020116988.mathgame.MainActivity
+import pt.isec.a2020116565_2020116988.mathgame.ativities.MainActivity
 import pt.isec.a2020116565_2020116988.mathgame.R
-import pt.isec.a2020116565_2020116988.mathgame.SinglePlayerActivity
+import pt.isec.a2020116565_2020116988.mathgame.ativities.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentHomeBinding
 
 /**
@@ -60,6 +60,9 @@ class Home : Fragment() {
         }
         binding.btnProfile.setOnClickListener {
             findNavController().navigate(R.id.fragment_profile);
+        }
+        binding.btnCredits.setOnClickListener {
+            findNavController().navigate(R.id.fragment_credits);
         }
         return binding.root;
     }

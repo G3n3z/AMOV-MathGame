@@ -186,6 +186,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                         val msg = Gson().fromJson(json, PlayerMessage::class.java)
                         removeUser(msg, idPlayer);
                         keepGoing = false;
+                        //TODO fechar socket e remove-lo
                         verifyStatusGame(msg);
                     }
                 }

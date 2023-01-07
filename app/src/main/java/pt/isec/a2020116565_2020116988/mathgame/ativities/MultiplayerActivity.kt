@@ -1,11 +1,10 @@
-package pt.isec.a2020116565_2020116988.mathgame
+package pt.isec.a2020116565_2020116988.mathgame.ativities
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
 import android.net.wifi.WifiManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -18,8 +17,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
+import pt.isec.a2020116565_2020116988.mathgame.Application
+import pt.isec.a2020116565_2020116988.mathgame.R
+import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMultiplayerBinding
 import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevelMultiplayer
@@ -35,13 +36,13 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
 
         private const val MODE = "MODE"
         fun getServerModeIntent(context : Context) : Intent {
-            return Intent(context,MultiplayerActivity::class.java).apply {
+            return Intent(context, MultiplayerActivity::class.java).apply {
                 putExtra(MODE, GameMode.SERVER_MODE.ordinal)
             }
         }
 
         fun getClientModeIntent(context : Context) : Intent {
-            return Intent(context,MultiplayerActivity::class.java).apply {
+            return Intent(context, MultiplayerActivity::class.java).apply {
                 putExtra(MODE, GameMode.CLIENT_MODE.ordinal)
             }
         }
@@ -128,7 +129,10 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             modelView._state.value!! == State.OnDialogPause) ){
             modelView.closeSockets()
             dialog?.cancel()
-            val intent = SinglePlayerActivity.getIntentFromMultiplayer(this, modelView.state.value?.ordinal!!)
+            val intent = SinglePlayerActivity.getIntentFromMultiplayer(
+                this,
+                modelView.state.value?.ordinal!!
+            )
             app.data.generateMaxOperations();
             finish()
             startActivity(intent);
@@ -182,7 +186,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
-    private fun onStateChange(state :State) {
+    private fun onStateChange(state : State) {
         when(state){
             State.OnGame -> {
                 dialog?.dismiss()
@@ -258,12 +262,12 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         dlg = AlertDialog.Builder(this)
             .setTitle(getString(R.string.giveup))
             .setMessage(getString(R.string.giveupMessage))
-            .setPositiveButton(R.string.guOK) {d,b ->
+            .setPositiveButton(R.string.guOK) { d, b ->
                 modelView.stopGame()
                 super.onBackPressed()
                 finish()
             }
-            .setNegativeButton(R.string.guNOK){d,b ->
+            .setNegativeButton(R.string.guNOK){ d, b ->
                 d.dismiss()
                 modelView.cancelQuit()
             }

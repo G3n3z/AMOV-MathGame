@@ -1,7 +1,6 @@
-package pt.isec.a2020116565_2020116988.mathgame
+package pt.isec.a2020116565_2020116988.mathgame.ativities
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -9,12 +8,13 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.snackbar.Snackbar
-import pt.isec.a2020116565_2020116988.mathgame.constants.Constants
+import pt.isec.a2020116565_2020116988.mathgame.Application
+import pt.isec.a2020116565_2020116988.mathgame.FragmentAdapter
+import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.data.Data
 import pt.isec.a2020116565_2020116988.mathgame.data.User
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMainBinding
 import pt.isec.a2020116565_2020116988.mathgame.fragments.UserProfile
-import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 

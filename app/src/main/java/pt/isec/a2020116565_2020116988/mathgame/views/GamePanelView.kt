@@ -4,17 +4,12 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.widget.GridLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import pt.isec.a2020116565_2020116988.mathgame.R
-import pt.isec.a2020116565_2020116988.mathgame.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.data.Operation
 import pt.isec.a2020116565_2020116988.mathgame.data.Orientation
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface

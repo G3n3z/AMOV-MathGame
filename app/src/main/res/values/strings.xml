@@ -57,5 +57,14 @@
     <string name="resume">Resume</string>
     <string name="winner">Winner</string>
     <string name="cancel">Cancel</string>
+    <string name="credits">Credits</string>
+    <string name="authors">Authors</string>
+    <string name="authors_name">Daniel Fernandes</string>
+    <string name="authors_name2">Hugo Jorge</string>
+    <string name="author1photo">Author 1 Image</string>
+    <string name="nothing_reponse" />
+    <string name="right_answers">Correct</string>
+    <string name="second_answers">Almost</string>
+    <string name="wrong_response">Wrong</string>
 
 </resources>
