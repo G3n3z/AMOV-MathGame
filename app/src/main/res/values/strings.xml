@@ -66,5 +66,6 @@
     <string name="right_answers">Correct</string>
     <string name="second_answers">Almost</string>
     <string name="wrong_response">Wrong</string>
+    <string name="fail_save_firestore">Fail save your game</string>
 
 </resources>

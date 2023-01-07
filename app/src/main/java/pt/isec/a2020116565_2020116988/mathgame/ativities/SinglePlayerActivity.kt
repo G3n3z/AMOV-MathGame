@@ -319,7 +319,11 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: Success")
             }.
             addOnFailureListener { e->
-                //TODO: Lançar snack
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.fail_save_firestore),
+                    Snackbar.LENGTH_LONG
+                ).show()
                 Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: ${e.message}")
             }
     }
