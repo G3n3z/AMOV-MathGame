@@ -7,6 +7,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.GridLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import pt.isec.a2020116565_2020116988.mathgame.R
@@ -23,13 +24,13 @@ class GamePanelView @JvmOverloads constructor(
     defStyleRes: Int = 0,
     operations : MutableList<Operation>,
     owner: GameActivityInterface,
-) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes), GestureDetector.OnGestureListener {
+) : LinearLayout(context, attrs, defStyleAttr, defStyleRes), GestureDetector.OnGestureListener {
 
     lateinit var operations : MutableList<Operation>
     var cell_width: Int = 0;
     var cell_height: Int = 0;
     lateinit var owner: GameActivityInterface;
-    private val gameBoard : GridLayout
+    private val gameBoard : androidx.gridlayout.widget.GridLayout
         get() = findViewById(R.id.board)
     val gestureDetector : GestureDetector by lazy {
         GestureDetector(context, this)
@@ -40,9 +41,10 @@ class GamePanelView @JvmOverloads constructor(
         this.owner = owner
         mount()
         //TODO api 22
-        post{
-             gameBoard.minimumHeight = (parent as View).height
-        }
+//        gameBoard.post{
+//            gameBoard.minimumHeight = (parent as View).height
+//            gameBoard.minimumWidth = (parent as View).width
+//        }
 
     }
 
