@@ -1,6 +1,7 @@
 package pt.isec.a2020116565_2020116988.mathgame.ativities
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -28,6 +29,7 @@ import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevel
 import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
 import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
+import pt.isec.a2020116565_2020116988.mathgame.utils.vibratePhone
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
 import kotlin.concurrent.thread
 
@@ -135,7 +137,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 MoveResult.WRONG_OPERATION -> {
                     binding.moveResponse.text = getString(R.string.wrong_response)
                     binding.moveResponse.setTextColor(Color.RED)
-                    vibratePhone()
+                    vibratePhone(this)
                 }
                 MoveResult.MAX_OPERATION -> {
                     binding.moveResponse.text = getString(R.string.right_answers)
@@ -160,9 +162,26 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
+    fun vibratePhone() {
+
+        val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorManager.defaultVibrator
+                } else {
+                    @Suppress("DEPRECATION")
+                    getSystemService(AppCompatActivity.VIBRATOR_SERVICE) as Vibrator
+                }
+        if (Build.VERSION.SDK_INT >= 26) {
+            vib.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            vib.vibrate(200)
+        }
+    }
+
+
     private suspend fun clean(){
         delay(1000)
-        binding.moveResponse?.post{binding.moveResponse?.text = ""}
+        binding.moveResponse.post{binding.moveResponse.text = ""}
     }
 
     private fun registerCallbacksOnState() {
@@ -342,21 +361,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
-    private fun vibratePhone() {
-
-        val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-            vibratorManager.defaultVibrator
-        } else {
-            @Suppress("DEPRECATION")
-            getSystemService(VIBRATOR_SERVICE) as Vibrator
-        }
-        if (Build.VERSION.SDK_INT >= 26) {
-            vib.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            vib.vibrate(200)
-        }
-    }
 
     companion object{
 

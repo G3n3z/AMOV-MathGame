@@ -39,7 +39,7 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                 startCommunication(newsocket);
             }catch (e:Exception){
                 Log.i("startClient", e.message.toString())
-                viewModel._connState.postValue(ConnectionState.EXIT)
+                viewModel._connState.postValue(ConnectionState.FAIL_CONNECT)
             }
         }
     }
@@ -105,8 +105,8 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                         infoUserMessage(message)
                     }
                     TypeOfMessage.SWIPE.name ->{
-                        val message  = Gson().fromJson<MoveMessage>(json, MoveMessage::class.java)
-                        swipeResponseMessage(message, idPlayer)
+                        val message  = Gson().fromJson<SwipeResult>(json, SwipeResult::class.java)
+                        swipeResponseMessage(message)
                     }
                     TypeOfMessage.EXIT_USER.name ->{
                         val message  = Gson().fromJson<PlayerMessage>(json, PlayerMessage::class.java)
@@ -174,8 +174,8 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         viewModel._users.postValue(users);
     }
 
-    private fun swipeResponseMessage(message: MoveMessage, idPlayer: Int) {
-
+    private fun swipeResponseMessage(message: SwipeResult) {
+        viewModel._moveResult.postValue(message.moveResult);
     }
 
     //Cliente, adicionar outros utilizadores à sua lista para score
@@ -204,6 +204,9 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         viewModel._time.postValue(message.time)
         viewModel._points.postValue(message.points)
         viewModel._level.postValue(message.level)
+        if (message.moveResult != null){
+            viewModel._moveResult.postValue(message.moveResult)
+        }
     }
 
 

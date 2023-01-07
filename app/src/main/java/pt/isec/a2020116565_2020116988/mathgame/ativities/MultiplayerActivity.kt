@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.wifi.WifiManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,6 +18,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
@@ -26,7 +29,9 @@ import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMultiplayerBi
 import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevelMultiplayer
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
+import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
+import pt.isec.a2020116565_2020116988.mathgame.utils.vibratePhone
 import pt.isec.a2020116565_2020116988.mathgame.views.*
 
 
@@ -47,7 +52,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             }
         }
     }
-    private var job :Job? = null;
+    private var jobResult :Job? = null;
     private var dlg: AlertDialog? = null
     private var clientInitDialog: ClientWaitingDialog? = null
     private var dialog : DialogLevelMultiplayer? = null
@@ -139,6 +144,20 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         }else if (it == ConnectionState.EXIT){
             modelView.closeSockets()
             finish()
+        }else if (it == ConnectionState.FAIL_CONNECT){
+            modelView.closeSockets()
+            var snack = Snackbar.make(binding.root, getString(R.string.connection_failed), Snackbar.LENGTH_SHORT)
+            snack.addCallback(object : BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                override fun onShown(transientBottomBar: Snackbar?) {
+                    super.onShown(transientBottomBar)
+                }
+
+                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                    super.onDismissed(transientBottomBar, event)
+                    finish()
+                }
+            })
+            snack.show()
         }
     }
 
@@ -159,6 +178,29 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         modelView.points.observe(this){
             points = it;
         }
+        modelView.moveResult.observe(this){
+            jobResult?.cancel()
+            when(it) {
+                MoveResult.NOTHING -> {binding.moveResponse.text = ""}
+                MoveResult.WRONG_OPERATION -> {
+                    binding.moveResponse.text = getString(R.string.wrong_response)
+                    binding.moveResponse.setTextColor(Color.RED)
+                    vibratePhone(this)
+                }
+                MoveResult.MAX_OPERATION -> {
+                    binding.moveResponse.text = getString(R.string.right_answers)
+                    binding.moveResponse.setTextColor(Color.GREEN)
+                }
+                MoveResult.SECOND_OPERATION ->{
+                    binding.moveResponse.text = getString(R.string.second_answers)
+                    binding.moveResponse.setTextColor(Color.BLUE)
+                }
+            }
+            if(it != MoveResult.NOTHING){
+                jobResult = CoroutineScope(Dispatchers.IO).launch{ clean() }
+            }
+
+        }
         modelView.operation.observe(this){
             gamePanelView.operations = it
             gamePanelView.mount()
@@ -168,6 +210,11 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
             adapter?.submitNewData(it)
             dialogGameOver?.update(it);
         }
+    }
+
+    private suspend fun clean(){
+        delay(1000)
+        binding.moveResponse.post{binding.moveResponse.text = ""}
     }
 
     override fun onPause() {
@@ -284,6 +331,7 @@ class MultiplayerActivity : AppCompatActivity(), GameActivityInterface {
         modelView.level.removeObservers(this)
         modelView.nConnections.removeObservers(this)
         modelView.state.removeObservers(this)
+        modelView.moveResult.removeObservers(this)
 
     }
     private fun serverMode() {

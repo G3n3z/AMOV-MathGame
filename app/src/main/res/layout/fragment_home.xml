@@ -61,16 +61,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_top5"
         android:layout_marginTop="50dp" />
-
     <Button
         android:id="@+id/btn_credits"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/credits"
+        android:layout_height="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_profile"
-        android:layout_marginTop="50dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:text="@string/credits"
+        android:textColor="#878787"
+        android:background="@color/background"
+        android:drawableStart="@android:drawable/ic_menu_info_details"
+        android:contentDescription="@string/credits"
+        android:stateListAnimator="@null"/>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

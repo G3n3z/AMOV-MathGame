@@ -10,7 +10,7 @@ class Data {
     var nConnections: Int = 0
     var countRightAnswers: Int = 0;
     var points: Int = 0;
-    var currentUser: User? = User("", "");
+    var currentUser: User? = null;
     var operations : MutableList<Operation> = ArrayList(5);
     var level:Int = 1;
     var time: Int = START_TIME;
