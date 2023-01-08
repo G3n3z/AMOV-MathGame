@@ -251,8 +251,8 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun startTimer(){
         if(job == null || job?.isActive == false) {
             Log.i("StartTimer", "On timer")
-            CoroutineScope(Dispatchers.IO).async {
-                job = launch { onTimer(binding.gameTime, getString(R.string.time), onTimeOver) }
+            job = CoroutineScope(Dispatchers.IO).launch {
+                 onTimer(binding.gameTime, getString(R.string.time), onTimeOver)
             }
         }
     }
