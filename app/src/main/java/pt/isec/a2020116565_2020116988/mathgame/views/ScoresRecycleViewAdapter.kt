@@ -63,13 +63,16 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
             }else{
                 tvName.setTextColor(Color.WHITE)
             }
-
-            val imageByteArray: ByteArray = Base64.decode( data.photo!!, Base64.DEFAULT)
-            Glide.with(view.context)
-                .load(imageByteArray)
-                .circleCrop()
-                .into(img);
-
+            if(data.photo != null) {
+                val imageByteArray: ByteArray = Base64.decode(data.photo!!, Base64.DEFAULT)
+                Glide.with(view.context)
+                    .load(imageByteArray)
+                    .circleCrop()
+                    .into(img);
+            }
+            else{
+                Glide.with(view.context).load(R.drawable.ic_launcher_foreground).circleCrop().into(img);
+            }
         }
 
     }

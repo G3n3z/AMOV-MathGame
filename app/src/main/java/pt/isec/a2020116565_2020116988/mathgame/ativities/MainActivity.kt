@@ -58,9 +58,9 @@ class MainActivity : AppCompatActivity() {
     {
         val sharedPrefs = getSharedPreferences(SHAREDPREFS, MODE_PRIVATE)
         val username = sharedPrefs.getString(PROFILE_USER,"")!!
-        val photo = sharedPrefs.getString(PROFILE_PHOTO,"")!!
+        val photo = sharedPrefs.getString(PROFILE_PHOTO, null)
 
-        if (username.isBlank() || photo.isBlank()) {
+        if (username.isBlank()) {
             Snackbar.make(binding.root, getString(R.string.profile_not_found), Snackbar.LENGTH_LONG)
                 .show()
             return

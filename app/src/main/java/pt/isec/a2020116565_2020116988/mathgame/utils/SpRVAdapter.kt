@@ -53,11 +53,16 @@ class SpRVAdapter(var context: Context?) : RecyclerView.Adapter<SpRVAdapter.SpVi
 
         @SuppressLint("SetTextI18n")
         fun update(playersInfo: LBPlayer, position: Int ,context: Context?) {
-            val imageByteArray: ByteArray = Base64.decode( playersInfo.photo!!, Base64.DEFAULT)
-            Glide.with(view.context)
-                .load(imageByteArray)
-                .circleCrop()
-                .into(tvphoto)
+            if(playersInfo.photo != null){
+                val imageByteArray: ByteArray = Base64.decode( playersInfo.photo!!, Base64.DEFAULT)
+                Glide.with(view.context)
+                    .load(imageByteArray)
+                    .circleCrop()
+                    .into(tvphoto)
+            }else{
+                Glide.with(view.context).load(R.drawable.ic_launcher_foreground).circleCrop().into(tvphoto);
+            }
+
             tvpos.text = "#" + (position+1).toString()
             tvname.text = playersInfo.username
             tvlevel.text = "${context?.getString(R.string.level)}: ${playersInfo.level}"
