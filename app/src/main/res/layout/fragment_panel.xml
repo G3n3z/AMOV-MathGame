@@ -9,11 +9,14 @@
     <TextView
         android:id="@+id/tv_panel_fragment"
         android:layout_width="wrap_content"
+        android:layout_margin="30dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="100dp"
-        android:textSize="28sp"
+        android:textSize="26sp"
+        android:textColor="@color/text_panel"
+        android:gravity="center"
         android:textAlignment="center"
         android:text="" />
 

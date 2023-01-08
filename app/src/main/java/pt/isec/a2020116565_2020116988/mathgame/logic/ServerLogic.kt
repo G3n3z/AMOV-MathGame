@@ -418,6 +418,11 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         val msg = StatusMessage(TypeOfMessage.STATUS_GAME, player.state, null, player.points, player.time, player.level)
         sendMessage(player.outputStream, msg)
         if(allPlayersFinished()){
+            val msg2 = Message(TypeOfMessage.WILL_START_SOON)
+            sendMessageAll(msg2)
+            if(_state.value != State.OnGameOver){
+                _state.postValue(State.OnDialogResume)
+            }
             stopDetector()
             tables.clear()
             thread{
@@ -546,6 +551,9 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 }
                 updatePlayerServer(null, State.OnDialogPause)
                 if (allPlayersFinished()){
+                    val msg2 = Message(TypeOfMessage.WILL_START_SOON)
+                    sendMessageAll(msg2)
+                    _state.postValue(State.OnDialogResume)
                     tables.clear()
                     stopDetector()
                     thread{
@@ -637,6 +645,11 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                     break
 
                 }else if (allPlayersFinished()){ //Todos acabaram o nivel
+                    val msg2 = Message(TypeOfMessage.WILL_START_SOON)
+                    sendMessageAll(msg2)
+                    if(_state.value != State.OnGameOver){
+                        _state.postValue(State.OnDialogResume)
+                    }
                     startNewLevelAtSeconds(3000, false)
                     break
                 }

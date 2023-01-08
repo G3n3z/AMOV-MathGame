@@ -66,7 +66,6 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         var json = bufIn.readLine();
 
         var type = JSONObject(json).get("typeOfMessage")
-        //var ab = Gson().fromJson<Message>(json, Message::class.java)
 
         Log.i("CLIENT", json);
         if (type == TypeOfMessage.INFO_USER.name){
@@ -121,6 +120,12 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                         val message = Gson().fromJson<UpdateStatusPlayer>(json, UpdateStatusPlayer::class.java)
                         gameOver(message, idPlayer)
                     }
+                    TypeOfMessage.WILL_START_SOON.name ->{
+                        if(viewModel._state.value == State.OnDialogPause){
+                            viewModel._state.postValue(State.OnDialogResume)
+                        }
+                    }
+
                 }
 
             }catch (e : IOException){

@@ -27,7 +27,6 @@ import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerB
 import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogGameOver
 import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevel
 import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
-import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
 import pt.isec.a2020116565_2020116988.mathgame.utils.vibratePhone
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
@@ -49,7 +48,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var data: Data
     val app: Application by lazy { application as Application }
     lateinit var binding : ActivitySinglePlayerBinding
-    lateinit var fragment:GameFragment
     var job: Job? = null
     var jobResult: Job? = null
     var dlg : AlertDialog? = null
@@ -66,12 +64,12 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     var level: Int = 0
         set(value) {
             field = value
-            binding.gameLevel.text = "${getString(R.string.level)}: $value"
+            binding.gameLevel.text = String.format("%s: %d", getString(R.string.level), value)
         }
     var time: Int = 0
         set (value) {
             field = value
-            binding.gameTime.text = getString(R.string.time) + ": ${value}"
+            binding.gameTime.text = String.format("%s: %d", getString(R.string.time), value)
         }
 
 

@@ -40,11 +40,6 @@ class GamePanelView @JvmOverloads constructor(
         this.operations = operations
         this.owner = owner
         mount()
-        //TODO api 22
-//        gameBoard.post{
-//            gameBoard.minimumHeight = (parent as View).height
-//            gameBoard.minimumWidth = (parent as View).width
-//        }
 
     }
 

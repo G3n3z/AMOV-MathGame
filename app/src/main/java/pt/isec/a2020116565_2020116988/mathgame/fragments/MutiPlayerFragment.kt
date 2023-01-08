@@ -45,44 +45,36 @@ import pt.isec.a2020116565_2020116988.mathgame.views.*
 class MutiPlayerFragment : Fragment(), GameActivityInterface {
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+
     lateinit var binding : FragmentMutiPlayerBinding;
     private val viewModel : MultiplayerModelView by activityViewModels()
     private lateinit var gamePanelView : GamePanelView;
     private lateinit var multiActivity: MultiplayerActivity
     lateinit var app: Application;
     private var jobResult : Job? = null;
-    private var dlg: AlertDialog? = null
-    var clientInitDialog: ClientWaitingDialog? = null
     private var dialog : DialogLevelMultiplayer? = null
     private var adapter : ScoresRecycleViewAdapter? = null;
-    private var dialogGameOver : GameOverMultiDialog? = null;
     private var points : Int = 0
         set(value) {
             field = value
-            binding.gamePontMultiplayer.text = "${getString(R.string.points)}: $value";
+            binding.gamePontMultiplayer.text = String.format("%s: %d",getString(R.string.points), value);
         }
 
     var level: Int = 0
         set(value) {
             field = value
-            //data.level = value
-            binding.gameLevel.text = "${getString(R.string.level)}: $value";
+            binding.gameLevel.text = String.format("%s: %d",getString(R.string.level), value);
         }
     var time: Int = 0
         set (value) {
             field = value
-            //data.time = value
-            binding.gameTimeMultiplayer.text = getString(R.string.time) + ": ${value}";
+            binding.gameTimeMultiplayer.text = String.format("%s: %d",getString(R.string.time), value);
         }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
         binding = FragmentMutiPlayerBinding.inflate(inflater, container, false)
         app = (requireActivity() as MultiplayerActivity).app
         multiActivity = requireActivity() as MultiplayerActivity
@@ -107,10 +99,8 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
             binding.flScoresFragment.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL,false)
             adapter = ScoresRecycleViewAdapter(viewModel.users.value!!)
             binding.flScoresFragment.adapter = adapter;
-        }else if(it == ConnectionState.CONNECTION_LOST && (viewModel._state.value!! == State.OnGameOver || viewModel._state.value!! == State.WINNER)){
-            multiActivity.finish()
-        }else if(it == ConnectionState.CONNECTION_LOST && (viewModel._state.value!! == State.OnGame ||
-                    viewModel._state.value!! == State.OnDialogPause) ){
+        }
+        else if(it == ConnectionState.CONNECTION_LOST && viewModel._state.value!! == State.OnGame){
             viewModel.closeSockets()
             dialog?.cancel()
             val intent = SinglePlayerActivity.getIntentFromMultiplayer(
@@ -147,16 +137,16 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
 
 
     private fun registerCallbacksOnLabels() {
-        viewModel.time.observe(this){
+        viewModel.time.observe(viewLifecycleOwner){
             time = it
         }
-        viewModel.level.observe(this){
+        viewModel.level.observe(viewLifecycleOwner){
             level = it;
         }
-        viewModel.points.observe(this){
+        viewModel.points.observe(viewLifecycleOwner){
             points = it;
         }
-        viewModel.moveResult.observe(this){
+        viewModel.moveResult.observe(viewLifecycleOwner){
             jobResult?.cancel()
             when(it) {
                 MoveResult.NOTHING -> {binding.moveResponse.text = ""}
@@ -179,14 +169,13 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
             }
 
         }
-        viewModel.operation.observe(this){
+        viewModel.operation.observe(viewLifecycleOwner){
             gamePanelView.operations = it
             gamePanelView.mount()
         }
-        viewModel.users.observe(this){
+        viewModel.users.observe(viewLifecycleOwner){
             Log.i("registerCall", "reciclerView update")
             adapter?.submitNewData(it)
-            //dialogGameOver?.update(it);
         }
     }
 
@@ -195,11 +184,6 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
         binding.moveResponse.post{binding.moveResponse.text = ""}
     }
 
-    override fun onPause() {
-        super.onPause()
-        //dlg?.cancel()
-        dialogGameOver?.dismiss()
-    }
 
     override fun swipe(index: Int) {
         viewModel.swipe(index)
@@ -218,11 +202,6 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
                 dialog = null
             }
             State.OnDialogBack -> {
-//                if (clientInitDialog?.isVisible == true){
-//                    clientInitDialog!!.dismiss()
-//                    clientInitDialog = null
-//                    multiActivity.finish()
-//                }
                 multiActivity.dialogQuit()
             }
             State.OnDialogResume -> {
@@ -237,16 +216,12 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
             }
             State.OnGameOver, State.WINNER ->{
                 findNavController().navigate(R.id.fragment_panel)
-//                if (dialogGameOver == null || dialogGameOver?.isShowing == false){
-//                    dialogGameOver = GameOverMultiDialog(requireContext(), viewModel.users.value!!, this::onExit, state)
-//                    dialogGameOver?.show()
-//                }
+
             }
         }
     }
 
 
-    @SuppressLint("SetTextI18n")
     override fun onStart() {
         super.onStart()
         Log.i("CREATE", "START")
@@ -260,27 +235,6 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
         viewModel.refreshState()
         binding.gamePontMultiplayer.text = "${getString(R.string.points)}: $points";
         binding.gameLevel.text = "${getString(R.string.level)}: $level";
-
-    }
-
-
-
-    fun onExit(){
-        viewModel.stopGame()
-        multiActivity.finish()
-    }
-
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-//        viewModel.users.removeObservers(this)
-//        viewModel.time.removeObservers(this)
-//        viewModel.points.removeObservers(this)
-//        viewModel.level.removeObservers(this)
-//        viewModel.nConnections.removeObservers(this)
-//        viewModel.state.removeObservers(this)
-//        viewModel.moveResult.removeObservers(this)
 
     }
 

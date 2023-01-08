@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.snackbar.Snackbar
 import pt.isec.a2020116565_2020116988.mathgame.Application
-import pt.isec.a2020116565_2020116988.mathgame.FragmentAdapter
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.data.Data
 import pt.isec.a2020116565_2020116988.mathgame.data.User
@@ -25,7 +24,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //data = readDataOfInternalStorage()
 
         data = Data()
         binding = ActivityMainBinding.inflate(layoutInflater);

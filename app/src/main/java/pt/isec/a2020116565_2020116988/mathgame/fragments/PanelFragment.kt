@@ -9,6 +9,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.State
@@ -30,7 +34,6 @@ class PanelFragment : Fragment() {
     private lateinit var multiActivity: MultiplayerActivity
     lateinit var app: Application;
     private var adapter : ScoresRecycleViewAdapter? = null;
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -56,7 +59,9 @@ class PanelFragment : Fragment() {
             when(it){
                 State.OnGameOver -> { binding.tvPanelFragment.text = getString(R.string.game_over) }
                 State.WINNER -> { binding.tvPanelFragment.text = getString(R.string.winner) }
-                State.OnDialogResume -> { binding.tvPanelFragment.text = getString(R.string.next_multi_level) }
+                State.OnDialogResume -> {
+                    binding.tvPanelFragment.text = getString(R.string.will_start)
+                }
                 State.OnDialogPause -> { binding.tvPanelFragment.text = getString(R.string.next_multi_level) }
                 State.OnGame -> {
                     findNavController().navigate(R.id.fragment_multiplayer)
