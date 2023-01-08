@@ -145,6 +145,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     fun cancelQuit() {
         _state.postValue(lastState)
+        lastState = null
     }
 
     fun setMode(mode: GameMode) {
@@ -169,7 +170,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
      */
     fun stopGame() {
         thread{
-            service?.exit()
+            service?.exit(lastState)
             service = null
             data.connState = ConnectionState.CONNECTING
             data.state = State.OnGame
@@ -228,6 +229,12 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     fun showAnimationPause() {
         _state.postValue(State.OnDialogPause)
+    }
+
+    fun setLastState() {
+        if(lastState != null){
+            _state.postValue(lastState)
+        }
     }
 
 

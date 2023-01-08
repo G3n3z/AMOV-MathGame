@@ -13,9 +13,11 @@ import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.ativities.MultiplayerActivity
+import pt.isec.a2020116565_2020116988.mathgame.ativities.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentMutiPlayerBinding
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentPanelBinding
+import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
 import pt.isec.a2020116565_2020116988.mathgame.views.ScoresRecycleViewAdapter
 
@@ -60,6 +62,27 @@ class PanelFragment : Fragment() {
                     findNavController().navigate(R.id.fragment_multiplayer)
                 }
                 State.OnDialogBack ->{multiActivity.dialogQuit()}
+                else ->{}
+            }
+        }
+
+        viewModel.connectionState.observe(viewLifecycleOwner){
+            when(it){
+                ConnectionState.CONNECTION_LOST -> {
+                    if((viewModel._state.value!! == State.OnGameOver || viewModel._state.value!! == State.WINNER)){
+                        multiActivity.finish()
+                    }else{
+                        viewModel.closeSockets()
+                        val intent = SinglePlayerActivity.getIntentFromMultiplayer(
+                            requireContext(),
+                            viewModel.state.value?.ordinal!!
+                        )
+                        app.data.generateMaxOperations();
+                        multiActivity.finish()
+                        startActivity(intent);
+                    }
+                }
+                ConnectionState.EXIT -> {viewModel.stopGame()}
                 else ->{}
             }
         }

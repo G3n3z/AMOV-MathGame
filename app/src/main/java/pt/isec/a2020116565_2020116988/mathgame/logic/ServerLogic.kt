@@ -42,6 +42,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
     private var _points = viewModel._points
     private var _state = viewModel._state
     private var exitJob :Boolean = false;
+    private var exitThread :Boolean = false;
 
     private var timerGameOver : Job? = null;
     fun startServer() {
@@ -165,14 +166,18 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                 type = JSONObject(json).get("typeOfMessage")
             }catch (e : Exception){
                 Log.i("startComm", e.message.toString())
-                if (players[idPlayer]?.state != State.OnGameOver){
+                if(exitThread){
+                    break
+                }
+                else if (players[idPlayer]?.state != State.OnGameOver){
                     if (_connState.value == ConnectionState.CONNECTING){
                         removeUserInConnection(idPlayer);
                     }else{
                         removeUser(PlayerMessage(TypeOfMessage.EXIT_USER, players[idPlayer]?.user), idPlayer);
                         connLost(socket)
                     }
-                }else{
+                }
+                else{
                     exitUser(idPlayer, socket, PlayerMessage(TypeOfMessage.EXIT_USER, players[idPlayer]?.user))
                 }
 
@@ -232,7 +237,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
 
     private fun verifyStatusGame(message : PlayerMessage, idPlayer: Int) {
         if (countPlayersActive() == 1){
-            if (players[idPlayer]?.state != State.OnGameOver){
+            if (message.user?.state != State.OnGameOver){
                 _connState.postValue(ConnectionState.CONNECTION_LOST)
                 viewModel.stopJob()
                 stopDetector()
@@ -279,7 +284,6 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             players[idPlayer]?.state = State.OnGameOver;
         }
         var users = _users.value!!
-
         synchronized(users){
             for (user in users) {
                 if (user.id == msg.user?.id){
@@ -466,13 +470,12 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             data.secondOperation = table.secondOperation
             data.time = newLevelTime(data.time)
             data.level++
+            _operations.postValue(table.operations)
+            _time.postValue(data.time)
+            _level.postValue(data.level)
+            _points.postValue(data.points)
+            _state.postValue(State.OnGame)
         }
-        _operations.postValue(table.operations)
-        _time.postValue(data.time)
-        _level.postValue(data.level)
-        _points.postValue(data.points)
-        _state.postValue(State.OnGame)
-        //viewModel.startTimer()
         for (player in players) {
             if(player.value.state == State.OnGameOver)
                 continue;
@@ -645,9 +648,9 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         Log.i("detectGameOver", "Stop")
     }
 
-    override fun exit() {
+    override fun exit(state: State?) {
         try {
-
+            exitThread = true
             sockets.forEach{ socket ->
                 try {
                     socket.close()

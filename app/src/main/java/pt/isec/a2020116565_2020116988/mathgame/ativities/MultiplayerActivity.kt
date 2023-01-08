@@ -63,7 +63,7 @@ class MultiplayerActivity : AppCompatActivity() {
     private val modelView : MultiplayerModelView by viewModels{
         ViewModelFactory(app.data, 1)
     };
-
+    lateinit var mode :GameMode
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,7 +101,10 @@ class MultiplayerActivity : AppCompatActivity() {
             .setTitle(getString(R.string.giveup))
             .setMessage(getString(R.string.giveupMessage))
             .setPositiveButton(R.string.guOK) { d, b ->
+                //if(mode == GameMode.CLIENT_MODE){
+                modelView.setLastState()
                 modelView.stopGame()
+                //}
                 //super.onBackPressed()
                 finish()
             }

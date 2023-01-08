@@ -84,8 +84,9 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                     if (viewModel._connState.value == ConnectionState.CONNECTION_ESTABLISHED) {
                         viewModel._connState.postValue(ConnectionState.CONNECTION_LOST)
                         viewModel.stopJob()
+                    }else{
+                        viewModel._connState.postValue(ConnectionState.EXIT)
                     }
-                    viewModel._connState.postValue(ConnectionState.EXIT)
                     break;
                 }
                 type = JSONObject(json).get("typeOfMessage")
@@ -250,12 +251,12 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         thread{sendMessage(message)}
     }
 
-    override fun exit() {
+    override fun exit(state: State?) {
         try {
 
             val msg = PlayerMessage(
                 TypeOfMessage.EXIT_USER,
-                User(data.currentUser?.userName!!, null, data.currentUser?.id!!, viewModel._state.value!!)
+                User(data.currentUser?.userName!!, null, data.currentUser?.id!!, state ?: viewModel._state.value!!)
             )
 
             sendMessage(msg)
