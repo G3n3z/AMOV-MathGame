@@ -11,7 +11,6 @@
     <string name="level">Level</string>
     <string name="points">Points</string>
     <string name="time">Time</string>
-    <string name="levelcomplete">Level Completed</string>
     <string name="levelcompleted">Level Completed</string>
     <string name="time_left">Time Left</string>
     <string name="pause">Pause</string>
@@ -31,13 +30,11 @@
     <string name="button_connect">Connect</string>
     <string name="button_cancel">Cancel</string>
     <string name="profileimage">profile image</string>
-    <string name="profileUsername">profileUsername</string>
-    <string name="profilePhoto">profilePhoto</string>
     <string name="clearSharedPrefs">Clear Profile</string>
     <string name="start">Start</string>
     <string name="num_of_clients">Number of clients</string>
     <string name="client_waiting_dlg">Waiting for server to start the game</string>
-    <string name="next_multi_level">You complete the level, now you should wait for other players</string>
+    <string name="next_multi_level">You complete the level!\nNow you should wait for other players…</string>
     <string name="congrats">Congratulations</string>
     <string name="game_over">Game Over</string>
     <string name="main_menu">Main Menu</string>
@@ -68,5 +65,8 @@
     <string name="wrong_response">Wrong</string>
     <string name="fail_save_firestore">Fail save your game</string>
     <string name="connection_failed">Connection Failed</string>
+    <string name="pick_user_snack">You must pick a username</string>
+    <string name="will_start">Game will start soon</string>
+    <string name="credits_text">AMOV 22/23</string>
 
 </resources>

@@ -27,7 +27,6 @@ import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivitySinglePlayerB
 import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogGameOver
 import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevel
 import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
-import pt.isec.a2020116565_2020116988.mathgame.fragments.GameFragment
 import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
 import pt.isec.a2020116565_2020116988.mathgame.utils.vibratePhone
 import pt.isec.a2020116565_2020116988.mathgame.views.GamePanelView
@@ -49,8 +48,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var data: Data
     val app: Application by lazy { application as Application }
     lateinit var binding : ActivitySinglePlayerBinding
-    lateinit var fragment:GameFragment
-    var job: Job? = null
     var jobResult: Job? = null
     var dlg : AlertDialog? = null
     lateinit var maxOperation: Operation
@@ -66,12 +63,12 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     var level: Int = 0
         set(value) {
             field = value
-            binding.gameLevel.text = "${getString(R.string.level)}: $value"
+            binding.gameLevel.text = String.format("%s: %d", getString(R.string.level), value)
         }
     var time: Int = 0
         set (value) {
             field = value
-            binding.gameTime.text = getString(R.string.time) + ": ${value}"
+            binding.gameTime.text = String.format("%s: %d", getString(R.string.time), value)
         }
 
 
@@ -162,21 +159,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
-    fun vibratePhone() {
-
-        val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                    vibratorManager.defaultVibrator
-                } else {
-                    @Suppress("DEPRECATION")
-                    getSystemService(AppCompatActivity.VIBRATOR_SERVICE) as Vibrator
-                }
-        if (Build.VERSION.SDK_INT >= 26) {
-            vib.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            vib.vibrate(200)
-        }
-    }
 
 
     private suspend fun clean(){
@@ -193,33 +175,29 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun onStateChange(state : State) {
         when(state){
             State.OnGame -> {
-                startTimer()
+                modelView.startTimer()
                 Log.i("onStateChange", "OnGame")
             }
             State.OnDialogBack -> {
-                startTimer()
                 dialogQuit()
             }
             State.OnDialogResume -> {
                 Log.i("onStateChange", "OnDialogResume")
+                modelView.stopTimer()
                 showAnimation()
-                stopJob()
             }
             State.OnDialogPause -> {
                 showAnimation()
                 Log.i("onStateChange", "OnDialogPause")
             }
             State.OnGameOver, State.WINNER ->{
+                dlg?.cancel()
                 showGameOverDialog()
             }
         }
     }
 
-    private fun stopJob() {
-        if (job?.isActive == true){
-            job?.cancel()
-        }
-    }
+
 
     @SuppressLint("SetTextI18n")
     override fun onStart() {
@@ -234,7 +212,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     override fun onPause() {
         super.onPause()
         dialog?.cancel()
-        job?.cancel()
         dialog = null
         dlg?.cancel()
         gameOverDialog?.cancel()
@@ -246,21 +223,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         if(modelView.state.value == State.OnGame)
             modelView.onBackPressed()
         Log.i("BACK", "On back pressed")
-    }
-
-    private fun startTimer(){
-        if(job == null || job?.isActive == false) {
-            Log.i("StartTimer", "On timer")
-            CoroutineScope(Dispatchers.IO).async {
-                job = launch { onTimer(binding.gameTime, getString(R.string.time), onTimeOver) }
-            }
-        }
-    }
-
-    var onTimeOver = fun(){
-        dlg?.cancel()
-        modelView.onGameOver()
-        Log.i("APP", "On time over called")
     }
 
 
@@ -295,7 +257,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             .setTitle(getString(R.string.giveup))
             .setMessage(getString(R.string.giveupMessage))
             .setPositiveButton(R.string.guOK) { d, b ->
-                job?.cancel()
                 super.onBackPressed()
             }
             .setNegativeButton(R.string.guNOK){ d, b ->
@@ -345,20 +306,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 ).show()
                 Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: ${e.message}")
             }
-    }
-
-    suspend fun onTimer(tv: TextView, label: String, onTimeOver: () -> Unit){
-
-        while (true){
-            delay(1000)
-            CoroutineScope(Dispatchers.Main).async{
-                modelView.decTime()
-            }
-            if (time <= 0){
-                onTimeOver()
-                break
-            }
-        }
     }
 
 

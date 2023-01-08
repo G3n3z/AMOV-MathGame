@@ -78,15 +78,9 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     val state: LiveData<State>
         get() = _state;
 
-    private var serverSocket: ServerSocket? = null
     var socket: Socket? = null;
-    private val socketI: InputStream?
-        get() = socket?.getInputStream();
-    lateinit var clientOutStream: OutputStream
-    var sockets: MutableList<Socket> = mutableListOf();
-    private var exit: Boolean = false;
-    private var lock: String = ""
-    private var thread: Thread? = null
+
+    var lastState: State? = null;
 
     private var service: LogicGame? = null;
 
@@ -103,6 +97,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     fun onBackPressed() {
+        lastState = _state.value;
         _state.postValue(State.OnDialogBack)
     }
 
@@ -149,7 +144,8 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
     }
 
     fun cancelQuit() {
-        _state.postValue(State.OnGame)
+        _state.postValue(lastState)
+        lastState = null
     }
 
     fun setMode(mode: GameMode) {
@@ -174,7 +170,7 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
      */
     fun stopGame() {
         thread{
-            service?.exit()
+            service?.exit(lastState)
             service = null
             data.connState = ConnectionState.CONNECTING
             data.state = State.OnGame
@@ -210,8 +206,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 decTime()
             }
             if (data.time <= 0){
-//                service?.timeOver()
-//                //_state.postValue(State.OnGameOver)
                 break;
             }
         }
@@ -233,6 +227,12 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
 
     fun showAnimationPause() {
         _state.postValue(State.OnDialogPause)
+    }
+
+    fun setLastState() {
+        if(lastState != null){
+            _state.postValue(lastState)
+        }
     }
 
 

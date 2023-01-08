@@ -49,7 +49,7 @@
         android:gravity="center"
         android:layout_marginTop="50dp"
         android:text="@string/main_menu"
-        android:textColor="@color/white"/>
+        android:background="#FFB791"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

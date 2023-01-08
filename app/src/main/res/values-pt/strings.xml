@@ -12,7 +12,6 @@
     <string name="level">Nível</string>
     <string name="points">Pontos</string>
     <string name="time">Tempo</string>
-    <string name="levelcomplete">Nível Completo</string>
     <string name="levelcompleted">Nível Completado</string>
     <string name="time_left">Tempo Restante</string>
     <string name="pause">Pausa</string>
@@ -29,20 +28,18 @@
     <string name="ask_ip">Inserir Ip</string>
     <string name="error_address">Campo está vazio ou não corresponde com o ip</string>
     <string name="btn_emulator">Conectar ao emulador</string>
-    <string name="button_connect">Connectar</string>
+    <string name="button_connect">Conectar</string>
     <string name="button_cancel">Cancelar</string>
-    <string name="profileimage">profile image</string>
-    <string name="profileUsername">profileUsername</string>
-    <string name="profilePhoto">profilePhoto</string>
+    <string name="profileimage">imagem de perfil</string>
     <string name="clearSharedPrefs">Limpar Perfil</string>
     <string name="start">Começar</string>
     <string name="num_of_clients">Número de clientes</string>
     <string name="client_waiting_dlg">Esperando o servidor começar o jogo</string>
-    <string name="next_multi_level">Completou o nível, agora deve esperar pelos outros jogadores</string>
+    <string name="next_multi_level">Completou o nível!\nAgora deve esperar pelos outros jogadores</string>
     <string name="congrats">Parabéns</string>
     <string name="game_over">Fim do Jogo</string>
     <string name="main_menu">Menu Principal</string>
-    <string name="connection_lost">Coneção Perdida</string>
+    <string name="connection_lost">Conexão Perdida</string>
 
     <string name="exit">Sair</string>
     <string name="boards">Tabuleiro</string>
@@ -69,4 +66,7 @@
     <string name="wrong_response">Errado</string>
     <string name="fail_save_firestore">Falha ao gravar o seu jogo</string>
     <string name="connection_failed">Falha na coneção</string>
+    <string name="pick_user_snack">Tem de escolher um username</string>
+    <string name="will_start">Jogo esta prestes a começar</string>
+    <string name="credits_text">AMOV 22/23</string>
 </resources>

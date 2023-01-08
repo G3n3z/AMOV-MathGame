@@ -18,6 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@color/text"
         android:gravity="center"
         app:layout_constraintVertical_bias="0.10"
         android:textSize="30sp"/>
@@ -28,6 +29,7 @@
         android:layout_height="wrap_content"
         android:text="@string/mp_leaderboard_points"
         app:layout_constraintStart_toStartOf="parent"
+        android:textColor="@color/text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_mp_leaderboard"
         android:layout_marginTop="10dp"
@@ -51,6 +53,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rv_mp_lb_points"
+        android:textColor="@color/text"
         android:gravity="center"
         android:textSize="22sp"
         android:layout_marginTop="10dp"/>

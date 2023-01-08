@@ -66,7 +66,6 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         var json = bufIn.readLine();
 
         var type = JSONObject(json).get("typeOfMessage")
-        //var ab = Gson().fromJson<Message>(json, Message::class.java)
 
         Log.i("CLIENT", json);
         if (type == TypeOfMessage.INFO_USER.name){
@@ -84,8 +83,9 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                     if (viewModel._connState.value == ConnectionState.CONNECTION_ESTABLISHED) {
                         viewModel._connState.postValue(ConnectionState.CONNECTION_LOST)
                         viewModel.stopJob()
+                    }else{
+                        viewModel._connState.postValue(ConnectionState.EXIT)
                     }
-                    viewModel._connState.postValue(ConnectionState.EXIT)
                     break;
                 }
                 type = JSONObject(json).get("typeOfMessage")
@@ -120,6 +120,12 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
                         val message = Gson().fromJson<UpdateStatusPlayer>(json, UpdateStatusPlayer::class.java)
                         gameOver(message, idPlayer)
                     }
+                    TypeOfMessage.WILL_START_SOON.name ->{
+                        if(viewModel._state.value == State.OnDialogPause){
+                            viewModel._state.postValue(State.OnDialogResume)
+                        }
+                    }
+
                 }
 
             }catch (e : IOException){
@@ -176,6 +182,10 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
     private fun swipeResponseMessage(message: SwipeResult) {
         viewModel._moveResult.postValue(message.moveResult);
+        if(message.table != null){
+            viewModel.generateTable(message.table)
+        }
+
     }
 
     //Cliente, adicionar outros utilizadores à sua lista para score
@@ -250,12 +260,12 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
         thread{sendMessage(message)}
     }
 
-    override fun exit() {
+    override fun exit(state: State?) {
         try {
 
             val msg = PlayerMessage(
                 TypeOfMessage.EXIT_USER,
-                User(data.currentUser?.userName!!, null, data.currentUser?.id!!, viewModel._state.value!!)
+                User(data.currentUser?.userName!!, null, data.currentUser?.id!!, state ?: viewModel._state.value!!)
             )
 
             sendMessage(msg)

@@ -20,6 +20,9 @@ import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
+import pt.isec.a2020116565_2020116988.mathgame.ativities.MainActivity.Companion.PROFILE_PHOTO
+import pt.isec.a2020116565_2020116988.mathgame.ativities.MainActivity.Companion.PROFILE_USER
+import pt.isec.a2020116565_2020116988.mathgame.ativities.MainActivity.Companion.SHAREDPREFS
 import pt.isec.a2020116565_2020116988.mathgame.data.User
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentUserProfileBinding
 import pt.isec.a2020116565_2020116988.mathgame.utils.encodeTobase64
@@ -138,7 +141,7 @@ class UserProfile : Fragment() {
         {
             Snackbar.make(
                 binding.editUserEditText,
-                "You must pick a username",
+                getString(R.string.pick_user_snack),
                 Snackbar.LENGTH_LONG
             ).show()
             binding.editUserEditText.requestFocus()
@@ -149,8 +152,8 @@ class UserProfile : Fragment() {
 
         val sharedPrefs = context?.getSharedPreferences(SHAREDPREFS, Context.MODE_PRIVATE)
         with(sharedPrefs!!.edit()) {
-            putString(getString(R.string.profileUsername), username)
-            putString(getString(R.string.profilePhoto), imagePath)
+            putString(PROFILE_USER, username)
+            putString(PROFILE_PHOTO, imagePath)
             apply()
         }
 
@@ -160,19 +163,9 @@ class UserProfile : Fragment() {
 
     }
 
-    fun loadUser(){
-        val sharedPrefs = context?.getSharedPreferences(SHAREDPREFS, Context.MODE_PRIVATE)
-        username = sharedPrefs?.getString(getString(R.string.profileUsername),"")!!
-        imagePath = sharedPrefs.getString(getString(R.string.profilePhoto),"")!!
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        app.externalCacheDir?.deleteRecursively() //TODO verificar se está a correr bem e se é necessária
+        app.externalCacheDir?.deleteRecursively()
     }
 
-    companion object {
-        const val SHAREDPREFS = "ProfileSharedPrefs"
-
-    }
 }

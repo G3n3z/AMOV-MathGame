@@ -60,16 +60,16 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
             tvBoard.text = String.format("%s: %d", textBoards, data.nTables)
             if (data.state == State.OnGameOver){
                 tvName.setTextColor(Color.RED)
+            }else{
+                tvName.setTextColor(Color.WHITE)
             }
 
-            if(img.drawable == null) {
-                val imageByteArray: ByteArray = Base64.decode( data.photo!!, Base64.DEFAULT)
-                Glide.with(view.context)
-                    .load(imageByteArray)
-                    .circleCrop()
-                    .into(img);
+            val imageByteArray: ByteArray = Base64.decode( data.photo!!, Base64.DEFAULT)
+            Glide.with(view.context)
+                .load(imageByteArray)
+                .circleCrop()
+                .into(img);
 
-            }
         }
 
     }

@@ -10,4 +10,6 @@
     <color name="background">#FFDBB7</color>
     <color name="number">#C17272</color>
     <color name="operation">#868383</color>
+    <color name="text_panel">#B34E4E</color>
+    <color name="text">#373434</color>
 </resources>

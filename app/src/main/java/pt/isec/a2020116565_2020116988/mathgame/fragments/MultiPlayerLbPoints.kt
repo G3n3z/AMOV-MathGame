@@ -89,6 +89,7 @@ class MultiPlayerLbPoints : Fragment() {
         val db = Firebase.firestore
         listenerRegistrationPlayers = db.collection(Constants.MP_DB_COLLECTION)
             .document(gameRefs[index!!].id).collection(Constants.MP_PLAYERS_DB_COLLECTION)
+            .orderBy("points", Query.Direction.DESCENDING)
             .addSnapshotListener { docSS, e ->
                 if (e!=null) {
                     return@addSnapshotListener
