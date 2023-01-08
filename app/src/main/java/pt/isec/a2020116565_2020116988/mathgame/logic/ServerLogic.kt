@@ -245,7 +245,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             }
         }
         if (allPlayersFinished()){
-            startNewLevelAtSeconds(3000, true)
+            startNewLevelAtSeconds(Data.TIME_TO_START, true)
 
         }else if (allGameFinished()){
             stopDetector()
@@ -259,13 +259,13 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
         }
     }
 
-    private fun startNewLevelAtSeconds(time: Int, stop: Boolean) {
+    private fun startNewLevelAtSeconds(time: Long, stop: Boolean) {
         tables.clear()
         if (stop) {
             stopDetector()
         }
         thread{
-            Thread.sleep(time.toLong())
+            Thread.sleep(time)
             startNewLevel()
         }
     }
@@ -431,7 +431,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             stopDetector()
             tables.clear()
             thread{
-                Thread.sleep(5000)
+                Thread.sleep(Data.TIME_TO_START)
                 startNewLevel()
             }
         }
@@ -562,7 +562,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                     tables.clear()
                     stopDetector()
                     thread{
-                        Thread.sleep(3000)
+                        Thread.sleep(Data.TIME_TO_START)
                         startNewLevel()
                     }
                 }
@@ -660,7 +660,7 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
                     if(_state.value != State.OnGameOver){
                         _state.postValue(State.OnDialogResume)
                     }
-                    startNewLevelAtSeconds(3000, false)
+                    startNewLevelAtSeconds(Data.TIME_TO_START, false)
                     break
                 }
             }

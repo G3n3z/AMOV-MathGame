@@ -96,6 +96,7 @@ class Data {
         const val START_TIME: Int = 60
 
         const val COUNT_RIGHT_ANSWERS: Int = 3
+        const val TIME_TO_START: Long = 5000
     }
 
 

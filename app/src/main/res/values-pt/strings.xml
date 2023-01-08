@@ -68,4 +68,5 @@
     <string name="connection_failed">Falha na coneção</string>
     <string name="pick_user_snack">Tem de escolher um username</string>
     <string name="will_start">Jogo esta prestes a começar</string>
+    <string name="credits_text">AMOV 22/23</string>
 </resources>

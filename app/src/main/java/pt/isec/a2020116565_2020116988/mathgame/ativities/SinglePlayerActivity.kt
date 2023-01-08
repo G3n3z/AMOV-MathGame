@@ -48,7 +48,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     lateinit var data: Data
     val app: Application by lazy { application as Application }
     lateinit var binding : ActivitySinglePlayerBinding
-    var job: Job? = null
     var jobResult: Job? = null
     var dlg : AlertDialog? = null
     lateinit var maxOperation: Operation
@@ -180,14 +179,12 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 Log.i("onStateChange", "OnGame")
             }
             State.OnDialogBack -> {
-                //startTimer()
                 dialogQuit()
             }
             State.OnDialogResume -> {
                 Log.i("onStateChange", "OnDialogResume")
                 modelView.stopTimer()
                 showAnimation()
-                stopJob()
             }
             State.OnDialogPause -> {
                 showAnimation()
@@ -200,11 +197,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
-    private fun stopJob() {
-        if (job?.isActive == true){
-            job?.cancel()
-        }
-    }
+
 
     @SuppressLint("SetTextI18n")
     override fun onStart() {
@@ -219,7 +212,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     override fun onPause() {
         super.onPause()
         dialog?.cancel()
-        job?.cancel()
         dialog = null
         dlg?.cancel()
         gameOverDialog?.cancel()
@@ -231,21 +223,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         if(modelView.state.value == State.OnGame)
             modelView.onBackPressed()
         Log.i("BACK", "On back pressed")
-    }
-
-    private fun startTimer(){
-//        if(job == null || job?.isActive == false) {
-//            Log.i("StartTimer", "On timer")
-//            job = CoroutineScope(Dispatchers.IO).launch {
-//                 onTimer(binding.gameTime, getString(R.string.time), onTimeOver)
-//            }
-//        }
-    }
-
-    var onTimeOver = fun(){
-        dlg?.cancel()
-        modelView.onGameOver()
-        Log.i("APP", "On time over called")
     }
 
 
@@ -280,7 +257,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
             .setTitle(getString(R.string.giveup))
             .setMessage(getString(R.string.giveupMessage))
             .setPositiveButton(R.string.guOK) { d, b ->
-                job?.cancel()
                 super.onBackPressed()
             }
             .setNegativeButton(R.string.guNOK){ d, b ->
@@ -330,20 +306,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 ).show()
                 Log.i("UPDATEDB", "addDataToFirestore SinglePlayer: ${e.message}")
             }
-    }
-
-    suspend fun onTimer(tv: TextView, label: String, onTimeOver: () -> Unit){
-
-        while (true){
-            delay(1000)
-            CoroutineScope(Dispatchers.Main).launch{
-                modelView.decTime()
-            }
-            if (time <= 0){
-                onTimeOver()
-                break
-            }
-        }
     }
 
 
