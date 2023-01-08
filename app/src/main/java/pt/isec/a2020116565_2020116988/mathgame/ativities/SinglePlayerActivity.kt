@@ -163,7 +163,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
     private suspend fun clean(){
         delay(1000)
-        binding.moveResponse.post{binding.moveResponse.text = ""}
+        modelView.clearResult()
     }
 
     private fun registerCallbacksOnState() {

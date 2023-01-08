@@ -235,5 +235,9 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
         }
     }
 
+    fun clearResult() {
+        _moveResult.postValue(MoveResult.NOTHING)
+    }
+
 
 }

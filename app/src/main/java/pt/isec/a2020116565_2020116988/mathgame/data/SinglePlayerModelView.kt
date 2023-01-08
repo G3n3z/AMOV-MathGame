@@ -177,4 +177,8 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
         job?.cancel()
     }
 
+    fun clearResult() {
+        _moveResult.postValue(MoveResult.NOTHING)
+    }
+
 }

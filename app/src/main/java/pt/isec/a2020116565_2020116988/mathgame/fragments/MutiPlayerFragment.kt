@@ -165,7 +165,8 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
 
     private suspend fun clean(){
         delay(1000)
-        binding.moveResponse.post{binding.moveResponse.text = ""}
+        viewModel.clearResult()
+
     }
 
 
