@@ -20,6 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/background"
+        android:textColor="@color/text"
         android:textSize="32sp"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -37,6 +38,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@color/text"
             android:text="@string/authors_name"
             android:id="@+id/tv_name_authors"
             android:textSize="26sp"/>
@@ -72,6 +74,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            android:textColor="@color/text"
             android:textSize="26sp" />
 
         <ImageView
