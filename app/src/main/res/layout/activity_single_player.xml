@@ -15,6 +15,7 @@
         app:layout_constraintEnd_toStartOf="@+id/game_pont"
         android:gravity="center"
         android:textSize="20sp"
+        android:textColor="@color/text"
         android:text="@string/level"/>
     <TextView
         android:id="@+id/game_pont"
@@ -24,6 +25,7 @@
         app:layout_constraintStart_toEndOf="@+id/game_level"
         app:layout_constraintEnd_toStartOf="@id/game_time"
         android:gravity="center_vertical|end"
+        android:textColor="@color/text"
         android:textSize="20sp"
         android:text="@string/points"
         />
@@ -35,6 +37,7 @@
         app:layout_constraintStart_toEndOf="@+id/game_pont"
         app:layout_constraintEnd_toEndOf="parent"
         android:gravity="center_vertical|end"
+        android:textColor="@color/text"
         android:textSize="20sp"
         android:text="@string/time"
         />
