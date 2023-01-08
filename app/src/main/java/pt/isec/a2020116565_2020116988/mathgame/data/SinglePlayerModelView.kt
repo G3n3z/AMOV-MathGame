@@ -125,6 +125,7 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
             secondOperationRigth()
             _moveResult.postValue(MoveResult.SECOND_OPERATION);
         }else{
+            generateTable()
             _moveResult.postValue(MoveResult.WRONG_OPERATION);
         }
 

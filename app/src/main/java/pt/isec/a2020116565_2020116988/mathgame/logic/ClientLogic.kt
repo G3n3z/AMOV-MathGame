@@ -182,6 +182,10 @@ class ClientLogic(var viewModel : MultiplayerModelView, var data: Data) : LogicG
 
     private fun swipeResponseMessage(message: SwipeResult) {
         viewModel._moveResult.postValue(message.moveResult);
+        if(message.table != null){
+            viewModel.generateTable(message.table)
+        }
+
     }
 
     //Cliente, adicionar outros utilizadores à sua lista para score

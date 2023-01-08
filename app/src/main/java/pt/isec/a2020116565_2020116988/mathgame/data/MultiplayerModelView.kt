@@ -206,8 +206,6 @@ class MultiplayerModelView(private val data :Data):ViewModel() {
                 decTime()
             }
             if (data.time <= 0){
-//                service?.timeOver()
-//                //_state.postValue(State.OnGameOver)
                 break;
             }
         }

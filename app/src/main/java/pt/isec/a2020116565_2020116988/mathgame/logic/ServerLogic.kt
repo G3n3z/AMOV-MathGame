@@ -390,8 +390,13 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER,null ,player.points, player.level, player.id, player.totalTables));
             updateRecicler(player)
         }else{
-            sendMessage(player.outputStream, SwipeResult(TypeOfMessage.SWIPE, MoveResult.WRONG_OPERATION))
-            sendMessageAll(UpdateStatusPlayer(TypeOfMessage.SWIPE,null ,player.points, player.level, player.id, player.totalTables));
+            player.numTable++
+            player.totalTables++
+            val table : Table = nextTable(player)
+            player.table = table
+            sendMessage(player.outputStream, SwipeResult(TypeOfMessage.SWIPE,MoveResult.WRONG_OPERATION, table))
+            sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER,null ,player.points, player.level, player.id, player.totalTables));
+            updateRecicler(player)
         }
     }
 
@@ -579,6 +584,11 @@ class ServerLogic(private var viewModel : MultiplayerModelView, var data: Data) 
             viewModel._moveResult.postValue(MoveResult.SECOND_OPERATION);
             sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, null, data.points, data.level, data.currentUser?.id!!, players[0]!!.totalTables))
         }else{
+            players[0]?.numTable = players[0]?.numTable?.plus(1)!!
+            val table : Table = nextTable(players[0]!!)
+            viewModel.generateTable(table)
+            updatePlayerServer(table, State.OnGame)
+            sendMessageAll(UpdateStatusPlayer(TypeOfMessage.POINTS_PLAYER, null, data.points, data.level, data.currentUser?.id!!, players[0]!!.totalTables))
             viewModel._moveResult.postValue(MoveResult.WRONG_OPERATION);
         }
 
