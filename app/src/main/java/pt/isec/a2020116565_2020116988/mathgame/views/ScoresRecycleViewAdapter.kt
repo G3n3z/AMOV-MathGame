@@ -60,6 +60,8 @@ class ScoresRecycleViewAdapter(var users : MutableList<User> ) : RecyclerView.Ad
             tvBoard.text = String.format("%s: %d", textBoards, data.nTables)
             if (data.state == State.OnGameOver){
                 tvName.setTextColor(Color.RED)
+            }else{
+                tvName.setTextColor(Color.WHITE)
             }
 
             //if(img.drawable == null) {
