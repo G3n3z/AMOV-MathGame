@@ -162,21 +162,6 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
         }
     }
 
-    fun vibratePhone() {
-
-        val vib = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val vibratorManager = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                    vibratorManager.defaultVibrator
-                } else {
-                    @Suppress("DEPRECATION")
-                    getSystemService(AppCompatActivity.VIBRATOR_SERVICE) as Vibrator
-                }
-        if (Build.VERSION.SDK_INT >= 26) {
-            vib.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
-        } else {
-            vib.vibrate(200)
-        }
-    }
 
 
     private suspend fun clean(){
@@ -193,15 +178,16 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     private fun onStateChange(state : State) {
         when(state){
             State.OnGame -> {
-                startTimer()
+                modelView.startTimer()
                 Log.i("onStateChange", "OnGame")
             }
             State.OnDialogBack -> {
-                startTimer()
+                //startTimer()
                 dialogQuit()
             }
             State.OnDialogResume -> {
                 Log.i("onStateChange", "OnDialogResume")
+                modelView.stopTimer()
                 showAnimation()
                 stopJob()
             }
@@ -210,6 +196,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
                 Log.i("onStateChange", "OnDialogPause")
             }
             State.OnGameOver, State.WINNER ->{
+                dlg?.cancel()
                 showGameOverDialog()
             }
         }
@@ -249,12 +236,12 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
     }
 
     private fun startTimer(){
-        if(job == null || job?.isActive == false) {
-            Log.i("StartTimer", "On timer")
-            job = CoroutineScope(Dispatchers.IO).launch {
-                 onTimer(binding.gameTime, getString(R.string.time), onTimeOver)
-            }
-        }
+//        if(job == null || job?.isActive == false) {
+//            Log.i("StartTimer", "On timer")
+//            job = CoroutineScope(Dispatchers.IO).launch {
+//                 onTimer(binding.gameTime, getString(R.string.time), onTimeOver)
+//            }
+//        }
     }
 
     var onTimeOver = fun(){
@@ -351,7 +338,7 @@ class SinglePlayerActivity : AppCompatActivity(), GameActivityInterface {
 
         while (true){
             delay(1000)
-            CoroutineScope(Dispatchers.Main).async{
+            CoroutineScope(Dispatchers.Main).launch{
                 modelView.decTime()
             }
             if (time <= 0){

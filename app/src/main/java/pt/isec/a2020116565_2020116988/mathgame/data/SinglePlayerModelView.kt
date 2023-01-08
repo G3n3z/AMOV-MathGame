@@ -1,9 +1,12 @@
 package pt.isec.a2020116565_2020116988.mathgame.data
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.Application
+import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
 
@@ -36,6 +39,8 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
     private var _state:MutableLiveData<State> = MutableLiveData(State.OnGame);
     val state : LiveData<State>
         get() = _state;
+
+    var job: Job? = null
 
     init {
         _operations.postValue(data.operations);
@@ -143,6 +148,32 @@ class SinglePlayerModelView(val data: Data) : ViewModel() {
 
     fun setState(state: State) {
         _state.postValue(state)
+    }
+
+    fun startTimer(){
+        if(job == null || job?.isActive == false) {
+            Log.i("StartTimer", "On timer")
+            job = CoroutineScope(Dispatchers.IO).launch {
+                onTimer()
+            }
+        }
+    }
+
+    suspend fun onTimer(){
+        while (true){
+            delay(1000)
+            CoroutineScope(Dispatchers.Main).launch{
+                decTime()
+            }
+            if (data.time <= 0){
+                onGameOver()
+                break
+            }
+        }
+    }
+
+    fun stopTimer(){
+        job?.cancel()
     }
 
 }
