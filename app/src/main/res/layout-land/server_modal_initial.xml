@@ -51,7 +51,8 @@
         app:layout_constraintTop_toBottomOf="@id/tvClients"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_cancel_server_modal"
-        android:text="@string/start"/>
+        android:text="@string/start"
+        android:background="#FFB791"/>
 
     <Button
         android:id="@+id/btn_cancel_server_modal"
@@ -61,6 +62,7 @@
         app:layout_constraintTop_toBottomOf="@id/tvClients"
         app:layout_constraintStart_toEndOf="@id/btn_start"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="@string/cancel"/>
+        android:text="@string/cancel"
+        android:background="#FFB791"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

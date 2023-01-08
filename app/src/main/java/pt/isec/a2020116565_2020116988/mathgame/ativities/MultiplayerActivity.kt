@@ -1,11 +1,9 @@
 package pt.isec.a2020116565_2020116988.mathgame.ativities
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Color
 import android.net.wifi.WifiManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,22 +15,12 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.*
 import pt.isec.a2020116565_2020116988.mathgame.Application
 import pt.isec.a2020116565_2020116988.mathgame.R
-import pt.isec.a2020116565_2020116988.mathgame.State
-import pt.isec.a2020116565_2020116988.mathgame.ativities.MultiplayerActivity.Companion.MODE
 import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMultiplayerBinding
-import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevelMultiplayer
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
-import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
-import pt.isec.a2020116565_2020116988.mathgame.interfaces.GameActivityInterface
-import pt.isec.a2020116565_2020116988.mathgame.utils.vibratePhone
 import pt.isec.a2020116565_2020116988.mathgame.views.*
 
 

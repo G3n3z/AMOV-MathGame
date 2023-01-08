@@ -1,24 +1,12 @@
 package pt.isec.a2020116565_2020116988.mathgame.fragments
 
-import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.graphics.Color
-import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.text.InputFilter
-import android.text.Spanned
 import android.util.Log
-import android.util.Patterns
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,9 +19,7 @@ import pt.isec.a2020116565_2020116988.mathgame.State
 import pt.isec.a2020116565_2020116988.mathgame.ativities.MultiplayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.ativities.SinglePlayerActivity
 import pt.isec.a2020116565_2020116988.mathgame.data.MultiplayerModelView
-import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentHomeBinding
 import pt.isec.a2020116565_2020116988.mathgame.databinding.FragmentMutiPlayerBinding
-import pt.isec.a2020116565_2020116988.mathgame.dialog.DialogLevelMultiplayer
 import pt.isec.a2020116565_2020116988.mathgame.enum.ConnectionState
 import pt.isec.a2020116565_2020116988.mathgame.enum.GameMode
 import pt.isec.a2020116565_2020116988.mathgame.enum.MoveResult
@@ -52,7 +38,6 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
     private lateinit var multiActivity: MultiplayerActivity
     lateinit var app: Application;
     private var jobResult : Job? = null;
-    private var dialog : DialogLevelMultiplayer? = null
     private var adapter : ScoresRecycleViewAdapter? = null;
     private var points : Int = 0
         set(value) {
@@ -102,7 +87,6 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
         }
         else if(it == ConnectionState.CONNECTION_LOST && viewModel._state.value!! == State.OnGame){
             viewModel.closeSockets()
-            dialog?.cancel()
             val intent = SinglePlayerActivity.getIntentFromMultiplayer(
                 requireContext(),
                 viewModel.state.value?.ordinal!!
@@ -198,8 +182,6 @@ class MutiPlayerFragment : Fragment(), GameActivityInterface {
     private fun onStateChange(state : State) {
         when(state){
             State.OnGame -> {
-                dialog?.dismiss()
-                dialog = null
             }
             State.OnDialogBack -> {
                 multiActivity.dialogQuit()

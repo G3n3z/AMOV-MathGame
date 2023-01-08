@@ -13,7 +13,6 @@ import pt.isec.a2020116565_2020116988.mathgame.R
 import pt.isec.a2020116565_2020116988.mathgame.data.Data
 import pt.isec.a2020116565_2020116988.mathgame.data.User
 import pt.isec.a2020116565_2020116988.mathgame.databinding.ActivityMainBinding
-import pt.isec.a2020116565_2020116988.mathgame.fragments.UserProfile
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,7 +45,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menuSettings -> {
-                val sharedPrefs = getSharedPreferences(UserProfile.SHAREDPREFS, MODE_PRIVATE)
+                val sharedPrefs = getSharedPreferences(SHAREDPREFS, MODE_PRIVATE)
                 sharedPrefs.edit().clear().apply()
                 app.data.currentUser = null
                 return true
@@ -57,9 +56,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadUserFromFile()
     {
-        val sharedPrefs = getSharedPreferences(UserProfile.SHAREDPREFS, MODE_PRIVATE)
-        val username = sharedPrefs.getString(getString(R.string.profileUsername),"")!!
-        val photo = sharedPrefs.getString(getString(R.string.profilePhoto),"")!!
+        val sharedPrefs = getSharedPreferences(SHAREDPREFS, MODE_PRIVATE)
+        val username = sharedPrefs.getString(PROFILE_USER,"")!!
+        val photo = sharedPrefs.getString(PROFILE_PHOTO,"")!!
 
         if (username.isBlank() || photo.isBlank()) {
             Snackbar.make(binding.root, getString(R.string.profile_not_found), Snackbar.LENGTH_LONG)
@@ -69,6 +68,12 @@ class MainActivity : AppCompatActivity() {
         Log.i("loadUserFromFile", username)
         app.data.currentUser = User(username, photo)
 
+    }
+
+    companion object{
+        const val PROFILE_USER = "profileUsername"
+        const val PROFILE_PHOTO = "profilePhoto"
+        const val SHAREDPREFS = "ProfileSharedPrefs"
     }
 
 }
